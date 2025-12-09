@@ -1,0 +1,194 @@
+<div class="layout" *ngIf="user; else loadingTpl">
+  <!-- Main -->
+  <main class="main">
+    <!-- Card de perfil -->
+    <section class="profile-card">
+      <div
+        class="profile-cover"
+        [ngStyle]="{
+          'background-image':
+            user.coverUrl
+              ? 'url(' + user.coverUrl + ')'
+              : 'linear-gradient(135deg,#f97373,#fb7185,#f97316)'
+        }"
+      >
+        <div class="profile-avatar-wrapper">
+          <div class="profile-avatar">
+            <img
+              *ngIf="user.avatarUrl; else avatarFallback"
+              [src]="user.avatarUrl"
+              alt="Avatar"
+            />
+            <ng-template #avatarFallback>
+              <span>{{ user.fullName[0] || 'U' }}</span>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-content"><div class="profile-content">
+        <!-- Encabezado del card (datos fijos) -->
+        <div class="profile-header-row">
+          <div class="profile-main-info">
+            <h2>{{ user.fullName }}</h2>
+            <p class="profile-email">{{ user.emailInst }}</p>
+
+            <p class="profile-boleta" *ngIf="user.boleta">
+              Boleta: {{ user.boleta }}
+            </p>
+
+            <p class="profile-programa" *ngIf="user.programa">
+              Programa Académico: {{ user.programa }}
+            </p>
+          </div>
+
+          <div class="profile-meta">
+            <span class="role-pill" *ngIf="user.roles?.length">
+              {{ user.roles[0] }}
+            </span>
+            <button class="edit-btn" type="button" (click)="onSave()">
+              Guardar
+            </button>
+          </div>
+        </div>
+
+        <!-- TODO LO EDITABLE VA DENTRO DEL MISMO FORM -->
+        <form [formGroup]="form" (ngSubmit)="onSave()" class="profile-form">
+          <!-- IMÁGENES -->
+          <div class="profile-section">
+            <h3>Imágenes</h3>
+            <p class="hint">
+              Puedes pegar directamente la URL de tu imagen.
+            </p>
+
+            <!-- AVATAR -->
+            <label class="input-label">Avatar</label>
+            <input
+              type="text"
+              formControlName="avatarUrl"
+              placeholder="https://..."
+            />
+
+            <!-- COVER -->
+            <label class="input-label">Portada</label>
+            <input
+              type="text"
+              formControlName="coverUrl"
+              placeholder="https://..."
+            />
+          </div>
+
+
+          <!-- BIO -->
+          <div class="profile-section">
+            <h3>Biografía</h3>
+            <textarea
+              formControlName="bio"
+              rows="3"
+              [placeholder]="user.bio || 'Cuéntanos algo sobre ti...'"
+            ></textarea>
+          </div>
+
+          <!-- INTERESES -->
+          <div class="profile-section">
+            <h3>Intereses</h3>
+            <p class="hint">
+              Escribe un interés y presiona Enter o haz clic en “Agregar”.
+              Puedes separar varios con coma.
+            </p>
+
+            <!-- chips -->
+            <div class="chips-container" *ngIf="interests.length">
+              <span class="chip" *ngFor="let interest of interests; let i = index">
+                {{ interest }}
+                <button
+                  type="button"
+                  class="chip-close"
+                  (click)="removeInterest(i)"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+
+            <!-- input + botón -->
+            <div class="interest-input-row">
+              <input
+                type="text"
+                formControlName="newInterest"
+                placeholder="Ej. programación, videojuegos"
+                (keydown.enter)="addInterestFromInput(); $event.preventDefault()"
+              />
+              <button
+                type="button"
+                class="secondary"
+                (click)="addInterestFromInput()"
+              >
+                Agregar
+              </button>
+            </div>
+          </div>
+
+          <!-- ENLACES -->
+          <div class="profile-section">
+            <h3>Enlaces</h3>
+
+            <div class="links-editor">
+              <input
+                type="text"
+                formControlName="linkLabel"
+                placeholder="Etiqueta (ej. DISCORD)"
+              />
+              <input
+                type="text"
+                formControlName="linkUrl"
+                placeholder="https://..."
+              />
+              <button type="button" class="secondary" (click)="addLink()">
+                Agregar enlace
+              </button>
+            </div>
+
+            <div class="links-list" *ngIf="links.length; else noLinks">
+              <div class="link-item" *ngFor="let link of links; let i = index">
+                <a
+                  [href]="link.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="link-label">{{ link.label | uppercase }}</span>
+                  <span class="link-url">{{ link.url }}</span>
+                </a>
+                <button
+                  type="button"
+                  class="link-remove"
+                  (click)="removeLink(i)"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <ng-template #noLinks>
+              <p class="hint">Aún no has agregado enlaces.</p>
+            </ng-template>
+          </div>
+
+          <!-- BOTÓN FINAL -->
+          <div class="profile-actions">
+            <button class="primary" type="submit">
+              Guardar cambios
+            </button>
+          </div>
+        </form>
+            </div>
+            </div>
+    </section>
+  </main>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading">
+    Cargando perfil...
+  </div>
+</ng-template>

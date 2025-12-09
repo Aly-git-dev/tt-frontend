@@ -1,0 +1,410 @@
+<div class="thread-container" #threadContainer>
+
+  <!-- ESTADOS DE CARGA / ERROR -->
+  <div *ngIf="loading" class="thread-card thread-card--loading">
+    Cargando hilo...
+  </div>
+
+  <div *ngIf="!loading && error" class="thread-card thread-card--error">
+    {{ error }}
+  </div>
+
+  <!-- CONTENIDO CUANDO TODO ESTÁ BIEN -->
+  <ng-container *ngIf="!loading && !error && thread">
+
+    <!-- CARD PRINCIPAL DEL HILO -->
+    <section class="thread-card thread-card--main">
+
+      <header class="thread-header">
+        <div class="thread-header-left">
+
+          <!-- Tags / badges -->
+          <div class="thread-tags">
+            <span class="tag-pill tag-pill--type">
+              {{ thread.type | titlecase }}
+            </span>
+            <span class="tag-pill tag-pill--category">
+              {{ thread.categoryName }}
+              <span *ngIf="thread.subareaName"> · {{ thread.subareaName }}</span>
+            </span>
+            <span class="tag-pill tag-pill--status">
+              {{ thread.status }}
+            </span>
+          </div>
+
+          <!-- Título y metadatos -->
+          <h1 class="thread-title">
+            {{ thread.title }}
+          </h1>
+
+          <div class="thread-meta-row">
+            <div class="thread-avatar">
+              <span class="thread-avatar-initial">
+                {{ getInitial(thread.authorName) }}
+              </span>
+            </div>
+            <div class="thread-meta-text">
+              <div class="thread-meta-author">
+                {{ thread.authorName }}
+              </div>
+              <div class="thread-meta-date">
+                Publicado · {{ thread.createdAt | date:'short' }}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Stats a la derecha -->
+        <div class="thread-header-right">
+          <div class="stat-chip">
+            <span class="stat-label">Puntos</span>
+            <span class="stat-value">🔥 {{ thread.score }}</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Respuestas</span>
+            <span class="stat-value">💬 {{ thread.answersCount }}</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Vistas</span>
+            <span class="stat-value">👁 {{ thread.views }}</span>
+          </div>
+          <button
+            type="button"
+            class="action-btn action-btn--danger"
+            (click)="openReportThread()">
+            🚩 Reportar hilo
+          </button>
+        </div>
+      </header>
+
+      <hr class="thread-divider" />
+
+      <!-- CUERPO DEL HILO (renderizado con código/mermaid/MathJax) -->
+      <article class="thread-body" [innerHTML]="threadRenderedBody"></article>
+            <!-- ADJUNTOS DEL HILO PRINCIPAL -->
+      <div
+        *ngIf="thread.attachments?.length"
+        class="answer-attachments thread-attachments">
+
+        <div *ngFor="let att of thread.attachments" class="attachment-pill">
+          <ng-container [ngSwitch]="att.kind">
+
+            <!-- ===== IMAGEN ===== -->
+            <img
+              *ngSwitchCase="'IMAGE'"
+              [src]="att.url"
+              alt="Imagen adjunta"
+            />
+
+            <!-- ===== VIDEO ===== -->
+            <ng-container *ngSwitchCase="'VIDEO'">
+              <!-- Si es archivo directo (.mp4, .webm, .ogg) usamos <video> -->
+              <video
+                *ngIf="isDirectVideo(att.url); else videoFallback"
+                [src]="att.url"
+                controls
+                class="attachment-video">
+              </video>
+
+              <!-- Fallback: si no es archivo directo, lo tratamos como enlace (o YouTube embed) -->
+              <ng-template #videoFallback>
+                <!-- (Opcional) si es YouTube lo incrustamos -->
+                <ng-container *ngIf="getYoutubeEmbedUrl(att.url) as ytEmbed; else videoLink">
+                  <iframe
+                    [src]="ytEmbed | safeUrl"
+                    class="attachment-video"
+                    frameborder="0"
+                    allowfullscreen>
+                  </iframe>
+                </ng-container>
+
+                <!-- Si no es YouTube, mostramos enlace normal -->
+                <ng-template #videoLink>
+                  <a
+                    [href]="att.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="attachment-pill">
+                    <span class="attachment-url">{{ att.url }}</span>
+                  </a>
+                </ng-template>
+              </ng-template>
+            </ng-container>
+
+            <!-- ===== AUDIO ===== -->
+            <ng-container *ngSwitchCase="'AUDIO'">
+              <audio
+                *ngIf="isDirectAudio(att.url); else audioLink"
+                [src]="att.url"
+                controls
+                class="attachment-audio">
+              </audio>
+
+              <ng-template #audioLink>
+                <a
+                  [href]="att.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="attachment-pill">
+                  <span class="attachment-url">{{ att.url }}</span>
+                </a>
+              </ng-template>
+            </ng-container>
+
+            <!-- ===== LINKS / OTROS ===== -->
+            <a
+              *ngSwitchDefault
+              [href]="att.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="attachment-pill">
+              <span class="attachment-kind">{{ att.kind }}</span>
+              <span class="attachment-url">{{ att.url }}</span>
+            </a>
+
+          </ng-container>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RESPUESTAS -->
+    <section class="thread-card thread-card--answers">
+      <header class="answers-header">
+        <div>
+          <h2>Respuestas ({{ posts.length }})</h2>
+          <p class="answers-subtitle" *ngIf="posts.length === 0">
+            Aún no hay respuestas. Sé la primera persona en responder ✨
+          </p>
+        </div>
+      </header>
+
+      <div class="answers-list" *ngIf="posts.length > 0">
+        <article
+          *ngFor="let post of posts"
+          class="answer-item"
+          [class.answer-item--accepted]="post.acceptedAnswer">
+
+          <div class="answer-main">
+            <!-- cuerpo renderizado con código / math / mermaid -->
+            <div class="answer-body" [innerHTML]="post.renderedBody"></div>
+
+            <!-- adjuntos de la respuesta -->
+            <div
+              *ngIf="post.attachments?.length"
+              class="answer-attachments">
+              <div *ngFor="let att of post.attachments" class="attachment-pill">
+                <span class="attachment-kind">{{ att.kind }}</span>
+
+                <ng-container [ngSwitch]="att.kind">
+                  <img
+                    *ngSwitchCase="'IMAGEN'"
+                    [src]="att.url"
+                    class="attachment-image" />
+
+                  <video
+                    *ngSwitchCase="'VIDEO'"
+                    [src]="att.url"
+                    controls
+                    class="attachment-video"></video>
+
+                  <audio
+                    *ngSwitchCase="'AUDIO'"
+                    [src]="att.url"
+                    controls
+                    class="attachment-audio"></audio>
+
+                  <a
+                    *ngSwitchDefault
+                    [href]="att.url"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    {{ att.url }}
+                  </a>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+
+          <footer class="answer-footer">
+            <div class="answer-meta">
+              Por <strong>{{ post.authorName }}</strong>
+              · {{ post.createdAt | date:'short' }}
+            </div>
+            <div class="answer-stats">
+              <span class="answer-score">👍 {{ post.score }}</span>
+              <span
+                *ngIf="post.acceptedAnswer"
+                class="answer-accepted">
+                ✓ Respuesta aceptada
+              </span>
+            </div>
+            <button
+              type="button"
+              class="answer-report-btn"
+              (click)="openReportPost(post)">
+              🚩 Reportar
+            </button>
+          </footer>
+        </article>
+      </div>
+    </section>
+
+
+    <!-- FORMULARIO PARA RESPONDER -->
+    <section class="thread-card thread-card--reply">
+      <header class="reply-header">
+        <h2>Responder al hilo</h2>
+        <p class="reply-subtitle">
+          Comparte tu explicación o ejemplo de código. Mantén un tono respetuoso y claro.
+        </p>
+      </header>
+
+      <div *ngIf="replyError" class="reply-error">
+        {{ replyError }}
+      </div>
+
+      <form [formGroup]="replyForm" (ngSubmit)="onSubmitReply()">
+        <div class="field-group">
+          <label for="body" class="field-label">Tu respuesta</label>
+          <textarea
+            id="body"
+            rows="4"
+            class="field-input field-textarea"
+            formControlName="body">
+          </textarea>
+        </div>
+
+        <!-- Adjuntos por enlace -->
+        <div class="field-group">
+          <label class="field-label">Adjuntar enlaces</label>
+
+          <div class="attachments-list">
+            <div
+              class="attachment-row"
+              *ngFor="let attCtrl of attachmentGroups; let i = index"
+              [formGroup]="attCtrl">
+
+              <select class="attachment-kind-select" formControlName="kind">
+                <option *ngFor="let k of attachmentKinds" [value]="k.value">
+                  {{ k.label }}
+                </option>
+              </select>
+
+              <input
+                class="attachment-url-input"
+                type="url"
+                formControlName="url"
+                placeholder="https://..." />
+
+              <button
+                type="button"
+                class="attachment-remove-btn"
+                (click)="removeAttachmentRow(i)">
+                ×
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="attachment-add-btn"
+            (click)="addAttachmentRow()">
+            + Añadir enlace
+          </button>
+        </div>
+
+        <div class="reply-actions">
+          <button
+            class="btn-primary"
+            type="submit"
+            [disabled]="submittingReply || replyForm.invalid">
+            <span *ngIf="!submittingReply">Enviar respuesta</span>
+            <span *ngIf="submittingReply">Enviando...</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+
+  </ng-container>
+</div>
+<!-- MODAL DE REPORTE -->
+<div
+  class="report-backdrop"
+  *ngIf="showReportModal"
+  (click)="closeReportModal()">
+  <div
+    class="report-modal"
+    (click)="$event.stopPropagation()">
+
+    <div class="report-header">
+      <h3>Reportar contenido</h3>
+      <button
+        type="button"
+        class="report-close-btn"
+        (click)="closeReportModal()">
+        ×
+      </button>
+    </div>
+
+    <p class="report-helper">
+      Elige el motivo y, si quieres, explica brevemente qué ocurre.
+    </p>
+
+    <form [formGroup]="reportForm" (ngSubmit)="submitReport()">
+      <div class="field-group">
+        <label class="field-label">Motivo del reporte *</label>
+        <select
+          class="field-input"
+          formControlName="reasonCode"
+          [class.is-invalid]="reportForm.get('reasonCode')?.invalid && reportForm.get('reasonCode')?.touched">
+          <option value="">Selecciona un motivo…</option>
+          <option value="SPAM">Spam o publicidad</option>
+          <option value="OFENSIVO">Lenguaje ofensivo / acoso</option>
+          <option value="CONTENIDO_INAPROPIADO">Contenido inapropiado</option>
+          <option value="OTRO">Otro</option>
+        </select>
+        <div class="field-error"
+          *ngIf="reportForm.get('reasonCode')?.hasError('required') && reportForm.get('reasonCode')?.touched">
+          El motivo es obligatorio.
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Descripción (opcional)</label>
+        <textarea
+          rows="3"
+          class="field-input field-textarea"
+          formControlName="description"
+          placeholder="Da más contexto si lo consideras necesario.">
+        </textarea>
+      </div>
+
+      <div *ngIf="reportError" class="report-message report-message--error">
+        {{ reportError }}
+      </div>
+      <div *ngIf="reportSuccess" class="report-message report-message--success">
+        {{ reportSuccess }}
+      </div>
+
+      <div class="report-actions">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="closeReportModal()"
+          [disabled]="reportSending">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="reportSending || reportForm.invalid">
+          <span *ngIf="!reportSending">Enviar reporte</span>
+          <span *ngIf="reportSending">Enviando…</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

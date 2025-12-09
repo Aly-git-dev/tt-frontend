@@ -1,0 +1,169 @@
+<div class="dashboard-wrapper">
+  <!-- Encabezado del dashboard -->
+  <div class="dashboard-header">
+    <div>
+      <h2 class="dashboard-title">Inicio</h2>
+      <p class="dashboard-subtitle">
+        Revisa tus foros recomendados y tu actividad reciente.
+      </p>
+    </div>
+    <div class="dashboard-actions">
+      <button class="btn-primary" (click)="goToNewThread()">
+        + Nuevo hilo
+      </button>
+    </div>
+  </div>
+
+  <!-- Tarjeta de bienvenida degradada -->
+  <section class="welcome-card">
+    <div class="welcome-content">
+      <div class="welcome-text">
+        <p class="welcome-eyebrow">Hola de nuevo 👋</p>
+        <h3 class="welcome-title">¡Bienvenido/a a tus foros UPIIZ!</h3>
+        <p class="welcome-description">
+          Explora hilos recomendados, responde dudas y comparte recursos con la comunidad.
+        </p>
+      </div>
+
+      <div class="welcome-pill">
+        <span class="welcome-pill-label">Actividad reciente</span>
+        <strong class="welcome-pill-value">
+          {{ summary?.threadsCreated ?? 0 }} hilos ·
+          {{ summary?.postsCreated ?? 0 }} respuestas
+        </strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contenido principal en dos columnas -->
+  <div class="dashboard-grid">
+    <!-- Columna izquierda: foros recomendados -->
+    <section class="card dashboard-card">
+      <div class="card-header dashboard-card-header">
+        <div>
+          <h5 class="card-title mb-0">Foros que te pueden interesar</h5>
+          <p class="card-subtitle">
+            Basado en tu actividad y las categorías más activas.
+          </p>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+
+        <div *ngIf="loadingForums" class="dashboard-empty">
+          Cargando hilos recomendados...
+        </div>
+
+        <div *ngIf="forumsError" class="dashboard-empty error">
+          {{ forumsError }}
+        </div>
+
+        <div
+          *ngIf="!loadingForums && !forumsError && recommendedThreads.length === 0"
+          class="dashboard-empty">
+          Aún no hay recomendaciones. Participa en los foros para personalizar tu inicio.
+        </div>
+
+        <div *ngIf="recommendedThreads.length > 0">
+          <!-- Tabla estilo "Top Channels" mejorada -->
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>TEMA</th>
+                <th>CATEGORÍA</th>
+                <th>RESPUESTAS</th>
+                <th>PUNTOS</th>
+                <th>VISTAS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let thread of recommendedThreads"
+                class="clickable-row"
+                (click)="goToThread(thread)">
+
+                <!-- Iconito por tipo de hilo -->
+                <td class="thread-icon-cell">
+                  <div
+                    class="thread-icon"
+                    [ngClass]="{
+                      'thread-icon--question': thread.type === 'PREGUNTA',
+                      'thread-icon--discussion': thread.type === 'DISCUSSION',
+                      'thread-icon--announcement': thread.type === 'ANUNCIO'
+                    }">
+                    <span class="thread-icon-text">
+                      {{ thread.type | slice:0:1 }}
+                    </span>
+                  </div>
+                </td>
+
+                <td class="thread-title-cell">
+                  <div class="thread-title-row">
+                    <div class="thread-title">{{ thread.title }}</div>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="thread-category">
+                    {{ thread.categoryName }}
+                    <span *ngIf="thread.subareaName"> · {{ thread.subareaName }}</span>
+                  </div>
+                </td>
+
+                <td class="metric-cell">{{ thread.answersCount }}</td>
+                <td class="metric-cell">{{ thread.score }}</td>
+                <td class="metric-cell">{{ thread.views }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Columna derecha: Resumen rápido -->
+    <section class="card card-summary">
+      <div class="card-summary-header">
+        <h2>Resumen rápido</h2>
+        <p>Vista general de tu actividad en la plataforma.</p>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-label">Hilos creados</div>
+          <div class="summary-value">
+            <ng-container *ngIf="!summaryLoading; else loadingDash">
+              {{ summary?.threadsCreated ?? '—' }}
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Respuestas enviadas</div>
+          <div class="summary-value">
+            <ng-container *ngIf="!summaryLoading; else loadingDash">
+              {{ summary?.postsCreated ?? '—' }}
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Foros seguidos</div>
+          <div class="summary-value">
+            <ng-container *ngIf="!summaryLoading; else loadingDash">
+              {{ summary?.interestsCount ?? '—' }}
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #loadingDash>
+        <span class="summary-loading">···</span>
+      </ng-template>
+
+      <p *ngIf="summaryError" class="summary-error">
+        {{ summaryError }}
+      </p>
+    </section>
+  </div>
+</div>

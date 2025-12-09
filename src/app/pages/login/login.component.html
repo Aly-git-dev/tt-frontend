@@ -1,0 +1,70 @@
+<div class="login-page">
+  <div class="login-card">
+    <!-- Columna izquierda: formulario -->
+    <div class="login-left">
+      <div class="login-breadcrumb">
+        <a href="#">Inicio</a>
+        <span>/</span>
+        <span>Iniciar sesión</span>
+      </div>
+
+      <h1 class="login-title">Iniciar Sesión</h1>
+
+      <p class="login-subtitle">Ingresa tus credenciales de GESCO</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+        <label class="field-label">
+          Usuario / Boleta
+          <div class="field-wrapper">
+            <input
+              type="text"
+              formControlName="username"
+              placeholder="Ingresa tu usuario o boleta"
+            />
+            <span class="field-icon">✉️</span>
+          </div>
+        </label>
+
+        <label class="field-label">
+          Contraseña
+          <div class="field-wrapper">
+            <input
+              type="password"
+              formControlName="password"
+              placeholder="Ingresa tu contraseña"
+            />
+            <span class="field-icon">🔒</span>
+          </div>
+        </label>
+
+        <button type="submit" [disabled]="loading" class="login-btn">
+          {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
+        </button>
+        <div class="auth-footer">
+          <p class="hint">¿Eres profesor o admin y aún no tienes cuenta?
+          <button type="button" class="link-btn" (click)="goToRegister()">
+            Regístrate
+          </button>
+          </p>
+        </div>
+        <p *ngIf="error" class="login-error">{{ error }}</p>
+      </form>
+    </div>
+
+    <!-- Columna derecha: bienvenida -->
+    <div class="login-right">
+      <div class="login-right-content">
+        <div class="login-logo">
+          <!-- pon aquí tu logo real si quieres -->
+          <img src="assets/logo.png" alt="UPIIZ-IPN" />
+        </div>
+        <p class="login-welcome-label">Ingresa a tu cuenta</p>
+        <h2 class="login-welcome-title">¡Bienvenido/a!</h2>
+        <p class="login-welcome-text">
+          Por favor ingresa completando el formulario que se encuentra a
+          continuación.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

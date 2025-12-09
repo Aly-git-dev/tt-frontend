@@ -1,0 +1,168 @@
+<div class="layout" *ngIf="user; else loadingTpl">
+    <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="assets/logo.png" alt="UPIIZ-IPN" />
+      <div class="sidebar-logo-text">
+        <span class="logo-title">UPIIZ-IPN</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+      <a class="menu-item active"
+      [routerLink]="['/dashboard']">
+        <span>🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a class="menu-item"
+      [routerLink]="['/calendar']">
+        <span>📅</span>
+        <span>Calendario</span>
+      </a>
+      <a class="menu-item selected"
+      [routerLink]="['/profile']">
+        <span>👤</span>
+        <span>Perfil</span>
+      </a>
+      <div class="menu-section-title">Foros</div>
+      <a class="menu-item"
+      [routerLink]="['/forums']">
+        <span>💬</span>
+        <span>Mis foros</span>
+      </a>
+      <!-- Sólo visible si el usuario tiene rol ADMIN -->
+        <a
+          class="menu-item"
+          *ngIf="user?.roles?.includes('ADMIN')"
+          [routerLink]="['/admin/approvals']"
+        >
+          <span>✅</span>
+          <span>Validar usuarios</span>
+        </a>
+        <a
+          class="menu-item"
+          *ngIf="user?.roles?.includes('ADMIN')"
+          [routerLink]="['/admin/report/list']"
+        >
+          <span>✅</span>
+          <span>Reportes</span>
+        </a>
+        <a
+          class="menu-item"
+          *ngIf="user?.roles?.includes('ADMIN')"
+          [routerLink]="['/admin/banned/users']"
+        >
+          <span>✅</span>
+          <span>Usuarios Bloqueados</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="support-chip">
+        <span>Soporte</span>
+      </div>
+    </div>
+  </aside>
+
+
+  <!-- Main -->
+  <main class="main">
+    <!-- Header general -->
+    <header class="main-header">
+      <div class="main-header-left">
+        <h1>Platform UPIIZ</h1>
+        <span class="subtitle">
+          Creado por: Melanie Aileen Roman Espitia
+        </span>
+      </div>
+
+      <div class="main-header-right">
+        <button class="icon-btn">🔔</button>
+
+        <!-- Usuario + menú -->
+        <div class="header-user-wrapper" (click)="toggleUserMenu()">
+          <div class="header-user">
+            <ng-container *ngIf="user?.avatarUrl; else headerAvatarFallback">
+              <img
+                [src]="user?.avatarUrl"
+                alt="Avatar"
+                class="header-user-logo"
+              />
+            </ng-container>
+            <ng-template #headerAvatarFallback>
+              <span class="header-user-avatar">
+                {{ user?.fullName?.[0] || 'U' }}
+              </span>
+            </ng-template>
+
+            <span class="header-user-name">
+              {{ user?.fullName }}
+            </span>
+
+            <span class="header-user-arrow">▾</span>
+          </div>
+
+          <!-- Menú desplegable -->
+          <div class="user-menu" *ngIf="showUserMenu" (click)="$event.stopPropagation()">
+            <div class="user-menu-header">
+              <ng-container *ngIf="user?.avatarUrl; else menuAvatarFallback">
+                <img [src]="user?.avatarUrl" alt="Avatar" />
+              </ng-container>
+              <ng-template #menuAvatarFallback>
+                <div class="menu-avatar-fallback">
+                  {{ user?.fullName?.[0] || 'U' }}
+                </div>
+              </ng-template>
+
+              <div class="user-menu-header-text">
+                <div class="user-menu-name">{{ user?.fullName }}</div>
+                <div class="user-menu-email">{{ user?.emailInst }}</div>
+              </div>
+            </div>
+
+            <div class="user-menu-divider"></div>
+
+            <button
+              type="button"
+              class="user-menu-item"
+              (click)="goToProfile(); $event.stopPropagation()"
+            >
+              <span class="user-menu-icon">👤</span>
+              <span>Ver perfil</span>
+            </button>
+
+            <button
+              type="button"
+              class="user-menu-item"
+              *ngIf="user?.roles?.includes('ADMIN')"
+              (click)="goToAdminApprovals(); $event.stopPropagation()"
+            >
+              <span class="user-menu-icon">✅</span>
+              <span>Validar usuarios</span>
+            </button>
+
+            <div class="user-menu-divider"></div>
+
+            <button
+              type="button"
+              class="user-menu-item logout"
+              (click)="onLogout(); $event.stopPropagation()"
+            >
+              <span class="user-menu-icon">⏏</span>
+              <span>Cerrar sesión</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- AQUÍ VAN TODAS LAS PÁGINAS INTERNAS -->
+    <router-outlet></router-outlet>
+  </main>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading">
+    Cargando layout...
+  </div>
+</ng-template>

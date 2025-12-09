@@ -1,0 +1,78 @@
+<!-- src/app/pages/register/register.component.html -->
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-left">
+      <div class="logo-wrapper">
+        <img src="assets/logo.png" alt="UPIIZ-IPN" class="logo" />
+        <span class="logo-text">UPIIZ-IPN</span>
+      </div>
+
+      <h1 class="auth-title">Crear cuenta</h1>
+      <p class="auth-subtitle">
+        Registra un nuevo usuario de plataforma (profesor / admin).
+      </p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+        <!-- Nombre completo -->
+        <label class="field-label">Nombre completo</label>
+        <input
+          type="text"
+          class="field-input"
+          formControlName="fullName"
+          placeholder="Nombre(s) y apellidos"
+        />
+
+        <!-- Correo institucional -->
+        <label class="field-label">Correo institucional</label>
+        <input
+          type="email"
+          class="field-input"
+          formControlName="emailInst"
+          placeholder="user@upiiz.ipn.mx"
+        />
+
+        <!-- Contraseña -->
+        <label class="field-label">Contraseña</label>
+        <input
+          type="password"
+          class="field-input"
+          formControlName="password"
+          placeholder="Mínimo 8 caracteres"
+        />
+
+        <!-- Rol -->
+        <label class="field-label">Rol</label>
+        <select class="field-input" formControlName="role">
+          <option value="PROFESOR">PROFESOR</option>
+          <option value="ADMIN">ADMINISTRADOR</option>
+        </select>
+
+        <!-- Mensajes -->
+        <div class="msg msg-error" *ngIf="error">{{ error }}</div>
+        <div class="msg msg-success" *ngIf="success">{{ success }}</div>
+
+        <!-- Botón -->
+        <button class="primary-btn" type="submit" [disabled]="loading">
+          {{ loading ? 'Registrando...' : 'Crear cuenta' }}
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        ¿Ya tienes cuenta?
+        <button type="button" class="link-btn" (click)="goToLogin()">
+          Inicia sesión
+        </button>
+      </div>
+    </div>
+
+    <div class="auth-right">
+      <div class="hero">
+        <h2>Platform UPIIZ</h2>
+        <p>
+          Gestiona grupos, tareas y foros desde una sola plataforma pensada
+          para la comunidad UPIIZ.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,176 @@
+<div class="admin-report-wrapper">
+  <h2 class="admin-report-title">Reportes pendientes</h2>
+
+  <div *ngIf="loading" class="admin-report-empty">
+    Cargando reportes...
+  </div>
+
+  <div *ngIf="error" class="admin-report-empty error">
+    {{ error }}
+  </div>
+
+  <table *ngIf="!loading && !error && reports.length > 0"
+         class="admin-report-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Contenido</th>
+        <th>Reportante</th>
+        <th>Usuario reportado</th>
+        <th>Motivo</th>
+        <th>Descripción</th>
+        <th>Fecha</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of reports">
+        <td>{{ r.id }}</td>
+        <td>
+          <div class="content-cell">
+            <div *ngIf="r.threadTitle; else noTitle">
+              <strong>Hilo:</strong> {{ r.threadTitle }}
+              <span *ngIf="r.postId"> · Post #{{ r.postId }}</span>
+            </div>
+            <ng-template #noTitle>
+              (sin título)
+            </ng-template>
+          </div>
+        </td>
+        <td>{{ r.reporterName }}</td>
+        <td>{{ r.reportedUserName || '—' }}</td>
+        <td><code>{{ r.reasonCode }}</code></td>
+        <td class="desc-cell">
+          {{ r.description || '—' }}
+        </td>
+        <td>{{ r.createdAt | date:'short' }}</td>
+        <td>
+          <button class="btn-resolve" (click)="openResolveModal(r)">
+            Revisar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && !error && reports.length === 0"
+       class="admin-report-empty">
+    No hay reportes pendientes 🎉
+  </div>
+</div>
+
+<!-- ================= MODAL BONITO ================= -->
+<div class="modal-backdrop" *ngIf="showResolveModal && selectedReport">
+  <div class="modal-panel">
+    <header class="modal-header">
+      <div>
+        <h3>Resolver reporte #{{ selectedReport?.id }}</h3>
+        <p>Revisa el contenido y marca las acciones a aplicar.</p>
+      </div>
+      <button class="modal-close" (click)="closeResolveModal()">×</button>
+    </header>
+
+    <section class="modal-body">
+      <!-- Info del contenido -->
+      <div class="modal-section">
+        <h4>Contenido reportado</h4>
+        <div class="modal-field">
+          <span class="label">Hilo:</span>
+          <span>{{ selectedReport?.threadTitle || '(sin título)' }}</span>
+        </div>
+        <div class="modal-field">
+          <span class="label">Post ID:</span>
+          <span>{{ selectedReport?.postId || '—' }}</span>
+        </div>
+        <div class="modal-field">
+          <span class="label">Usuario reportado:</span>
+          <span>{{ selectedReport?.reportedUserName || '—' }}</span>
+        </div>
+      </div>
+
+      <!-- Info del reporte -->
+      <div class="modal-section">
+        <h4>Reporte</h4>
+        <div class="modal-field">
+          <span class="label">Reportante:</span>
+          <span>{{ selectedReport?.reporterName }}</span>
+        </div>
+        <div class="modal-field">
+          <span class="label">Motivo:</span>
+          <span><code>{{ selectedReport?.reasonCode }}</code></span>
+        </div>
+        <div class="modal-field">
+          <span class="label">Descripción:</span>
+          <span>{{ selectedReport?.description || '—' }}</span>
+        </div>
+        <div class="modal-field">
+          <span class="label">Fecha:</span>
+          <span>{{ selectedReport?.createdAt | date:'short' }}</span>
+        </div>
+      </div>
+
+      <!-- Form de acciones -->
+      <form [formGroup]="resolveForm" (ngSubmit)="submitResolve()" class="modal-form">
+        <div class="warning-box">
+          <strong>Acciones críticas</strong>
+          <p>
+            Marca claramente qué quieres hacer. Estas acciones afectan al contenido
+            y/o al usuario reportado.
+          </p>
+        </div>
+
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="deleteContent" />
+            <span>Eliminar / ocultar contenido reportado</span>
+          </label>
+          <span class="checkbox-hint">
+            El hilo se puede cerrar o el post se marca como oculto.
+          </span>
+        </div>
+
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="banUser" />
+            <span>Banear usuario reportado</span>
+          </label>
+          <span class="checkbox-hint">
+            Se desactiva la cuenta (no podrá iniciar sesión).
+          </span>
+        </div>
+
+        <div class="modal-field textarea-field">
+          <label class="label" for="adminNote">Nota interna (opcional)</label>
+          <textarea
+            id="adminNote"
+            rows="3"
+            formControlName="adminNote"
+            placeholder="Ejemplo: Usuario reincidente, lenguaje ofensivo, etc.">
+          </textarea>
+        </div>
+
+        <p *ngIf="globalMessage" class="modal-message">
+          {{ globalMessage }}
+        </p>
+
+        <footer class="modal-footer">
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="closeResolveModal()"
+            [disabled]="submitting">
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="submitting">
+            <span *ngIf="!submitting">Aplicar acciones</span>
+            <span *ngIf="submitting">Aplicando...</span>
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,473 @@
+/* ==== WRAPPER GENERAL ==== */
+
+.page-wrapper {
+  padding: 24px 32px;
+  background: var(--page-bg);
+  min-height: calc(100vh - 64px);
+  box-sizing: border-box;
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.page-subtitle {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ==== CARD PRINCIPAL ==== */
+
+.form-card {
+  border-radius: 28px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .form-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-card-left {
+  padding: 24px 28px 24px;
+}
+
+/* Que todos los grupos tengan el mismo ancho máximo
+   para que los inputs queden alineados visualmente */
+.form-card-left form {
+  max-width: 720px;
+}
+
+/* Lado derecho (lo detallamos abajo) */
+.form-card-right {
+  padding: 24px;
+}
+
+/* ==== CAMPOS E INPUTS ==== */
+
+.field-group {
+  margin-bottom: 18px;
+}
+
+/* Aplicar box-sizing a todo para evitar desajustes */
+.field-group,
+.field-group * {
+  box-sizing: border-box;
+}
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+/* Base para todos los inputs/select/textarea */
+.field-input {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: #f9fafb;
+  padding: 10px 16px;
+  font-size: 14px;
+  outline: none;
+  color: var(--text-main);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  line-height: 1.4;
+  display: block;
+}
+
+/* Select con la misma altura/estilo que los inputs */
+select.field-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #888 50%),
+    linear-gradient(135deg, #888 50%, transparent 50%);
+  background-position: calc(100% - 18px) 16px, calc(100% - 13px) 16px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* Textarea: mismo ancho, pero con border-radius más grande */
+.field-textarea {
+  border-radius: 18px;
+  resize: vertical;
+  min-height: 140px;
+}
+
+/* Focus con guinda institucional */
+.field-input:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 1px rgba(122, 0, 60, 0.10); /* guinda suave */
+}
+
+.field-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.field-error {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #b91c1c;
+}
+
+/* ==== QUICK FORMAT (código / LaTeX) ==== */
+
+.quick-format-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.quick-format-label {
+  color: var(--text-muted);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: default;
+}
+
+/* Guinda IPN suave para los chips */
+.chip-outline {
+  border: 1px solid rgba(122, 0, 60, 0.25);
+  color: #7a003c; /* guinda IPN */
+  background: #fff3f8;
+}
+
+.content-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.content-hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  background: #f3f4f6;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+/* ==== DROPZONE DE ARCHIVOS (INSTITUCIONAL) ==== */
+
+.attachments-group {
+  margin-top: 4px;
+}
+
+.file-dropzone {
+  margin-top: 10px;
+  border-radius: 18px;
+  border: 1px dashed rgba(122, 0, 60, 0.4); /* guinda */
+  background: #fdf2f7; /* rosa-guinda muy claro */
+  padding: 22px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, transform 0.08s ease;
+}
+
+.file-dropzone:hover {
+  background: #ffe4ef;
+  border-color: #7a003c;
+  box-shadow: 0 10px 30px rgba(122, 0, 60, 0.22);
+  transform: translateY(-1px);
+}
+
+.file-dropzone:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-drop-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(122, 0, 60, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #7a003c;
+}
+
+.file-drop-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.file-drop-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.file-drop-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.attachments-list {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.attachment-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #ecfdf3; /* verde super claro */
+  font-size: 11px;
+  color: var(--text-main);
+}
+
+.attachment-name {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attachment-remove {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+/* ==== ACCIONES ==== */
+
+.actions {
+  margin-top: 18px;
+}
+
+.btn-primary {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #7a003c, #b3124a); /* guinda -> guinda clara */
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(122, 0, 60, 0.4);
+  transition: transform 0.08s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.btn-primary:hover:enabled {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(122, 0, 60, 0.48);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}
+
+.form-error-global {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #b91c1c;
+}
+
+/* ==== PANEL DERECHO (INFO) CON PALETA INSTITUCIONAL ==== */
+
+.info-panel {
+  /* guinda → guinda clara con toque de verde UPIIZ */
+  background: radial-gradient(circle at top left, #dbeafe 0, #fdf2f7 40%, #ffffff 100%);
+  border-left: 1px solid rgba(122, 0, 60, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.info-panel-header h3 {
+  margin: 10px 0 4px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.info-panel-header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Pastilla de tips con guinda */
+.info-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: rgba(122, 0, 60, 0.1);
+  color: #7a003c;
+}
+
+.info-list {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.info-list li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+/* Iconitos con aro blanco y borde verde IPN (toque UPIIZ) */
+.info-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(22, 163, 74, 0.25); /* verde */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.info-list strong {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.info-list p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+@media (max-width: 1024px) {
+  .info-panel {
+    border-left: none;
+    border-top: 1px solid rgba(122, 0, 60, 0.08);
+  }
+}
+.file-dropzone.is-dragover {
+  background: #ffe4ef;
+  border-color: #7a003c;
+  box-shadow: 0 12px 36px rgba(122, 0, 60, 0.45);
+}
+.file-dropzone--clickable {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border-radius: 18px;
+  border: 1px dashed var(--border-soft);
+  background: #fdf2f8;
+  cursor: pointer;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.attachment-panel {
+  margin-top: 10px;
+  border-radius: 18px;
+  border: 1px solid var(--border-soft);
+  background: #ffffff;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+  padding: 12px 14px;
+}
+
+.attachment-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.attachment-panel-close {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.attachment-row {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.4fr) minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.attachment-kind-select,
+.attachment-url-input {
+  border-radius: 14px;
+  border: 1px solid var(--border-soft);
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.attachment-remove-btn {
+  border: none;
+  background: #fee2e2;
+  border-radius: 999px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.attachment-add-btn {
+  margin-top: 6px;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #f3e8ff;
+  cursor: pointer;
+}

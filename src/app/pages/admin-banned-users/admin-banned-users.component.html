@@ -1,0 +1,54 @@
+<div class="admin-page">
+  <h1 class="admin-title">Usuarios baneados</h1>
+  <p class="admin-subtitle">
+    Aquí puedes revisar las cuentas que fueron baneadas desde los reportes
+    y, si fue un error, reactivarlas.
+  </p>
+
+  <div *ngIf="loading" class="admin-card">
+    Cargando usuarios...
+  </div>
+
+  <div *ngIf="error" class="admin-card admin-card--error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="success" class="admin-card admin-card--success">
+    {{ success }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="admin-card">
+    <table class="admin-table" *ngIf="users.length > 0; else emptyState">
+      <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Correo institucional</th>
+        <th>Carrera</th>
+        <th style="width: 160px;">Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let u of users">
+        <td>{{ u.fullName }}</td>
+        <td>{{ u.emailInst }}</td>
+        <td>{{ u.programa || '—' }}</td>
+        <td>
+          <button
+            class="btn-small btn-unban"
+            (click)="confirmUnban(u)"
+            [disabled]="unbanningId === u.id">
+            <span *ngIf="unbanningId !== u.id">Reactivar cuenta</span>
+            <span *ngIf="unbanningId === u.id">Reactivando...</span>
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyState>
+      <p class="empty-text">
+        No hay usuarios baneados en este momento. ✨
+      </p>
+    </ng-template>
+  </div>
+</div>

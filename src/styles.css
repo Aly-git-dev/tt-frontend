@@ -1,1 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
+/* styles.css (global) */
+
+:root {
+  --page-bg: #f3f4f8;
+  --primary: #b4042b;            /* vinotinto UPIIZ */
+  --primary-dark: #8b0322;
+  --primary-grad-start: #ff4b5c; /* gradiente tipo Platform UPIIZ */
+  --primary-grad-end: #ff9966;
+  --text-main: #1f2933;
+  --text-muted: #6b7280;
+  --card-bg: #ffffff;
+  --border-soft: #e5e7eb;
+}
+
+/* si ya tienes cosas globales aquí, solo agrega este bloque arriba o abajo */

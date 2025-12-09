@@ -1,0 +1,167 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f8;
+  padding: 24px;
+}
+
+.auth-card {
+  display: flex;
+  max-width: 960px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+
+/* Columna izquierda (form) */
+.auth-left {
+  flex: 1;
+  padding: 32px 40px;
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.auth-title {
+  margin: 0 0 6px;
+  font-size: 26px;
+  color: #111827;
+}
+
+.auth-subtitle {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-label {
+  font-size: 13px;
+  color: #374151;
+  margin-top: 8px;
+}
+
+.field-input {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  font-size: 14px;
+  background: #f9fafb;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: #7f1d3e;
+  box-shadow: 0 0 0 1px rgba(127, 29, 62, 0.2);
+  background: #ffffff;
+}
+
+.primary-btn {
+  margin-top: 14px;
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(90deg, #7f1d3e, #b91c1c);
+  color: #ffffff;
+}
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.msg {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.msg-error {
+  color: #b91c1c;
+}
+
+.msg-success {
+  color: #15803d;
+}
+
+.auth-footer {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.link-btn {
+  border: none;
+  background: transparent;
+  color: #7f1d3e;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+/* Columna derecha (texto bonito) */
+.auth-right {
+  width: 40%;
+  background: linear-gradient(135deg, #f97373, #fb7185, #f97316);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  color: #ffffff;
+}
+
+.hero h2 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.hero p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .auth-card {
+    flex-direction: column;
+  }
+
+  .auth-right {
+    width: 100%;
+    text-align: center;
+  }
+}

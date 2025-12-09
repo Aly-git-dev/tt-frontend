@@ -1,0 +1,82 @@
+.admin-page {
+  padding: 24px 32px;
+}
+
+.admin-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--text-main);
+}
+
+.admin-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.admin-card {
+  border-radius: 20px;
+  border: 1px solid var(--border-soft);
+  background: var(--card-bg);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+
+.admin-card--error {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.admin-card--success {
+  color: #166534;
+  border-color: #bbf7d0;
+  background: #ecfdf5;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.admin-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.empty-text {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Botón pequeño vinotinto */
+.btn-small {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-unban {
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+
+.btn-unban:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
