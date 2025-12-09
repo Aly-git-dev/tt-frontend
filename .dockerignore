@@ -1,0 +1,27 @@
+# Dependencias que no deben copiarse
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Salidas de compilación
+dist/
+.out/
+.angular/
+.tmp/
+
+# Archivos de editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de env locales
+.env
+.env.*local
+
+# Git
+.git/
+.gitignore
