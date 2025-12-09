@@ -7,5 +7,5 @@ services:
       dockerfile: Dockerfile
     container_name: platform-upiiz-front
     ports:
-      - "3030:3030"
+      - "3030:4000"
     restart: always
