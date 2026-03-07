@@ -14,3 +14,100 @@
 }
 
 /* si ya tienes cosas globales aquí, solo agrega este bloque arriba o abajo */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* ===== FULLCALENDAR MODERNO PRO ===== */
+
+.fc {
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(15,23,42,.08);
+  box-shadow: 0 18px 50px rgba(2,6,23,.08);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* HEADER (Sunday Monday...) */
+.fc .fc-col-header-cell {
+  background: linear-gradient(135deg, #7c0030, #9d174d);
+  border: none !important;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: white !important;
+  font-weight: 800;
+  padding: 12px 0;
+  letter-spacing: .3px;
+}
+
+/* GRID */
+.fc .fc-scrollgrid {
+  border: none !important;
+}
+
+.fc .fc-daygrid-day {
+  border: 1px solid rgba(15,23,42,.06) !important;
+  transition: background .15s ease;
+}
+
+.fc .fc-daygrid-day:hover {
+  background: rgba(124,0,48,.04);
+}
+
+/* NUMERO DEL DIA */
+.fc .fc-daygrid-day-number {
+  font-weight: 800;
+  opacity: .7;
+  padding: 6px;
+}
+
+/* HOY */
+.fc .fc-day-today {
+  background: rgba(124,0,48,.08) !important;
+}
+
+/* EVENTOS */
+.fc .fc-daygrid-event {
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 6px 10px !important;
+  margin-top: 4px;
+  background: #f3f4f6 !important;
+  color: #0f172a !important;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.fc .fc-daygrid-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0,0,0,.10);
+}
+
+/* BORDE IZQUIERDO DE EVENTO */
+.fc .fc-daygrid-event::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 4px;
+  border-radius: 4px;
+  background: #7c0030;
+}
+
+/* Quitar bordes feos */
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border: 1px solid rgba(15,23,42,.06);
+}
+
+/* Scroll limpio */
+.fc .fc-scroller {
+  overflow: hidden !important;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

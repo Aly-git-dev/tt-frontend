@@ -1,0 +1,80 @@
+<div class="page">
+  <!-- Title + breadcrumb -->
+  <div class="page-head">
+    <h1 class="page-title">Calendar</h1>
+    <div class="breadcrumb">
+      <span>Inicio</span>
+      <span class="sep">/</span>
+      <span class="current">Calendar</span>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="left-controls">
+      <mat-chip-listbox class="chipset" aria-label="Vistas">
+        <mat-chip-option
+          [selected]="view() === 'dayGridMonth'"
+          (click)="setView('dayGridMonth')"
+        >
+          Mes
+        </mat-chip-option>
+
+        <mat-chip-option
+          [selected]="view() === 'timeGridWeek'"
+          (click)="setView('timeGridWeek')"
+        >
+          Semana
+        </mat-chip-option>
+      </mat-chip-listbox>
+
+      <mat-chip-listbox class="chipset" aria-label="Filtro">
+        <mat-chip-option
+          [selected]="filter() === 'ALL'"
+          (click)="filter.set('ALL')"
+        >
+          Todos
+        </mat-chip-option>
+
+        <mat-chip-option
+          [selected]="filter() === 'CANCELLED'"
+          (click)="filter.set('CANCELLED')"
+        >
+          Cancelados
+        </mat-chip-option>
+      </mat-chip-listbox>
+    </div>
+
+    <div class="right-controls">
+      <mat-form-field appearance="outline" class="search">
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          placeholder="Search"
+          [value]="query()"
+          (input)="query.set(($any($event.target).value || ''))"
+        />
+      </mat-form-field>
+
+      <button mat-flat-button class="primary-btn" (click)="openCreate()">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+    </div>
+  </div>
+
+  <!-- Calendar card -->
+  <section class="card">
+    <div class="card-head">
+      <div class="card-title">Calendar</div>
+
+      <div class="card-actions">
+        <span class="hint" *ngIf="loading()">Cargando…</span>
+      </div>
+    </div>
+
+    <div class="calendar-wrap">
+      <full-calendar [options]="calendarOptions()"></full-calendar>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,28 @@
+.row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.row.mine {
+  align-items: flex-end;
+}
+
+.bubble {
+  max-width: 520px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #eaf4ff; /* izquierda */
+  color: #111;
+}
+
+.row.mine .bubble {
+  background: #e9e2f0; /* derecha tipo morado */
+}
+
+.time {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #9a9a9a;
+}

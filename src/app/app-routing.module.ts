@@ -12,6 +12,7 @@ import { ThreadDetailComponent } from './pages/thread-detail/thread-detail.compo
 import { NewThreadComponent } from './pages/new-thread/new-thread.component';
 import { AdminReportListComponent } from './pages/admin-report-list/admin-report-list.component';
 import { AdminBannedUsersComponent } from './pages/admin-banned-users/admin-banned-users.component';
+import { MessagesPageComponent } from './pages/messages-page/messages-page.component';
 
 const routes: Routes = [
     // Páginas públicas (sin layout)
@@ -35,6 +36,13 @@ const routes: Routes = [
       { path: 'admin/approvals', component: AdminApprovalsComponent },
       { path: 'admin/report/list', component: AdminReportListComponent },
       { path: 'admin/banned/users', component: AdminBannedUsersComponent },
+      
+      { path: 'messages', component: MessagesPageComponent },
+      {path: 'calendar',
+        loadComponent: () => import('./pages/calendar-page.component/calendar-page.component')
+        .then(m => m.CalendarPageComponent)
+      },
+
 
       // Default interno → dashboard
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

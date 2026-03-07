@@ -1,0 +1,35 @@
+.composer {
+  padding: 14px;
+  border-top: 1px solid #f0f0f0;
+  display: grid;
+  grid-template-columns: 1fr 42px 42px 52px;
+  gap: 10px;
+  align-items: center;
+  background: #fff;
+}
+
+input {
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid #efefef;
+  padding: 0 14px;
+  outline: none;
+}
+
+.icon {
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid #efefef;
+  background: #fff;
+  cursor: pointer;
+}
+
+.send {
+  height: 48px;
+  border-radius: 12px;
+  border: 0;
+  background: #7a1b4b;
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+}

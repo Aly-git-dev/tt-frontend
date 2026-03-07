@@ -1,0 +1,34 @@
+<div class="head">
+  <div>
+    <div class="title">Active Conversations</div>
+  </div>
+  <div class="badge">{{ items.length }}</div>
+</div>
+
+<div class="search-row">
+  <input placeholder="Search..." />
+</div>
+
+<div class="list">
+  <button
+    class="row"
+    *ngFor="let c of items; trackBy: trackById"
+    [class.active]="c.id === selectedId"
+    (click)="select.emit(c)"
+  >
+    <div class="avatar">
+      <img *ngIf="c.otherAvatarUrl; else ph" [src]="c.otherAvatarUrl" />
+      <ng-template #ph>👤</ng-template>
+      <span class="status-dot"></span>
+    </div>
+
+    <div class="meta">
+      <div class="name">{{ c.otherName || c.otherUserId }}</div>
+      <div class="preview">Reply to message</div>
+    </div>
+
+    <div class="right">
+      <span class="unread" *ngIf="(c.unreadCount ?? 0) > 0">{{ c.unreadCount }}</span>
+    </div>
+  </button>
+</div>

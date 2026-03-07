@@ -19,6 +19,7 @@ import { NewThreadComponent } from './pages/new-thread/new-thread.component';
 import { SafeUrlPipe } from './pipe/safe-url.pipe';
 import { AdminReportListComponent } from './pages/admin-report-list/admin-report-list.component';
 import { AdminBannedUsersComponent } from './pages/admin-banned-users/admin-banned-users.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { AdminBannedUsersComponent } from './pages/admin-banned-users/admin-bann
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }
+    },
+    provideAnimationsAsync()
   ],
   bootstrap: [AppComponent]
 })

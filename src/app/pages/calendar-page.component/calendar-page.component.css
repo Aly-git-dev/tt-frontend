@@ -1,0 +1,235 @@
+:host {
+  display: block;
+}
+
+/* ====== Page layout ====== */
+.page {
+  padding: 18px 20px 26px;
+  max-width: 1200px;
+}
+
+.page-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 36px;
+  line-height: 1.1;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: #111827;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.breadcrumb .sep {
+  opacity: 0.6;
+}
+
+.breadcrumb .current {
+  color: #7a0f2b; /* vino */
+  font-weight: 600;
+}
+
+/* ====== Controls row ====== */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 10px 0 16px;
+}
+
+.left-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.right-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.chipset {
+  background: transparent;
+}
+
+.search {
+  width: 320px;
+}
+
+.primary-btn {
+  background: #7a0f2b !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  height: 44px;
+  padding: 0 14px;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.12);
+}
+.primary-btn mat-icon {
+  margin-right: 6px;
+}
+
+::ng-deep .mat-mdc-form-field-infix {
+  min-height: 44px;
+}
+::ng-deep .mat-mdc-text-field-wrapper {
+  border-radius: 999px !important;
+}
+
+/* ====== Card ====== */
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 14px 30px rgba(17, 24, 39, 0.10);
+  border: 1px solid rgba(17, 24, 39, 0.06);
+  overflow: hidden;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 18px 12px;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 750;
+  color: #111827;
+}
+
+.card-actions .hint {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.calendar-wrap {
+  padding: 0 14px 14px;
+}
+
+/* ====== FullCalendar styling ======
+   Importante: esto usa ::ng-deep porque FullCalendar genera clases internas. */
+::ng-deep .fc {
+  --fc-border-color: rgba(17, 24, 39, 0.08);
+  --fc-page-bg-color: transparent;
+  --fc-today-bg-color: rgba(122, 15, 43, 0.06);
+  font-family: inherit;
+}
+
+/* Encabezado días de la semana (vino) */
+::ng-deep .fc .fc-col-header {
+  background: #7a0f2b;
+  color: #fff;
+}
+::ng-deep .fc .fc-col-header-cell {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+::ng-deep .fc .fc-col-header-cell-cushion {
+  padding: 14px 0 !important;
+  color: #fff !important;
+  font-weight: 650;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* Celdas */
+::ng-deep .fc .fc-daygrid-day,
+::ng-deep .fc .fc-timegrid-slot,
+::ng-deep .fc .fc-timegrid-col {
+  background: #fff;
+}
+
+::ng-deep .fc .fc-daygrid-day-frame {
+  min-height: 112px; /* look similar to screenshots */
+}
+
+::ng-deep .fc .fc-daygrid-day-number {
+  padding: 10px 10px 0 0 !important;
+  font-weight: 650;
+  color: #111827;
+}
+
+/* “More” */
+::ng-deep .fc .fc-daygrid-more-link {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* Eventos: base */
+::ng-deep .fc .fc-event {
+  border-radius: 10px;
+  border: 1px solid rgba(17, 24, 39, 0.10);
+  padding: 6px 8px;
+  box-shadow: 0 8px 16px rgba(17, 24, 39, 0.10);
+  overflow: hidden;
+}
+
+::ng-deep .fc .fc-event .fc-event-title {
+  font-weight: 700;
+  font-size: 12.5px;
+  line-height: 1.2;
+}
+
+::ng-deep .fc .fc-event .fc-event-time {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* Eventos por clase (desde classNames en mapAppointmentsToEvents) */
+::ng-deep .fc .evt-online.fc-event {
+  background: rgba(122, 15, 43, 0.08);
+  border-left: 4px solid #7a0f2b;
+  color: #111827;
+}
+
+::ng-deep .fc .evt-presencial.fc-event {
+  background: rgba(17, 24, 39, 0.06);
+  border-left: 4px solid #111827;
+  color: #111827;
+}
+
+::ng-deep .fc .evt-cancelled.fc-event {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+/* Bordes más limpios */
+::ng-deep .fc .fc-scrollgrid {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .page {
+    padding: 14px 12px 18px;
+  }
+  .page-title {
+    font-size: 30px;
+  }
+  .search {
+    width: 100%;
+  }
+  .calendar-wrap {
+    padding: 0 10px 12px;
+  }
+}

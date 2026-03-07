@@ -1,0 +1,31 @@
+<div class="wrap" *ngIf="conversation; else empty">
+
+  <div class="header">
+    <button class="back" (click)="backMobile.emit()">←</button>
+
+    <div class="avatar">👤</div>
+    <div class="hmeta">
+      <div class="hname">{{ conversation.otherName || 'Usuario' }}</div>
+      <div class="hsub">Reply to message</div>
+    </div>
+
+    <button class="menu">⋯</button>
+  </div>
+
+  <div class="thread">
+    <div class="loading" *ngIf="loading">Cargando...</div>
+
+    <app-message-bubble
+      *ngFor="let m of messages"
+      [msg]="m">
+    </app-message-bubble>
+  </div>
+
+  <app-message-composer (send)="send.emit($event)"></app-message-composer>
+</div>
+
+<ng-template #empty>
+  <div class="empty">
+    Selecciona una conversación
+  </div>
+</ng-template>
