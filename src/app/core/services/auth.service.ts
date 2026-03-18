@@ -152,4 +152,16 @@ export class AuthService {
     if (!this.isBrowser()) return false;
     return !!this.getAccessToken();
   }
+
+  forgotPassword(email: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`${this.baseUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string, confirmPassword: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`${this.baseUrl}/reset-password`, {
+      token,
+      newPassword,
+      confirmPassword
+    });
+  }
 }

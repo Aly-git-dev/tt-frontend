@@ -20,6 +20,9 @@ import { SafeUrlPipe } from './pipe/safe-url.pipe';
 import { AdminReportListComponent } from './pages/admin-report-list/admin-report-list.component';
 import { AdminBannedUsersComponent } from './pages/admin-banned-users/admin-banned-users.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -34,14 +37,17 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     NewThreadComponent,
     SafeUrlPipe,
     AdminReportListComponent,
-    AdminBannedUsersComponent
+    AdminBannedUsersComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,          
-    AppRoutingModule
+    AppRoutingModule,
+    CommonModule
   ],
   providers: [
     {

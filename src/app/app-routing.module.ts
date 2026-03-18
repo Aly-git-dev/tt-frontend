@@ -13,11 +13,14 @@ import { NewThreadComponent } from './pages/new-thread/new-thread.component';
 import { AdminReportListComponent } from './pages/admin-report-list/admin-report-list.component';
 import { AdminBannedUsersComponent } from './pages/admin-banned-users/admin-banned-users.component';
 import { MessagesPageComponent } from './pages/messages-page/messages-page.component';
-
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 const routes: Routes = [
     // Páginas públicas (sin layout)
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
 
   // Páginas con layout principal
   {

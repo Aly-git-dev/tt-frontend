@@ -46,6 +46,11 @@
             Regístrate
           </button>
           </p>
+          <div class="auth-links">
+            <button type="button" class="link-btn" (click)="goToForgotPassword()">
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
         </div>
         <p *ngIf="error" class="login-error">{{ error }}</p>
       </form>
