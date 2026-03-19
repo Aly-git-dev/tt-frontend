@@ -1,36 +1,107 @@
 <div class="page">
 
-  <!-- Header similar (solo lo esencial de Messages) -->
   <div class="topbar">
     <div class="crumbs">Inicio / <span>Messages</span></div>
+
     <div class="top-actions">
-      <input class="search" placeholder="Search" />
-      <button class="icon-btn" aria-label="theme">☼</button>
-      <button class="icon-btn" aria-label="notif">🔔</button>
+      <button class="new-chat-btn" type="button" (click)="openNewConversationModal()">
+        + Nueva conversación
+      </button>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- Panel izquierdo: conversaciones -->
     <section class="left" [class.hidden-mobile]="!!selected">
       <app-conversation-list
         [items]="conversations"
         [selectedId]="selected?.id ?? null"
-        (select)="selectConversation($event)">
+        (select)="selectConversation($event)"
+        (newConversation)="openNewConversationModal()">
       </app-conversation-list>
     </section>
 
-    <!-- Panel derecho: chat -->
     <section class="right" [class.hidden-mobile]="!selected">
-      <app-chat-thread
-        [conversation]="selected"
-        [messages]="messages"
-        [loading]="loading"
-        (send)="onSend($event)"
-        (backMobile)="backToListMobile()">
-      </app-chat-thread>
+      <ng-container *ngIf="selected; else emptyState">
+        <app-chat-thread
+          [conversation]="selected"
+          [messages]="messages"
+          [loading]="loading"
+          (send)="onSend($event)"
+          (backMobile)="backToListMobile()">
+        </app-chat-thread>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <div class="empty-chat">
+          <div class="empty-chat-icon">💬</div>
+          <div class="empty-chat-title">Selecciona una conversación</div>
+          <div class="empty-chat-text">
+            O inicia una nueva para comenzar a chatear.
+          </div>
+        </div>
+      </ng-template>
     </section>
 
   </div>
+
+  <div class="modal-backdrop" *ngIf="showNewConversationModal" (click)="closeNewConversationModal()"></div>
+
+  <div class="modal" *ngIf="showNewConversationModal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Nueva conversación</div>
+        <div class="modal-subtitle">Busca por correo o nombre</div>
+      </div>
+      <button class="close-btn" type="button" (click)="closeNewConversationModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <label class="field-label" for="userSearch">Buscar usuario</label>
+      <input
+        id="userSearch"
+        class="field-input"
+        [(ngModel)]="userSearchTerm"
+        placeholder="Ej. mel@upiiz.mx"
+        (input)="onUserSearchInput()"
+        autocomplete="off" />
+
+      <div class="helper-text" *ngIf="!userSearchTerm.trim()">
+        Escribe un correo o nombre para buscar.
+      </div>
+
+      <div class="helper-text" *ngIf="userSearchLoading">
+        Buscando usuarios...
+      </div>
+
+      <div class="error" *ngIf="createConversationError">{{ createConversationError }}</div>
+
+      <div class="user-results" *ngIf="userSearchResults.length">
+        <button
+          class="user-row"
+          type="button"
+          *ngFor="let user of userSearchResults"
+          [disabled]="creatingConversation"
+          (click)="createDirectConversation(user)"
+        >
+          <div class="user-avatar">
+            <img *ngIf="user.avatarUrl; else userFallback" [src]="user.avatarUrl" [alt]="user.name || user.email" />
+            <ng-template #userFallback>
+              <span>{{ getUserInitial(user) }}</span>
+            </ng-template>
+          </div>
+
+          <div class="user-meta">
+            <div class="user-name">{{ user.name || 'Sin nombre' }}</div>
+            <div class="user-email">{{ user.email }}</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="helper-text" *ngIf="userSearchTerm.trim() && !userSearchLoading && !userSearchResults.length">
+        No se encontraron usuarios.
+      </div>
+    </div>
+  </div>
+
 </div>

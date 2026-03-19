@@ -1,34 +1,58 @@
 <div class="head">
   <div>
-    <div class="title">Active Conversations</div>
+    <div class="title">Messages</div>
+    <div class="subtitle">Tus conversaciones activas</div>
   </div>
-  <div class="badge">{{ items.length }}</div>
+
+  <div class="head-actions">
+    <div class="badge">{{ items.length }}</div>
+    <button class="new-btn" type="button" (click)="newConversation.emit()">
+      +
+    </button>
+  </div>
 </div>
 
 <div class="search-row">
-  <input placeholder="Search..." />
+  <input
+    [(ngModel)]="searchTerm"
+    placeholder="Buscar conversación..."
+    aria-label="Buscar conversación" />
 </div>
 
-<div class="list">
+<div class="list" *ngIf="filteredItems.length; else emptyList">
   <button
     class="row"
-    *ngFor="let c of items; trackBy: trackById"
+    type="button"
+    *ngFor="let c of filteredItems; trackBy: trackById"
     [class.active]="c.id === selectedId"
     (click)="select.emit(c)"
   >
     <div class="avatar">
-      <img *ngIf="c.otherAvatarUrl; else ph" [src]="c.otherAvatarUrl" />
-      <ng-template #ph>👤</ng-template>
+      <img *ngIf="c.otherAvatarUrl; else ph" [src]="c.otherAvatarUrl" [alt]="c.otherName || c.otherUserId" />
+      <ng-template #ph>
+        <span class="avatar-fallback">{{ getInitial(c.otherName, c.otherUserId) }}</span>
+      </ng-template>
       <span class="status-dot"></span>
     </div>
 
     <div class="meta">
-      <div class="name">{{ c.otherName || c.otherUserId }}</div>
-      <div class="preview">Reply to message</div>
-    </div>
+      <div class="top-line">
+        <div class="name">{{ c.otherName || c.otherUserId }}</div>
+        <div class="time">{{ formatTime(c.lastMessageAt) }}</div>
+      </div>
 
-    <div class="right">
-      <span class="unread" *ngIf="(c.unreadCount ?? 0) > 0">{{ c.unreadCount }}</span>
+      <div class="bottom-line">
+        <div class="preview">{{ getPreview(c) }}</div>
+        <span class="unread" *ngIf="(c.unreadCount ?? 0) > 0">{{ c.unreadCount }}</span>
+      </div>
     </div>
   </button>
 </div>
+
+<ng-template #emptyList>
+  <div class="empty">
+    <div class="empty-icon">💬</div>
+    <div class="empty-title">No hay conversaciones</div>
+    <div class="empty-text">Inicia una nueva conversación para comenzar.</div>
+  </div>
+</ng-template>
