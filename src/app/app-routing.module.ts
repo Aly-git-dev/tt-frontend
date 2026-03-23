@@ -15,6 +15,7 @@ import { AdminBannedUsersComponent } from './pages/admin-banned-users/admin-bann
 import { MessagesPageComponent } from './pages/messages-page/messages-page.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { VideoMeetingRoomComponent } from './pages/video-meeting-room.component/video-meeting-room.component.component';
 const routes: Routes = [
     // Páginas públicas (sin layout)
   { path: 'login', component: LoginComponent },
@@ -48,7 +49,11 @@ const routes: Routes = [
 
 
       // Default interno → dashboard
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'video-meetings/:id',
+        component: VideoMeetingRoomComponent
+      }
     ]
   },
 

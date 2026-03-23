@@ -23,6 +23,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { CommonModule } from '@angular/common';
+import { VideoMeetingRoomComponentComponent } from './pages/video-meeting-room.component/video-meeting-room.component.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { CommonModule } from '@angular/common';
     AdminReportListComponent,
     AdminBannedUsersComponent,
     ForgotPasswordComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    VideoMeetingRoomComponentComponent
   ],
   imports: [
     BrowserModule,
