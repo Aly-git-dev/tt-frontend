@@ -109,6 +109,88 @@
       </div>
     </div>
 
+    <div class="video-box" *ngIf="canUseVideoMeeting">
+      <div class="video-box-head">
+        <div class="video-box-title">
+          <mat-icon>videocam</mat-icon>
+          Videollamada
+        </div>
+        <span class="mini-status" *ngIf="vmLoading">Cargando…</span>
+      </div>
+
+      <div class="video-empty" *ngIf="!vmLoading && !videoMeeting">
+        <div class="video-empty-icon">
+          <mat-icon>video_call</mat-icon>
+        </div>
+        <div class="video-empty-text">
+          Esta cita es online y todavía no tiene videollamada creada.
+        </div>
+
+        <button
+          mat-flat-button
+          class="primary"
+          type="button"
+          (click)="createVideoMeeting()"
+          [disabled]="vmActionLoading"
+        >
+          <mat-icon>add_call</mat-icon>
+          Crear videollamada
+        </button>
+      </div>
+
+      <div class="video-detail" *ngIf="!vmLoading && videoMeeting">
+        <div class="video-row">
+          <div class="video-label">Proveedor</div>
+          <div class="video-value">{{ videoMeeting.provider }}</div>
+        </div>
+
+        <div class="video-row">
+          <div class="video-label">Sala</div>
+          <div class="video-value room-name">{{ videoMeeting.roomName }}</div>
+        </div>
+
+        <div class="video-row">
+          <div class="video-label">Estado</div>
+          <div class="video-value">
+            <span
+              class="pill"
+              [class.pill-online]="videoMeeting.status === 'LIVE' || videoMeeting.status === 'SCHEDULED'"
+              [class.pill-cancel]="videoMeeting.status === 'CANCELLED'">
+              {{ videoMeeting.status }}
+            </span>
+          </div>
+        </div>
+
+        <div class="video-actions">
+          <button
+            mat-flat-button
+            class="primary"
+            type="button"
+            (click)="openVideoMeeting()"
+            [disabled]="!canJoinVideoMeeting || vmActionLoading"
+          >
+            <mat-icon>login</mat-icon>
+            Entrar
+          </button>
+
+          <button
+            mat-stroked-button
+            class="warn-outline"
+            type="button"
+            (click)="cancelVideoMeeting()"
+            [disabled]="videoMeeting.status === 'CANCELLED' || vmActionLoading"
+          >
+            <mat-icon>videocam_off</mat-icon>
+            Cancelar videollamada
+          </button>
+        </div>
+      </div>
+
+      <div class="video-error" *ngIf="vmError">
+        {{ vmError }}
+      </div>
+    </div>
+
     <div class="dlg-actions">
       <button mat-stroked-button class="soft" type="button" (click)="close(false)">
         Cerrar

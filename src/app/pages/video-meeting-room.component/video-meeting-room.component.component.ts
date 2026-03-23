@@ -11,7 +11,7 @@ import { JitsiLoaderService } from '../../core/services/jitsi-loader.service';
 import {
   JoinVideoMeetingResponse,
   VideoMeetingApiService
-} from '../../core/services/video-meeting-api.service';
+} from '../../core/services/video-meeting-api.service.js';
 
 declare global {
   interface Window {
@@ -21,7 +21,7 @@ declare global {
 
 @Component({
   selector: 'app-video-meeting-room',
-  templateUrl: './video-meeting-room.component.html'
+  templateUrl: './video-meeting-room.component.component.html'
 })
 export class VideoMeetingRoomComponent implements AfterViewInit, OnDestroy {
   @ViewChild('jitsiContainer', { static: true }) jitsiContainer!: ElementRef<HTMLDivElement>;

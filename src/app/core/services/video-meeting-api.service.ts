@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface JoinVideoMeetingResponse {
   meetingId: string;
@@ -33,20 +34,29 @@ export interface VideoMeeting {
   providedIn: 'root'
 })
 export class VideoMeetingApiService {
-  private readonly baseUrl = '/api/video-meetings';
-  private readonly external_api.js = 'https://meet.jit.si/external_api.js';
+  private readonly baseUrl = `${environment.apiUrl}/api/video-meetings`;
 
   constructor(private http: HttpClient) {}
+
+  create(data: { appointmentId: string; hostUserId: string }): Observable<VideoMeeting> {
+    return this.http.post<VideoMeeting>(this.baseUrl, data);
+  }
 
   getById(id: string): Observable<VideoMeeting> {
     return this.http.get<VideoMeeting>(`${this.baseUrl}/${id}`);
   }
 
+  getByAppointment(appointmentId: string): Observable<VideoMeeting> {
+    return this.http.get<VideoMeeting>(`${this.baseUrl}/by-appointment/${appointmentId}`);
+  }
+
   join(id: string, displayName: string, deviceInfo?: string): Observable<JoinVideoMeetingResponse> {
     let params = new HttpParams().set('displayName', displayName);
+
     if (deviceInfo) {
       params = params.set('deviceInfo', deviceInfo);
     }
+
     return this.http.post<JoinVideoMeetingResponse>(`${this.baseUrl}/${id}/join`, {}, { params });
   }
 
