@@ -1,5 +1,6 @@
 import { Component, Inject, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -13,6 +14,8 @@ import { Router } from '@angular/router';
 
 import { AgendaApiService, Appointment, Modality } from '../../core/services/agenda-api.service';
 import { VideoMeeting, VideoMeetingApiService } from '../../core/services/video-meeting-api.service';
+import { ChatApiService } from '../../core/services/chat-api.service';
+import { UserSearchResult } from '../../core/models/chat.models';
 
 type Mode = 'create' | 'details';
 
@@ -21,6 +24,7 @@ type Mode = 'create' | 'details';
   selector: 'app-appointment-dialog',
   imports: [
     CommonModule,
+    FormsModule,
     MatDialogModule,
     ReactiveFormsModule,
     MatButtonModule,
@@ -34,6 +38,7 @@ type Mode = 'create' | 'details';
 export class AppointmentDialogComponent implements OnInit {
   private api = inject(AgendaApiService);
   private videoMeetingApi = inject(VideoMeetingApiService);
+  private chatApi = inject(ChatApiService);
   private fb = inject(FormBuilder);
   private ref = inject(MatDialogRef<AppointmentDialogComponent>);
   private router = inject(Router);
@@ -47,6 +52,12 @@ export class AppointmentDialogComponent implements OnInit {
   vmLoading = false;
   vmActionLoading = false;
   vmError = '';
+
+  userQuery = '';
+  userResults: UserSearchResult[] = [];
+  selectedUser: UserSearchResult | null = null;
+  searchingUsers = false;
+  userSearchError = '';
 
   form = this.fb.group({
     title: this.fb.nonNullable.control('', {
@@ -70,13 +81,13 @@ export class AppointmentDialogComponent implements OnInit {
     }
   }
 
-  private defaultStart() {
-    if (this.data?.dateISO) return `${this.data.dateISO}T10:00:00`;
+  private defaultStart(): string {
+    if (this.data?.dateISO) return `${this.data.dateISO}T10:00`;
     return '';
   }
 
-  private defaultEnd() {
-    if (this.data?.dateISO) return `${this.data.dateISO}T11:00:00`;
+  private defaultEnd(): string {
+    if (this.data?.dateISO) return `${this.data.dateISO}T11:00`;
     return '';
   }
 
@@ -92,7 +103,52 @@ export class AppointmentDialogComponent implements OnInit {
   }
 
   get canJoinVideoMeeting(): boolean {
-    return !!this.videoMeeting && this.videoMeeting.status !== 'CANCELLED' && this.videoMeeting.status !== 'ENDED';
+    return !!this.videoMeeting
+      && this.videoMeeting.status !== 'CANCELLED'
+      && this.videoMeeting.status !== 'ENDED';
+  }
+
+  searchUsers(): void {
+    const q = this.userQuery.trim();
+
+    this.userSearchError = '';
+
+    if (q.length < 2) {
+      this.userResults = [];
+      return;
+    }
+
+    this.searchingUsers = true;
+
+    this.chatApi.searchUsers(q).subscribe({
+      next: (results) => {
+        this.userResults = results ?? [];
+        this.searchingUsers = false;
+
+        if (!this.userResults.length) {
+          this.userSearchError = 'No se encontraron usuarios.';
+        }
+      },
+      error: () => {
+        this.userResults = [];
+        this.userSearchError = 'No se pudieron buscar usuarios.';
+        this.searchingUsers = false;
+      }
+    });
+  }
+
+  selectUser(user: UserSearchResult): void {
+    this.selectedUser = user;
+    this.userQuery = user.name?.trim() ? `${user.name} (${user.email})` : user.email;
+    this.userResults = [];
+    this.userSearchError = '';
+  }
+
+  clearSelectedUser(): void {
+    this.selectedUser = null;
+    this.userQuery = '';
+    this.userResults = [];
+    this.userSearchError = '';
   }
 
   private loadVideoMeeting(): void {
@@ -114,8 +170,13 @@ export class AppointmentDialogComponent implements OnInit {
     });
   }
 
-  create() {
+  create(): void {
     const v = this.form.getRawValue();
+
+    if (!this.selectedUser?.id) {
+      this.userSearchError = 'Debes seleccionar un invitado.';
+      return;
+    }
 
     this.api.create({
       title: v.title,
@@ -123,27 +184,56 @@ export class AppointmentDialogComponent implements OnInit {
       modality: v.modality,
       startsAt: v.startsAt,
       endsAt: v.endsAt,
-      inviteeUserIds: [],
+      inviteeUserIds: [this.selectedUser.id],
     }).subscribe({
       next: () => this.close(true),
       error: () => this.close(false),
     });
   }
 
-  createVideoMeeting() {
+  private getCurrentUserId(): string {
+    const possibleKeys = [
+      'userId',
+      'user_id',
+      'auth_user_id',
+      'currentUserId',
+      'uuid',
+    ];
+
+    for (const key of possibleKeys) {
+      const value = localStorage.getItem(key);
+      if (value && value.trim()) return value.trim();
+    }
+
+    try {
+      const rawUser = localStorage.getItem('user');
+      if (rawUser) {
+        const parsed = JSON.parse(rawUser);
+        const candidate = parsed?.id ?? parsed?.userId ?? parsed?.uuid;
+        if (candidate && String(candidate).trim()) {
+          return String(candidate).trim();
+        }
+      }
+    } catch {
+      // ignore JSON parse error
+    }
+
+    return '';
+  }
+
+  createVideoMeeting(): void {
     const appt = this.data.appt;
     if (!appt) return;
 
-    this.vmActionLoading = true;
-    this.vmError = '';
-
-    const currentUserId = localStorage.getItem('user_id') || '';
+    const currentUserId = this.getCurrentUserId();
 
     if (!currentUserId) {
-      this.vmActionLoading = false;
-      this.vmError = 'No se encontró el usuario actual para crear la videollamada.';
+      this.vmError = 'No se encontró el UUID del usuario autenticado en localStorage.';
       return;
     }
+
+    this.vmActionLoading = true;
+    this.vmError = '';
 
     this.videoMeetingApi.create({
       appointmentId: appt.id,
@@ -160,14 +250,14 @@ export class AppointmentDialogComponent implements OnInit {
     });
   }
 
-  openVideoMeeting() {
+  openVideoMeeting(): void {
     if (!this.videoMeeting) return;
 
     this.ref.close(false);
     this.router.navigate(['/video-meetings', this.videoMeeting.id]);
   }
 
-  cancelVideoMeeting() {
+  cancelVideoMeeting(): void {
     if (!this.videoMeeting) return;
 
     this.vmActionLoading = true;
@@ -185,7 +275,7 @@ export class AppointmentDialogComponent implements OnInit {
     });
   }
 
-  cancel() {
+  cancel(): void {
     const appt = this.data.appt;
     if (!appt) return;
 
@@ -195,7 +285,7 @@ export class AppointmentDialogComponent implements OnInit {
     });
   }
 
-  close(changed: boolean) {
+  close(changed: boolean): void {
     this.ref.close(changed);
   }
 }

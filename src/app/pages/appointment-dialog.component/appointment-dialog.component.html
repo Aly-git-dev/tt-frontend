@@ -23,13 +23,58 @@
       <mat-form-field appearance="outline" class="full">
         <mat-label>Título</mat-label>
         <input matInput formControlName="title" placeholder="Ej. Asesoría TT" />
-        <mat-hint align="end">{{ form.controls.title.value?.length || 0 }}/120</mat-hint>
+        <mat-hint align="end">{{ form.controls.title.value.length || 0 }}/120</mat-hint>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full">
         <mat-label>Descripción</mat-label>
         <textarea matInput rows="3" formControlName="description" placeholder="Notas, link, contexto…"></textarea>
       </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Buscar invitado</mat-label>
+        <input
+          matInput
+          [(ngModel)]="userQuery"
+          [ngModelOptions]="{ standalone: true }"
+          (input)="searchUsers()"
+          placeholder="Buscar por nombre o correo" />
+      </mat-form-field>
+
+      <div class="full" *ngIf="selectedUser" style="margin-top: -4px; margin-bottom: 8px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(255,255,255,.12); border-radius:12px;">
+          <div>
+            <div><strong>Invitado seleccionado:</strong></div>
+            <div>{{ selectedUser.name || 'Sin nombre' }}</div>
+            <div style="opacity:.8;">{{ selectedUser.email }}</div>
+          </div>
+
+          <button mat-stroked-button type="button" (click)="clearSelectedUser()">
+            Cambiar
+          </button>
+        </div>
+      </div>
+
+      <div class="full" *ngIf="searchingUsers" style="margin-top: -4px; margin-bottom: 8px;">
+        Buscando usuarios...
+      </div>
+
+      <div class="full" *ngIf="!selectedUser && userResults.length" style="margin-top: -4px; margin-bottom: 8px;">
+        <div style="display:grid; gap:8px;">
+          <button
+            mat-stroked-button
+            type="button"
+            *ngFor="let user of userResults"
+            (click)="selectUser(user)"
+            style="justify-content:flex-start; text-align:left;">
+            <span>{{ user.name || 'Sin nombre' }} — {{ user.email }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="full" *ngIf="userSearchError" style="margin-top: -4px; margin-bottom: 8px; color:#ffb4ab;">
+        {{ userSearchError }}
+      </div>
 
       <mat-form-field appearance="outline">
         <mat-label>Modalidad</mat-label>

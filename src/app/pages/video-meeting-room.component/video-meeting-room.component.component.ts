@@ -21,7 +21,8 @@ declare global {
 
 @Component({
   selector: 'app-video-meeting-room',
-  templateUrl: './video-meeting-room.component.component.html'
+  templateUrl: './video-meeting-room.component.component.html',
+  styleUrls: ['./video-meeting-room.component.component.css']
 })
 export class VideoMeetingRoomComponent implements AfterViewInit, OnDestroy {
   @ViewChild('jitsiContainer', { static: true }) jitsiContainer!: ElementRef<HTMLDivElement>;
@@ -103,7 +104,7 @@ export class VideoMeetingRoomComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private async safeLeaveMeeting(): Promise<void> {
+  async safeLeaveMeeting(): Promise<void> {
     if (!this.meetingId) return;
 
     try {
