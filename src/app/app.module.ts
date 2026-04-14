@@ -25,6 +25,10 @@ import { VideoMeetingRoomComponent } from './pages/video-meeting-room.component/
 
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
+import { AdminAnalyticsDashboardComponent } from './pages/admin-analytics-dashboard/admin-analytics-dashboard.component';
+import { TeacherAnalyticsDetailComponent } from './pages/teacher-analytics-detail/teacher-analytics-detail.component';
+import { TeacherEvaluationFormComponent } from './pages/teacher-evaluation-form/teacher-evaluation-form.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -50,7 +54,11 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     FormsModule,
     CommonModule,
     BrowserAnimationsModule,
-    AppRoutingModule
+    AppRoutingModule,
+
+    AdminAnalyticsDashboardComponent,
+    TeacherAnalyticsDetailComponent,
+    TeacherEvaluationFormComponent
   ],
   providers: [
     {
@@ -61,5 +69,4 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
   ],
   bootstrap: [AppComponent]
 })
-
 export class AppModule { }

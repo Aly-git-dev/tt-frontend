@@ -1,473 +1,466 @@
-/* ==== WRAPPER GENERAL ==== */
-
-.page-wrapper {
-  padding: 24px 32px;
-  background: var(--page-bg);
-  min-height: calc(100vh - 64px);
-  box-sizing: border-box;
+.forum-page {
+  padding: 24px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(93, 135, 255, 0.10), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(48, 86, 211, 0.08), transparent 20%),
+    linear-gradient(180deg, #f7f9fc 0%, #edf3fb 100%);
 }
 
-.page-header {
-  margin-bottom: 20px;
+.forum-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+  padding: 24px;
+  border-radius: 26px;
+  background: linear-gradient(135deg, #ffffff 0%, #f6f9ff 100%);
+  border: 1px solid #e8eef8;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
 }
 
-.page-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text-main);
+.hero-copy h1 {
+  margin: 6px 0 8px;
+  font-size: 32px;
+  color: #1f2d3d;
 }
 
-.page-subtitle {
+.hero-copy p {
+  margin: 0;
+  max-width: 760px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.hero-tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #4f46e5;
+}
+
+.hero-side {
+  min-width: 220px;
+  padding: 18px;
+  border-radius: 20px;
+  background: #eef2ff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-chip {
+  display: inline-block;
+  align-self: flex-start;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hero-kpi-label {
+  font-size: 13px;
+  color: #6366f1;
+}
+
+.hero-kpi-value {
+  display: block;
   margin-top: 4px;
-  font-size: 14px;
-  color: var(--text-muted);
+  color: #312e81;
+  font-size: 22px;
 }
 
-/* ==== CARD PRINCIPAL ==== */
-
-.form-card {
-  border-radius: 28px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-soft);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+.forum-layout {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  overflow: hidden;
-  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr);
+  gap: 22px;
 }
 
-@media (max-width: 1024px) {
-  .form-card {
-    grid-template-columns: 1fr;
-  }
+.forum-main,
+.forum-side {
+  min-width: 0;
 }
 
-.form-card-left {
-  padding: 24px 28px 24px;
+.thread-card,
+.info-panel {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ebf0f7;
+  border-radius: 26px;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.07);
 }
 
-/* Que todos los grupos tengan el mismo ancho máximo
-   para que los inputs queden alineados visualmente */
-.form-card-left form {
-  max-width: 720px;
-}
-
-/* Lado derecho (lo detallamos abajo) */
-.form-card-right {
+.thread-card {
   padding: 24px;
 }
 
-/* ==== CAMPOS E INPUTS ==== */
+.card-head {
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.card-subtitle {
+  margin-top: 4px;
+  color: #64748b;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 18px;
+}
 
 .field-group {
   margin-bottom: 18px;
 }
 
-/* Aplicar box-sizing a todo para evitar desajustes */
-.field-group,
-.field-group * {
-  box-sizing: border-box;
-}
-
 .field-label {
   display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-main);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  color: #243447;
+  font-weight: 700;
 }
 
-/* Base para todos los inputs/select/textarea */
 .field-input {
   width: 100%;
-  border-radius: 999px;
-  border: 1px solid var(--border-soft);
-  background: #f9fafb;
-  padding: 10px 16px;
-  font-size: 14px;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid #d8e2ee;
+  background: #fff;
+  color: #1f2937;
+  font: inherit;
   outline: none;
-  color: var(--text-main);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-  line-height: 1.4;
-  display: block;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
 
-/* Select con la misma altura/estilo que los inputs */
-select.field-input {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, #888 50%),
-    linear-gradient(135deg, #888 50%, transparent 50%);
-  background-position: calc(100% - 18px) 16px, calc(100% - 13px) 16px;
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
-}
-
-/* Textarea: mismo ancho, pero con border-radius más grande */
-.field-textarea {
-  border-radius: 18px;
-  resize: vertical;
-  min-height: 140px;
-}
-
-/* Focus con guinda institucional */
 .field-input:focus {
-  border-color: var(--primary);
-  background: #ffffff;
-  box-shadow: 0 0 0 1px rgba(122, 0, 60, 0.10); /* guinda suave */
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
 }
 
-.field-hint {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--text-muted);
+.field-textarea {
+  min-height: 190px;
+  resize: vertical;
 }
 
-.field-error {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #b91c1c;
+.field-hint,
+.content-hint {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7a90;
 }
 
-/* ==== QUICK FORMAT (código / LaTeX) ==== */
+.field-error,
+.form-error-banner {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b42318;
+}
 
-.quick-format-bar {
+.form-error-banner {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+}
+
+.quick-tools {
   display: flex;
+  gap: 10px;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
-.quick-format-label {
-  color: var(--text-muted);
+.quick-tools-label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 700;
 }
 
 .chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 500;
-  cursor: default;
-}
-
-/* Guinda IPN suave para los chips */
-.chip-outline {
-  border: 1px solid rgba(122, 0, 60, 0.25);
-  color: #7a003c; /* guinda IPN */
-  background: #fff3f8;
-}
-
-.content-hint {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.content-hint code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
-  background: #f3f4f6;
-  padding: 2px 5px;
-  border-radius: 4px;
-}
-
-/* ==== DROPZONE DE ARCHIVOS (INSTITUCIONAL) ==== */
-
-.attachments-group {
-  margin-top: 4px;
-}
-
-.file-dropzone {
-  margin-top: 10px;
-  border-radius: 18px;
-  border: 1px dashed rgba(122, 0, 60, 0.4); /* guinda */
-  background: #fdf2f7; /* rosa-guinda muy claro */
-  padding: 22px 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease,
-    box-shadow 0.15s ease, transform 0.08s ease;
-}
-
-.file-dropzone:hover {
-  background: #ffe4ef;
-  border-color: #7a003c;
-  box-shadow: 0 10px 30px rgba(122, 0, 60, 0.22);
-  transform: translateY(-1px);
-}
-
-.file-dropzone:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-.file-input {
-  display: none;
-}
-
-.file-drop-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid rgba(122, 0, 60, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  color: #7a003c;
-}
-
-.file-drop-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.file-drop-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.file-drop-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.attachments-list {
-  margin-top: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.attachment-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #ecfdf3; /* verde super claro */
-  font-size: 11px;
-  color: var(--text-main);
-}
-
-.attachment-name {
-  max-width: 180px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.attachment-remove {
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  color: var(--text-muted);
-}
-
-/* ==== ACCIONES ==== */
-
-.actions {
-  margin-top: 18px;
-}
-
-.btn-primary {
   border: none;
   border-radius: 999px;
-  padding: 10px 24px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #ffffff;
-  background: linear-gradient(135deg, #7a003c, #b3124a); /* guinda -> guinda clara */
-  cursor: pointer;
-  box-shadow: 0 12px 30px rgba(122, 0, 60, 0.4);
-  transition: transform 0.08s ease, box-shadow 0.12s ease, opacity 0.12s ease;
-}
-
-.btn-primary:hover:enabled {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 34px rgba(122, 0, 60, 0.48);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: default;
-  box-shadow: none;
-}
-
-.form-error-global {
-  margin-top: 10px;
-  font-size: 13px;
-  color: #b91c1c;
-}
-
-/* ==== PANEL DERECHO (INFO) CON PALETA INSTITUCIONAL ==== */
-
-.info-panel {
-  /* guinda → guinda clara con toque de verde UPIIZ */
-  background: radial-gradient(circle at top left, #dbeafe 0, #fdf2f7 40%, #ffffff 100%);
-  border-left: 1px solid rgba(122, 0, 60, 0.08);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.info-panel-header h3 {
-  margin: 10px 0 4px;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.info-panel-header p {
-  margin: 0;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-/* Pastilla de tips con guinda */
-.info-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  background: rgba(122, 0, 60, 0.1);
-  color: #7a003c;
-}
-
-.info-list {
-  list-style: none;
-  margin: 20px 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.info-list li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px;
-  align-items: flex-start;
-}
-
-/* Iconitos con aro blanco y borde verde IPN (toque UPIIZ) */
-.info-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid rgba(22, 163, 74, 0.25); /* verde */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-
-.info-list strong {
-  font-size: 13px;
-  color: var(--text-main);
-}
-
-.info-list p {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin: 2px 0 0;
-}
-
-@media (max-width: 1024px) {
-  .info-panel {
-    border-left: none;
-    border-top: 1px solid rgba(122, 0, 60, 0.08);
-  }
-}
-.file-dropzone.is-dragover {
-  background: #ffe4ef;
-  border-color: #7a003c;
-  box-shadow: 0 12px 36px rgba(122, 0, 60, 0.45);
-}
-.file-dropzone--clickable {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  border-radius: 18px;
-  border: 1px dashed var(--border-soft);
-  background: #fdf2f8;
-  cursor: pointer;
   padding: 10px 14px;
-  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.attachment-panel {
-  margin-top: 10px;
-  border-radius: 18px;
-  border: 1px solid var(--border-soft);
-  background: #ffffff;
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
-  padding: 12px 14px;
+.chip-outline {
+  background: #fff;
+  color: #334155;
+  border: 1px solid #d8e2ee;
 }
 
-.attachment-panel-header {
+.chip-outline:hover {
+  background: #f8fafc;
+}
+
+.chip-soft {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.chip-soft:hover {
+  background: #e4e9ff;
+}
+
+.attachment-card {
+  margin-bottom: 20px;
+  border: 1px solid #e7ecf4;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #fbfdff 0%, #f7faff 100%);
+}
+
+.attachment-card-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  gap: 16px;
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.attachment-card-head h3 {
+  margin: 0 0 6px;
+  color: #243447;
+}
+
+.attachment-card-head p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.attachment-card-body {
+  padding: 16px 18px 18px;
 }
 
 .attachment-panel-close {
   border: none;
-  background: transparent;
-  font-size: 18px;
-  line-height: 1;
+  background: #fff;
+  color: #475569;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
   cursor: pointer;
 }
 
 .attachment-row {
   display: grid;
-  grid-template-columns: minmax(100px, 0.4fr) minmax(0, 1fr) auto;
-  gap: 8px;
-  margin-bottom: 8px;
+  grid-template-columns: 180px minmax(0, 1fr) 48px;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .attachment-kind-select,
 .attachment-url-input {
+  width: 100%;
+  padding: 12px 13px;
   border-radius: 14px;
-  border: 1px solid var(--border-soft);
-  padding: 6px 10px;
-  font-size: 13px;
+  border: 1px solid #d8e2ee;
+  background: #fff;
+  outline: none;
+  font: inherit;
+}
+
+.attachment-remove-btn,
+.attachment-add-btn {
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .attachment-remove-btn {
-  border: none;
-  background: #fee2e2;
-  border-radius: 999px;
-  padding: 4px 8px;
-  cursor: pointer;
+  width: 48px;
+  height: 48px;
+  background: #fff1f2;
+  color: #be123c;
 }
 
 .attachment-add-btn {
   margin-top: 6px;
+  padding: 12px 16px;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.btn-primary,
+.btn-secondary {
   border: none;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 500;
-  background: #f3e8ff;
+  border-radius: 16px;
+  padding: 13px 18px;
+  font-weight: 800;
   cursor: pointer;
+  transition: .2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.20);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: .7;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: #fff;
+  border: 1px solid #d8e2ee;
+  color: #334155;
+}
+
+.info-panel {
+  padding: 22px;
+  position: sticky;
+  top: 24px;
+}
+
+.info-panel-header h3 {
+  margin: 8px 0 8px;
+  font-size: 22px;
+  color: #1e293b;
+}
+
+.info-panel-header p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.info-pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #ede9fe;
+  color: #5b21b6;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+  display: grid;
+  gap: 14px;
+}
+
+.info-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: 18px;
+  background: #f8fbff;
+  border: 1px solid #ebf1f8;
+}
+
+.info-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #eef2ff;
+  color: #4338ca;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+
+.info-list strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #243447;
+}
+
+.info-list p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+code {
+  background: #eff3f8;
+  border-radius: 8px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+@media (max-width: 980px) {
+  .forum-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .info-panel {
+    position: static;
+  }
+
+  .grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .forum-hero {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 720px) {
+  .forum-page {
+    padding: 16px;
+  }
+
+  .thread-card,
+  .info-panel,
+  .forum-hero {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .attachment-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
 }

@@ -221,23 +221,15 @@ export class AppointmentDialogComponent implements OnInit {
     return '';
   }
 
-  createVideoMeeting(): void {
-    const appt = this.data.appt;
-    if (!appt) return;
+  createVideoMeeting() {
+  const appt = this.data.appt;
+  if (!appt) return;
 
-    const currentUserId = this.getCurrentUserId();
+  this.vmActionLoading = true;
+  this.vmError = '';
 
-    if (!currentUserId) {
-      this.vmError = 'No se encontró el UUID del usuario autenticado en localStorage.';
-      return;
-    }
-
-    this.vmActionLoading = true;
-    this.vmError = '';
-
-    this.videoMeetingApi.create({
-      appointmentId: appt.id,
-      hostUserId: currentUserId
+  this.videoMeetingApi.create({
+      appointmentId: appt.id
     }).subscribe({
       next: (meeting) => {
         this.videoMeeting = meeting;
@@ -248,7 +240,7 @@ export class AppointmentDialogComponent implements OnInit {
         this.vmError = err?.error?.message || 'No se pudo crear la videollamada.';
       }
     });
-  }
+}
 
   openVideoMeeting(): void {
     if (!this.videoMeeting) return;

@@ -1,0 +1,276 @@
+.analytics-page {
+  padding: 24px;
+  background: linear-gradient(180deg, #f7f9fc 0%, #eef3fb 100%);
+  min-height: 100vh;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(22, 34, 51, 0.08);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #6b7a90;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 32px;
+  color: #1f2d3d;
+}
+
+.subtitle {
+  margin-top: 10px;
+  color: #526277;
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+.refresh-btn,
+.detail-btn,
+.top-card button {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  background: #3056d3;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.refresh-btn:hover,
+.detail-btn:hover,
+.top-card button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(48, 86, 211, .2);
+}
+
+.state-card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(22, 34, 51, .08);
+  margin-bottom: 20px;
+}
+
+.state-card.error {
+  color: #b42318;
+  border-left: 4px solid #f04438;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 10px 28px rgba(22, 34, 51, 0.07);
+}
+
+.stat-label {
+  display: block;
+  font-size: 13px;
+  color: #6b7a90;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 30px;
+  color: #1f2d3d;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: 0 12px 32px rgba(22, 34, 51, 0.07);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #1f2d3d;
+}
+
+.panel-header span {
+  color: #6b7a90;
+  font-size: 14px;
+}
+
+.teacher-header {
+  align-items: center;
+}
+
+.teacher-search {
+  min-width: 260px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #d8e0ec;
+  outline: none;
+}
+
+.teacher-search:focus {
+  border-color: #3056d3;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  font-size: 13px;
+  color: #6b7a90;
+  padding: 14px 12px;
+  border-bottom: 1px solid #edf1f7;
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #f1f4f8;
+  color: #233142;
+  vertical-align: middle;
+}
+
+tbody tr:hover {
+  background: #f8fbff;
+}
+
+.empty-cell {
+  text-align: center;
+  color: #7c8ca1;
+  padding: 24px;
+}
+
+.teachers-grid.top-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.top-card {
+  background: linear-gradient(180deg, #eef4ff 0%, #ffffff 100%);
+  border: 1px solid #d8e5ff;
+  border-radius: 22px;
+  padding: 20px;
+}
+
+.top-card h3 {
+  margin: 8px 0 6px;
+  color: #1f2d3d;
+}
+
+.top-card p {
+  margin: 0 0 12px;
+  color: #6b7a90;
+  font-size: 14px;
+}
+
+.top-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #dbe8ff;
+  color: #2244aa;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.score-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.score-chip.small {
+  min-width: 42px;
+  height: 42px;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.score-chip.excellent {
+  background: #dcfae6;
+  color: #067647;
+}
+
+.score-chip.good {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.score-chip.regular {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.score-chip.bad {
+  background: #fee4e2;
+  color: #b42318;
+}
+
+@media (max-width: 1100px) {
+  .content-grid,
+  .stats-grid,
+  .teachers-grid.top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero,
+  .panel-header.teacher-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .teacher-search {
+    min-width: unset;
+    width: 100%;
+  }
+}

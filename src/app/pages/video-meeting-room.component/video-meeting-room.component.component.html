@@ -1,6 +1,4 @@
 <div class="vm-container">
-
-  <!-- HEADER -->
   <div class="vm-header">
     <div class="vm-title">
       <span class="vm-dot"></span>
@@ -8,32 +6,22 @@
     </div>
 
     <div class="vm-actions">
-      <button class="vm-btn vm-btn-danger" (click)="safeLeaveMeeting()">
-        Salir
+      <button class="vm-btn vm-btn-danger" (click)="goBack()">
+        Volver
       </button>
     </div>
   </div>
 
-  <!-- LOADING -->
   <div *ngIf="loading" class="vm-state">
     <div class="spinner"></div>
-    <p>Cargando videoconferencia...</p>
+    <p>Abriendo videoconferencia...</p>
   </div>
 
-  <!-- ERROR -->
   <div *ngIf="error && !loading" class="vm-state vm-error">
     <h3>⚠️ Error</h3>
     <p>{{ error }}</p>
-    <button class="vm-btn" routerLink="/agenda">
+    <button class="vm-btn" (click)="goBack()">
       Volver a agenda
     </button>
   </div>
-
-  <!-- JITSI -->
-  <div
-    #jitsiContainer
-    *ngIf="!loading && !error"
-    class="vm-jitsi-container">
-  </div>
-
 </div>

@@ -1,58 +1,90 @@
-<div class="page-wrapper">
-  <div class="page-header">
-    <div>
-      <h2 class="page-title">Crear nuevo hilo</h2>
-      <p class="page-subtitle">
-        Publica dudas, discusiones o anuncios para la comunidad UPIIZ.
+<div class="forum-page">
+  <section class="forum-hero">
+    <div class="hero-copy">
+      <span class="hero-tag">Foros UPIIZ</span>
+      <h1>Crear nuevo hilo</h1>
+      <p>
+        Publica dudas, discusiones o anuncios para la comunidad. Usa un título claro,
+        explica el contexto y agrega recursos útiles si los tienes.
       </p>
     </div>
-  </div>
 
-  <div class="form-card">
-    <!-- LADO IZQUIERDO: FORMULARIO -->
-    <div class="form-card-left">
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="hero-side">
+      <div class="hero-chip">Comunidad académica</div>
+      <div class="hero-kpi">
+        <span class="hero-kpi-label">Estado</span>
+        <strong class="hero-kpi-value">{{ submitting ? 'Publicando...' : 'Listo para publicar' }}</strong>
+      </div>
+    </div>
+  </section>
 
-        <!-- CATEGORÍA -->
-        <div class="field-group">
-          <label class="field-label">Categoría</label>
-          <select class="field-input" formControlName="categoryId">
-            <option value="">Selecciona una categoría</option>
-            <option value="1">Inteligencia Artificial</option>
-            <option value="2">Sistemas Computacionales</option>
-            <option value="3">Mecatrónica</option>
-            <option value="4">Alimentos</option>
-            <option value="5">Ambiental</option>
-            <option value="6">Metalúrgica</option>
-            <option value="7">Eventos y clubes</option>
-            <option value="8">Evaluación docente</option>
-          </select>
-          <div class="field-hint">
-            Carrera, eventos, clubes o evaluación docente.
+  <div class="forum-layout">
+    <section class="forum-main">
+      <form class="thread-card" [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <div class="card-head">
+          <div>
+            <div class="card-title">Información del hilo</div>
+            <div class="card-subtitle">Completa los datos principales de tu publicación</div>
           </div>
         </div>
 
-        <!-- SUBÁREA / MATERIA -->
+        <div class="grid-two">
+          <!-- CATEGORÍA -->
+          <div class="field-group">
+            <label class="field-label">Categoría</label>
+            <select class="field-input" formControlName="categoryId">
+              <option [ngValue]="null">Selecciona una categoría</option>
+              <option *ngFor="let c of categories" [ngValue]="c.id">
+                {{ c.label }}
+              </option>
+            </select>
+            <div class="field-hint">
+              Elige la carrera o espacio al que pertenece tu publicación.
+            </div>
+          </div>
+
+          <!-- TIPO -->
+          <div class="field-group">
+            <label class="field-label">Tipo de hilo</label>
+            <select class="field-input" formControlName="type">
+              <option *ngFor="let t of threadTypes" [ngValue]="t.value">
+                {{ t.label }}
+              </option>
+            </select>
+            <div class="field-hint">
+              Usa pregunta para dudas, discusión para debate y anuncio para avisos.
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBAREA -->
         <div class="field-group">
           <label class="field-label">Subárea / Materia (opcional)</label>
-          <input
-            type="text"
-            class="field-input"
-            formControlName="subareaName"
-            placeholder="Escribe la materia o el área correspondiente" />
+          <select class="field-input" formControlName="subareaId">
+            <option [ngValue]="null">Selecciona una subárea</option>
+            <option *ngFor="let s of subareas" [ngValue]="s.id">
+              {{ s.label }}
+            </option>
+          </select>
           <div class="field-hint">
-            Puedes dejarlo vacío si es un tema general de la carrera.
+            Si aún no tienes catálogo cargado, puedes dejarlo vacío.
           </div>
         </div>
 
-        <!-- TIPO DE HILO -->
-        <div class="field-group">
-          <label class="field-label">Tipo de hilo</label>
-          <select class="field-input" formControlName="type">
-            <option *ngFor="let t of threadTypes" [value]="t.value">
-              {{ t.label }}
-            </option>
+        <!-- DIFICULTAD -->
+        <div class="field-group" *ngIf="form.get('type')?.value === 'PREGUNTA'">
+          <label class="field-label">Nivel de dificultad percibida</label>
+          <select class="field-input" formControlName="difficultyLevel">
+            <option [ngValue]="1">Baja</option>
+            <option [ngValue]="2">Media-baja</option>
+            <option [ngValue]="3">Media</option>
+            <option [ngValue]="4">Alta</option>
+            <option [ngValue]="5">Muy alta</option>
           </select>
+          <div class="field-hint">
+            Esto ayuda a detectar áreas donde más estudiantes tienen dificultades.
+          </div>
         </div>
 
         <!-- TÍTULO -->
@@ -62,166 +94,173 @@
             type="text"
             class="field-input"
             formControlName="title"
-            placeholder="Escribe un título claro y descriptivo" />
+            placeholder="Ej. No entiendo recursividad en estructuras de datos" />
           <div
             class="field-error"
             *ngIf="form.get('title')?.invalid && form.get('title')?.touched">
-            El título es obligatorio (mínimo 5 caracteres).
+            El título es obligatorio y debe tener al menos 5 caracteres.
           </div>
         </div>
 
-        <!-- CONTENIDO -->
+        <!-- BODY -->
         <div class="field-group">
           <label class="field-label">Contenido</label>
 
-          <!-- Barra de formato rápido -->
-          <div class="quick-format-bar">
-            <span class="quick-format-label">Formato rápido:</span>
+          <div class="quick-tools">
+            <span class="quick-tools-label">Formato rápido</span>
+
             <button type="button" class="chip chip-outline" (click)="insertCodeTemplate()">
-              Bloque de código
+              <span>💻</span> Código
             </button>
+
             <button type="button" class="chip chip-outline" (click)="insertLatexTemplate()">
-              Fórmula / LaTeX
+              <span>∑</span> Fórmula
+            </button>
+
+            <button type="button" class="chip chip-soft" (click)="openAttachmentPanel()">
+              <span>🔗</span> Enlaces
             </button>
           </div>
 
           <textarea
-            rows="6"
+            rows="9"
             class="field-input field-textarea"
             formControlName="body"
-            placeholder="Explica tu duda o tema de discusión con suficiente detalle">
+            placeholder="Describe tu duda, el contexto, lo que intentaste y el resultado esperado.">
           </textarea>
 
           <div
             class="field-error"
             *ngIf="form.get('body')?.invalid && form.get('body')?.touched">
-            El contenido es obligatorio (mínimo 10 caracteres).
+            El contenido es obligatorio y debe tener al menos 10 caracteres.
           </div>
 
           <div class="content-hint">
-            Tip: puedes usar Markdown básico. Rodea el código con <code>```</code> y
-            fórmulas con <code>$ ... $</code> o <code>$$ ... $$</code>. En el hilo
-            se mostrarán con resaltado y fórmulas renderizadas.
+            Puedes usar Markdown, bloques de código con <code>```</code> y fórmulas con
+            <code>$...$</code> o <code>$$...$$</code>.
           </div>
         </div>
-        <!-- Adjuntar multimedia (opcional) -->
-        <div class="field-group attachments-group">
-          <label class="field-label">Adjuntar enlaces (opcional)</label>
-          <div class="field-hint">
-            Pega enlaces a imágenes, videos, audios o recursos externos.
-            En el detalle del hilo se mostrarán con formato enriquecido
-            (código coloreado, fórmulas con LaTeX, diagramas Mermaid, etc.).
+
+        <!-- ATTACHMENTS -->
+        <div class="attachment-card" *ngIf="showAttachmentPanel">
+          <div class="attachment-card-head">
+            <div>
+              <h3>Enlaces adjuntos</h3>
+              <p>Agrega recursos externos como imágenes, videos, audios o documentación.</p>
+            </div>
+
+            <button
+              type="button"
+              class="attachment-panel-close"
+              (click)="closeAttachmentPanel()">
+              ×
+            </button>
           </div>
 
-          <!-- Zona tipo dropzone pero que abre el panel -->
-          <button
-            type="button"
-            class="file-dropzone file-dropzone--clickable"
-            (click)="openAttachmentPanel()">
-            <div class="file-drop-icon">🔗</div>
-            <div class="file-drop-text">
-              <span class="file-drop-title">Agregar enlaces</span>
-              <span class="file-drop-subtitle">
-                Haz clic para añadir enlaces a recursos multimedia o documentación.
-              </span>
+          <div class="attachment-card-body" formArrayName="attachments">
+            <div
+              class="attachment-row"
+              *ngFor="let att of attachments.controls; let i = index"
+              [formGroupName]="i">
+
+              <select class="attachment-kind-select" formControlName="kind">
+                <option value="LINK">Enlace</option>
+                <option value="IMAGEN">Imagen</option>
+                <option value="VIDEO">Video</option>
+                <option value="AUDIO">Audio</option>
+              </select>
+
+              <input
+                class="attachment-url-input"
+                type="url"
+                formControlName="url"
+                placeholder="https://ejemplo.com/recurso" />
+
+              <button
+                type="button"
+                class="attachment-remove-btn"
+                (click)="removeLinkAttachment(i)">
+                🗑
+              </button>
             </div>
+
+            <button
+              type="button"
+              class="attachment-add-btn"
+              (click)="addLinkAttachment()">
+              + Añadir otro enlace
+            </button>
+          </div>
+        </div>
+
+        <div class="form-error-banner" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <div class="form-actions">
+          <button
+            class="btn-secondary"
+            type="button"
+            routerLink="/dashboard"
+            [disabled]="submitting">
+            Cancelar
           </button>
 
-          <!-- Panel flotante / tarjeta para gestionar los enlaces -->
-          <div class="attachment-panel" *ngIf="showAttachmentPanel">
-            <div class="attachment-panel-header">
-              <h4>Enlaces adjuntos</h4>
-              <button
-                type="button"
-                class="attachment-panel-close"
-                (click)="closeAttachmentPanel()">
-                ×
-              </button>
-            </div>
-
-            <div class="attachment-panel-body" formArrayName="attachments">
-              <div
-                class="attachment-row"
-                *ngFor="let att of attachments.controls; let i = index"
-                [formGroupName]="i">
-
-                <select class="attachment-kind-select" formControlName="kind">
-                  <option value="LINK">Enlace genérico</option>
-                  <option value="IMAGEN">Imagen</option>
-                  <option value="VIDEO">Video</option>
-                  <option value="AUDIO">Audio</option>
-                </select>
-
-                <input
-                  class="attachment-url-input"
-                  type="url"
-                  formControlName="url"
-                  placeholder="https://ejemplo.com/recurso" />
-
-                <button
-                  type="button"
-                  class="attachment-remove-btn"
-                  (click)="removeLinkAttachment(i)">
-                  🗑
-                </button>
-              </div>
-
-              <button
-                type="button"
-                class="attachment-add-btn"
-                (click)="addLinkAttachment()">
-                + Añadir otro enlace
-              </button>
-            </div>
-          </div>
+          <button
+            class="btn-primary"
+            type="submit"
+            [disabled]="submitting || form.invalid">
+            <span *ngIf="!submitting">Publicar hilo</span>
+            <span *ngIf="submitting">Publicando...</span>
+          </button>
         </div>
-        <div class="reply-actions">
-        <button
-          class="btn-primary"
-          type="submit"
-          [disabled]="submitting || form.invalid">
-          <span *ngIf="!submitting">Enviar hilo</span>
-          <span *ngIf="submitting">Enviando...</span>
-        </button>
-      </div>
       </form>
-    </div>
+    </section>
 
-    <!-- LADO DERECHO: PANEL DE AYUDA/INFO MÁS COMPACTO -->
-    <div class="form-card-right info-panel">
-      <div class="info-panel-header">
-        <span class="info-pill">Tips de publicación</span>
-        <h3>Foros UPIIZ</h3>
-        <p>
-          Comparte recursos, resuelve dudas de materias y organiza actividades
-          con tus grupos, clubes y comunidad académica.
-        </p>
+    <aside class="forum-side">
+      <div class="info-panel">
+        <div class="info-panel-header">
+          <span class="info-pill">Guía rápida</span>
+          <h3>Publicaciones útiles</h3>
+          <p>
+            Una buena publicación ayuda a que otros te respondan más rápido y con mayor precisión.
+          </p>
+        </div>
+
+        <ul class="info-list">
+          <li>
+            <span class="info-icon">🏷️</span>
+            <div>
+              <strong>Etiqueta bien tu tema</strong>
+              <p>Selecciona la categoría adecuada para que llegue a la comunidad correcta.</p>
+            </div>
+          </li>
+
+          <li>
+            <span class="info-icon">🧠</span>
+            <div>
+              <strong>Explica el contexto</strong>
+              <p>Incluye la materia, el ejercicio o el problema específico que estás viendo.</p>
+            </div>
+          </li>
+
+          <li>
+            <span class="info-icon">📎</span>
+            <div>
+              <strong>Adjunta recursos</strong>
+              <p>Comparte enlaces, capturas o referencias que ayuden a comprender mejor tu caso.</p>
+            </div>
+          </li>
+
+          <li>
+            <span class="info-icon">📈</span>
+            <div>
+              <strong>Registra la dificultad</strong>
+              <p>Si es una pregunta, el sistema podrá usarla para detectar áreas problemáticas.</p>
+            </div>
+          </li>
+        </ul>
       </div>
-
-      <ul class="info-list">
-        <li>
-          <span class="info-icon">🏷️</span>
-          <div>
-            <strong>Etiquetas claras</strong>
-            <p>Categoriza el hilo por carrera, área y materia para que sea fácil de encontrar.</p>
-          </div>
-        </li>
-        <li>
-          <span class="info-icon">🧠</span>
-          <div>
-            <strong>Explica el contexto</strong>
-            <p>Menciona el grupo, profesor o ejercicio donde surgió la duda.</p>
-          </div>
-        </li>
-        <li>
-          <span class="info-icon">✨</span>
-          <div>
-            <strong>Comparte recursos</strong>
-            <p>Adjunta capturas, repositorios o enlaces a videos que ayuden a otros.</p>
-          </div>
-        </li>
-      </ul>
-      
-    </div>
+    </aside>
   </div>
 </div>

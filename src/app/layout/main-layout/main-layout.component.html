@@ -1,5 +1,5 @@
 <div class="layout" *ngIf="user; else loadingTpl">
-    <!-- Sidebar -->
+  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <img src="assets/logo.png" alt="UPIIZ-IPN" />
@@ -9,52 +9,78 @@
     </div>
 
     <nav class="sidebar-menu">
-      <a class="menu-item active"
-      [routerLink]="['/dashboard']">
+      <a class="menu-item" [routerLink]="['/dashboard']" routerLinkActive="active">
         <span>🏠</span>
         <span>Inicio</span>
       </a>
-      <a class="menu-item"
-      [routerLink]="['/calendar']">
+
+      <a class="menu-item" [routerLink]="['/calendar']" routerLinkActive="active">
         <span>📅</span>
         <span>Calendario</span>
       </a>
-      <a class="menu-item selected"
-      [routerLink]="['/profile']">
+
+      <a class="menu-item" [routerLink]="['/profile']" routerLinkActive="active">
         <span>👤</span>
         <span>Perfil</span>
       </a>
+
+      <a class="menu-item" [routerLink]="['/messages']" routerLinkActive="active">
+        <span>✉️</span>
+        <span>Mensajes</span>
+      </a>
+
       <div class="menu-section-title">Foros</div>
-      <a class="menu-item"
-      [routerLink]="['/forums']">
+
+      <a class="menu-item" [routerLink]="['/forums']" routerLinkActive="active">
         <span>💬</span>
         <span>Mis foros</span>
       </a>
-      <!-- Sólo visible si el usuario tiene rol ADMIN -->
-        <a
-          class="menu-item"
-          *ngIf="user?.roles?.includes('ADMIN')"
-          [routerLink]="['/admin/approvals']"
-        >
-          <span>✅</span>
-          <span>Validar usuarios</span>
-        </a>
-        <a
-          class="menu-item"
-          *ngIf="user?.roles?.includes('ADMIN')"
-          [routerLink]="['/admin/report/list']"
-        >
-          <span>✅</span>
-          <span>Reportes</span>
-        </a>
-        <a
-          class="menu-item"
-          *ngIf="user?.roles?.includes('ADMIN')"
-          [routerLink]="['/admin/banned/users']"
-        >
-          <span>✅</span>
-          <span>Usuarios Bloqueados</span>
-        </a>
+
+      <a class="menu-item" [routerLink]="['/forums/new']" routerLinkActive="active">
+        <span>➕</span>
+        <span>Nuevo foro</span>
+      </a>
+
+      <!-- Admin -->
+      <a
+        class="menu-item"
+        *ngIf="user?.roles?.includes('ADMIN')"
+        [routerLink]="['/admin/approvals']"
+        routerLinkActive="active"
+      >
+        <span>✅</span>
+        <span>Validar usuarios</span>
+      </a>
+
+      <a
+        class="menu-item"
+        *ngIf="user?.roles?.includes('ADMIN')"
+        [routerLink]="['/admin/report/list']"
+        routerLinkActive="active"
+      >
+        <span>📋</span>
+        <span>Reportes</span>
+      </a>
+
+      <a
+        class="menu-item"
+        *ngIf="user?.roles?.includes('ADMIN')"
+        [routerLink]="['/admin/banned/users']"
+        routerLinkActive="active"
+      >
+        <span>⛔</span>
+        <span>Usuarios bloqueados</span>
+      </a>
+
+      <a
+        class="menu-item"
+        *ngIf="user?.roles?.includes('ADMIN')"
+        [routerLink]="['/admin/analytics']"
+        routerLinkActive="active"
+      >
+        <span>📊</span>
+        <span>Analíticas</span>
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -64,10 +90,8 @@
     </div>
   </aside>
 
-
   <!-- Main -->
   <main class="main">
-    <!-- Header general -->
     <header class="main-header">
       <div class="main-header-left">
         <h1>Platform UPIIZ</h1>
@@ -77,10 +101,9 @@
       </div>
 
       <div class="main-header-right">
-        <button class="icon-btn">🔔</button>
+        <button class="icon-btn" type="button">🔔</button>
 
-        <!-- Usuario + menú -->
-        <div class="header-user-wrapper" (click)="toggleUserMenu()">
+        <div class="header-user-wrapper" (click)="toggleUserMenu(); $event.stopPropagation()">
           <div class="header-user">
             <ng-container *ngIf="user?.avatarUrl; else headerAvatarFallback">
               <img
@@ -89,6 +112,7 @@
                 class="header-user-logo"
               />
             </ng-container>
+
             <ng-template #headerAvatarFallback>
               <span class="header-user-avatar">
                 {{ user?.fullName?.[0] || 'U' }}
@@ -108,6 +132,7 @@
               <ng-container *ngIf="user?.avatarUrl; else menuAvatarFallback">
                 <img [src]="user?.avatarUrl" alt="Avatar" />
               </ng-container>
+
               <ng-template #menuAvatarFallback>
                 <div class="menu-avatar-fallback">
                   {{ user?.fullName?.[0] || 'U' }}
@@ -141,6 +166,36 @@
               <span>Validar usuarios</span>
             </button>
 
+            <button
+              type="button"
+              class="user-menu-item"
+              *ngIf="user?.roles?.includes('ADMIN')"
+              (click)="goToAdminReportList(); $event.stopPropagation()"
+            >
+              <span class="user-menu-icon">📋</span>
+              <span>Reportes</span>
+            </button>
+
+            <button
+              type="button"
+              class="user-menu-item"
+              *ngIf="user?.roles?.includes('ADMIN')"
+              (click)="goToAdminBannedUsers(); $event.stopPropagation()"
+            >
+              <span class="user-menu-icon">⛔</span>
+              <span>Usuarios bloqueados</span>
+            </button>
+
+            <button
+              type="button"
+              class="user-menu-item"
+              *ngIf="user?.roles?.includes('ADMIN')"
+              (click)="goToAdminAnalytics(); $event.stopPropagation()"
+            >
+              <span class="user-menu-icon">📊</span>
+              <span>Analíticas</span>
+            </button>
+
             <div class="user-menu-divider"></div>
 
             <button
@@ -156,7 +211,7 @@
       </div>
     </header>
 
-    <!-- AQUÍ VAN TODAS LAS PÁGINAS INTERNAS -->
+    <!-- Contenido interno -->
     <router-outlet></router-outlet>
   </main>
 </div>

@@ -1,0 +1,187 @@
+.teacher-detail-page {
+  padding: 24px;
+  background: linear-gradient(180deg, #f7f9fc 0%, #eef3fb 100%);
+  min-height: 100vh;
+}
+
+.state-card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(22, 34, 51, .08);
+}
+
+.state-card.error {
+  color: #b42318;
+  border-left: 4px solid #f04438;
+}
+
+.teacher-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 28px rgba(22, 34, 51, .08);
+  margin-bottom: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #6b7a90;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.teacher-hero h1 {
+  margin: 0;
+  color: #1f2d3d;
+}
+
+.teacher-mail {
+  margin-top: 8px;
+  color: #66768d;
+}
+
+.global-score {
+  min-width: 180px;
+  background: #eef4ff;
+  border: 1px solid #d8e5ff;
+  border-radius: 22px;
+  padding: 18px;
+  text-align: center;
+}
+
+.global-score span {
+  display: block;
+  color: #6b7a90;
+  margin-bottom: 6px;
+}
+
+.global-score strong {
+  font-size: 32px;
+  color: #2244aa;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.summary-card,
+.panel {
+  background: #fff;
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: 0 12px 28px rgba(22, 34, 51, .08);
+}
+
+.summary-card span {
+  display: block;
+  color: #6b7a90;
+  margin-bottom: 8px;
+}
+
+.summary-card strong {
+  font-size: 28px;
+  color: #1f2d3d;
+}
+
+.panel {
+  margin-bottom: 22px;
+}
+
+.panel h2 {
+  margin-top: 0;
+  color: #1f2d3d;
+}
+
+.metric-list {
+  display: grid;
+  gap: 18px;
+}
+
+.metric-item {
+  padding: 16px;
+  border-radius: 18px;
+  background: #f8fbff;
+  border: 1px solid #e5edf8;
+}
+
+.metric-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #243447;
+}
+
+.metric-track {
+  height: 12px;
+  background: #e6edf8;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.metric-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #5b8cff 0%, #3056d3 100%);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.panel-header span {
+  color: #6b7a90;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  color: #6b7a90;
+  font-size: 13px;
+  padding: 14px 12px;
+  border-bottom: 1px solid #edf1f7;
+}
+
+tbody td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #eef2f7;
+  color: #233142;
+}
+
+.empty-cell {
+  text-align: center;
+  color: #7c8ca1;
+  padding: 24px;
+}
+
+@media (max-width: 950px) {
+  .teacher-hero,
+  .summary-grid {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .summary-grid {
+    display: grid;
+  }
+}

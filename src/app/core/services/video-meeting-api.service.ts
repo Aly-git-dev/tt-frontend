@@ -34,11 +34,11 @@ export interface VideoMeeting {
   providedIn: 'root'
 })
 export class VideoMeetingApiService {
-  private readonly baseUrl = `${environment.apiUrl}/api/video-meetings`;
+  private readonly baseUrl = `${environment.apiUrl}/upiiz/public/v1/video-meetings`;
 
   constructor(private http: HttpClient) {}
 
-  create(data: { appointmentId: string; hostUserId: string }): Observable<VideoMeeting> {
+  create(data: { appointmentId: string }): Observable<VideoMeeting> {
     return this.http.post<VideoMeeting>(this.baseUrl, data);
   }
 

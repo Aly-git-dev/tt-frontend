@@ -1,31 +1,69 @@
-<div class="wrap" *ngIf="conversation; else empty">
+<div class="thread-shell" *ngIf="conversation; else emptyState">
+  <div class="thread-card">
+    <div class="thread-header">
+      <div class="left-zone">
+        <button class="back-btn" type="button" (click)="backMobile.emit()" aria-label="Volver">
+          <span>←</span>
+        </button>
 
-  <div class="header">
-    <button class="back" (click)="backMobile.emit()">←</button>
+        <div class="avatar">
+          <span>{{ avatarText }}</span>
+          <div class="online-dot"></div>
+        </div>
 
-    <div class="avatar">👤</div>
-    <div class="hmeta">
-      <div class="hname">{{ conversation.otherName || 'Usuario' }}</div>
-      <div class="hsub">Reply to message</div>
+        <div class="header-meta">
+          <div class="header-name">{{ displayName }}</div>
+          <div class="header-subtitle">{{ subtitle }}</div>
+        </div>
+      </div>
+
+      <button class="menu-btn" type="button" aria-label="Opciones">
+        ⋯
+      </button>
     </div>
 
-    <button class="menu">⋯</button>
+    <div class="messages-area">
+      <div class="messages-overlay" *ngIf="loading">
+        <div class="loader-card">
+          <div class="loader"></div>
+          <div>Cargando mensajes...</div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!loading && messages.length; else noMessages">
+        <div class="messages-list">
+          <app-message-bubble
+            *ngFor="let m of messages; trackBy: trackByMessage"
+            [msg]="m">
+          </app-message-bubble>
+        </div>
+      </ng-container>
+
+      <ng-template #noMessages>
+        <div class="empty-messages" *ngIf="!loading">
+          <div class="empty-icon">💬</div>
+          <div class="empty-title">Todavía no hay mensajes</div>
+          <div class="empty-text">
+            Envía el primero para comenzar la conversación.
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="composer-wrap">
+      <app-message-composer (send)="send.emit($event)"></app-message-composer>
+    </div>
   </div>
-
-  <div class="thread">
-    <div class="loading" *ngIf="loading">Cargando...</div>
-
-    <app-message-bubble
-      *ngFor="let m of messages"
-      [msg]="m">
-    </app-message-bubble>
-  </div>
-
-  <app-message-composer (send)="send.emit($event)"></app-message-composer>
 </div>
 
-<ng-template #empty>
-  <div class="empty">
-    Selecciona una conversación
+<ng-template #emptyState>
+  <div class="empty-thread-shell">
+    <div class="empty-thread-card">
+      <div class="empty-illustration">✨</div>
+      <div class="empty-main-title">Selecciona una conversación</div>
+      <div class="empty-main-text">
+        Aquí aparecerán los mensajes cuando elijas un chat del panel izquierdo.
+      </div>
+    </div>
   </div>
 </ng-template>

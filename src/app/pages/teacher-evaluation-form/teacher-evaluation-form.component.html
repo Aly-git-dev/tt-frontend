@@ -1,0 +1,223 @@
+<div class="page evaluation-page">
+
+  <div class="topbar">
+    <div class="crumbs">Inicio / <span>Analítica / Evaluar docente</span></div>
+
+    <div class="top-actions">
+      <button class="new-chat-btn" type="button" (click)="openTeacherSearchModal()">
+        + Seleccionar docente
+      </button>
+    </div>
+  </div>
+
+  <div class="evaluation-layout">
+    <section class="evaluation-main">
+
+      <div class="hero-card">
+        <div class="hero-copy">
+          <div class="hero-tag">Módulo de analítica</div>
+          <h1>Evaluación de desempeño docente</h1>
+          <p>
+            Selecciona un profesor desde el buscador y registra una evaluación
+            para alimentar el módulo de desempeño docente.
+          </p>
+        </div>
+
+        <div class="hero-side">
+          <div class="hero-kpi-label">Estado</div>
+          <div class="hero-kpi-value">
+            {{ selectedTeacher ? 'Docente listo' : 'Sin seleccionar' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="selected-card" *ngIf="selectedTeacher; else teacherEmpty">
+        <div class="selected-avatar">
+          <img
+            *ngIf="selectedTeacher.avatarUrl; else teacherFallback"
+            [src]="selectedTeacher.avatarUrl"
+            [alt]="selectedTeacher.name || selectedTeacher.email"
+          />
+          <ng-template #teacherFallback>
+            <span>{{ getUserInitial(selectedTeacher) }}</span>
+          </ng-template>
+        </div>
+
+        <div class="selected-meta">
+          <div class="selected-title">{{ selectedTeacher.name || 'Sin nombre' }}</div>
+          <div class="selected-subtitle">{{ selectedTeacher.email }}</div>
+          <div class="selected-badge">Docente seleccionado</div>
+        </div>
+
+        <div class="selected-actions">
+          <button class="secondary-btn" type="button" (click)="openTeacherSearchModal()">
+            Cambiar
+          </button>
+        </div>
+      </div>
+
+      <ng-template #teacherEmpty>
+        <div class="empty-teacher">
+          <div class="empty-teacher-icon">👨‍🏫</div>
+          <div class="empty-teacher-title">Aún no has seleccionado un docente</div>
+          <div class="empty-teacher-text">
+            Usa el botón “Seleccionar docente” para buscar al profesor que deseas evaluar.
+          </div>
+        </div>
+      </ng-template>
+
+      <form class="evaluation-card" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Formulario de evaluación</div>
+            <div class="card-subtitle">Califica cada criterio del 1 al 5</div>
+          </div>
+        </div>
+
+        <div class="form-disabled-overlay" *ngIf="!selectedTeacher">
+          <div class="form-disabled-box">
+            <div class="form-disabled-title">Selecciona primero un docente</div>
+            <div class="form-disabled-text">
+              El formulario se habilitará automáticamente al elegir un profesor.
+            </div>
+          </div>
+        </div>
+
+        <div class="ratings-grid">
+          <div class="rating-box">
+            <label for="ratingClarity">Claridad</label>
+            <p>¿Explica los temas de forma comprensible?</p>
+            <select id="ratingClarity" formControlName="ratingClarity">
+              <option *ngFor="let n of ratingOptions" [value]="n">{{ n }} / 5</option>
+            </select>
+          </div>
+
+          <div class="rating-box">
+            <label for="ratingKnowledge">Conocimiento</label>
+            <p>¿Demuestra dominio de la materia?</p>
+            <select id="ratingKnowledge" formControlName="ratingKnowledge">
+              <option *ngFor="let n of ratingOptions" [value]="n">{{ n }} / 5</option>
+            </select>
+          </div>
+
+          <div class="rating-box">
+            <label for="ratingSupport">Apoyo</label>
+            <p>¿Resuelve dudas y apoya durante el proceso?</p>
+            <select id="ratingSupport" formControlName="ratingSupport">
+              <option *ngFor="let n of ratingOptions" [value]="n">{{ n }} / 5</option>
+            </select>
+          </div>
+
+          <div class="rating-box">
+            <label for="ratingPunctuality">Puntualidad</label>
+            <p>¿Cumple tiempos, orden y formalidad?</p>
+            <select id="ratingPunctuality" formControlName="ratingPunctuality">
+              <option *ngFor="let n of ratingOptions" [value]="n">{{ n }} / 5</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="comment-block">
+          <label for="comment">Comentario</label>
+          <textarea
+            id="comment"
+            rows="5"
+            formControlName="comment"
+            placeholder="Escribe una observación breve sobre el desempeño del docente..."
+          ></textarea>
+        </div>
+
+        <div class="form-footer">
+          <label class="check-row">
+            <input type="checkbox" formControlName="anonymous" />
+            <span>Enviar evaluación de forma anónima</span>
+          </label>
+
+          <div class="helper-note">
+            Esta información se usará para el módulo de desempeño docente.
+          </div>
+        </div>
+
+        <div class="message success" *ngIf="successMessage">
+          {{ successMessage }}
+        </div>
+
+        <div class="message error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <div class="actions">
+          <button
+            class="primary-btn"
+            type="submit"
+            [disabled]="loading || !selectedTeacher"
+          >
+            {{ loading ? 'Guardando...' : 'Guardar evaluación' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showTeacherSearchModal" (click)="closeTeacherSearchModal()"></div>
+
+  <div class="modal" *ngIf="showTeacherSearchModal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Seleccionar docente</div>
+        <div class="modal-subtitle">Busca por correo o nombre</div>
+      </div>
+      <button class="close-btn" type="button" (click)="closeTeacherSearchModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <label class="field-label" for="teacherSearch">Buscar profesor</label>
+      <input
+        id="teacherSearch"
+        class="field-input"
+        [(ngModel)]="teacherSearchTerm"
+        placeholder="Ej. profesor@alumno.ipn.mx"
+        (input)="onTeacherSearchInput()"
+        autocomplete="off"
+      />
+
+      <div class="helper-text" *ngIf="!teacherSearchTerm.trim()">
+        Escribe un nombre o correo para buscar docentes.
+      </div>
+
+      <div class="helper-text" *ngIf="teacherSearchLoading">
+        Buscando docentes...
+      </div>
+
+      <div class="error" *ngIf="teacherSearchError">
+        {{ teacherSearchError }}
+      </div>
+
+      <div class="user-results" *ngIf="teacherSearchResults.length">
+        <button
+          class="user-row"
+          type="button"
+          *ngFor="let user of teacherSearchResults"
+          (click)="selectTeacher(user)"
+        >
+          <div class="user-avatar">
+            <img *ngIf="user.avatarUrl; else teacherUserFallback" [src]="user.avatarUrl" [alt]="user.name || user.email" />
+            <ng-template #teacherUserFallback>
+              <span>{{ getUserInitial(user) }}</span>
+            </ng-template>
+          </div>
+
+          <div class="user-meta">
+            <div class="user-name">{{ user.name || 'Sin nombre' }}</div>
+            <div class="user-email">{{ user.email }}</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="helper-text" *ngIf="teacherSearchTerm.trim() && !teacherSearchLoading && !teacherSearchResults.length">
+        No se encontraron docentes.
+      </div>
+    </div>
+  </div>
+
+</div>

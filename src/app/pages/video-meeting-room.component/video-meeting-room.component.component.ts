@@ -1,33 +1,14 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnDestroy,
-  ViewChild
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { JitsiLoaderService } from '../../core/services/jitsi-loader.service';
-import {
-  JoinVideoMeetingResponse,
-  VideoMeetingApiService
-} from '../../core/services/video-meeting-api.service.js';
-
-declare global {
-  interface Window {
-    JitsiMeetExternalAPI: any;
-  }
-}
+import { VideoMeetingApiService } from '../../core/services/video-meeting-api.service';
 
 @Component({
   selector: 'app-video-meeting-room',
   templateUrl: './video-meeting-room.component.component.html',
   styleUrls: ['./video-meeting-room.component.component.css']
 })
-export class VideoMeetingRoomComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('jitsiContainer', { static: true }) jitsiContainer!: ElementRef<HTMLDivElement>;
-
-  api: any;
+export class VideoMeetingRoomComponent implements OnInit {
   loading = true;
   error = '';
   meetingId = '';
@@ -35,13 +16,13 @@ export class VideoMeetingRoomComponent implements AfterViewInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private videoMeetingApi: VideoMeetingApiService,
-    private jitsiLoader: JitsiLoaderService
+    private videoMeetingApi: VideoMeetingApiService
   ) {}
 
-  async ngAfterViewInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     try {
       this.meetingId = this.route.snapshot.paramMap.get('id') ?? '';
+
       if (!this.meetingId) {
         throw new Error('No se recibió el id de la videoconferencia');
       }
@@ -53,65 +34,20 @@ export class VideoMeetingRoomComponent implements AfterViewInit, OnDestroy {
         this.videoMeetingApi.join(this.meetingId, displayName, deviceInfo)
       );
 
-      await this.jitsiLoader.load(joinData.domain);
-      this.createJitsiApi(joinData);
-      this.loading = false;
-    } catch (err: any) {
-      this.error = err?.message || 'No se pudo abrir la videoconferencia';
-      this.loading = false;
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.safeLeaveMeeting();
-    if (this.api) {
-      this.api.dispose();
-    }
-  }
-
-  private createJitsiApi(joinData: JoinVideoMeetingResponse): void {
-    const options = {
-      roomName: joinData.roomName,
-      parentNode: this.jitsiContainer.nativeElement,
-      width: '100%',
-      height: 700,
-      userInfo: {
-        displayName: joinData.displayName
-      },
-      configOverwrite: {
-        prejoinPageEnabled: false,
-        startWithAudioMuted: true,
-        startWithVideoMuted: false
-      },
-      interfaceConfigOverwrite: {
-        TILE_VIEW_MAX_COLUMNS: 3
+      if (!joinData?.meetingUrl) {
+        throw new Error('No se recibió la URL de la videoconferencia');
       }
-    };
 
-    this.api = new window.JitsiMeetExternalAPI(joinData.domain, options);
-
-    this.api.addListener('videoConferenceJoined', () => {
-      console.log('Usuario unido a la videoconferencia');
-    });
-
-    this.api.addListener('readyToClose', async () => {
-      await this.safeLeaveMeeting();
-      await this.router.navigate(['/agenda']);
-    });
-
-    this.api.addListener('videoConferenceLeft', async () => {
-      await this.safeLeaveMeeting();
-    });
+      window.open(joinData.meetingUrl, '_blank', 'noopener');
+      this.router.navigate(['/calendar']);
+    } catch (err: any) {
+      this.error = err?.error?.message || err?.message || 'No se pudo abrir la videoconferencia';
+      this.loading = false;
+    }
   }
 
-  async safeLeaveMeeting(): Promise<void> {
-    if (!this.meetingId) return;
-
-    try {
-      await firstValueFrom(this.videoMeetingApi.leave(this.meetingId));
-    } catch (e) {
-      console.warn('No se pudo registrar salida de la videoconferencia', e);
-    }
+  goBack(): void {
+    this.router.navigate(['/calendar']);
   }
 
   private getDisplayName(): string {

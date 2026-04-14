@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MeService } from '../../core/services/me.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -10,7 +10,6 @@ import { UserDTO } from '../../core/models/user.models';
   styleUrls: ['./main-layout.component.css']
 })
 export class MainLayoutComponent implements OnInit {
-
   user: UserDTO | null = null;
   loadingUser = false;
   error: string | null = null;
@@ -31,28 +30,33 @@ export class MainLayoutComponent implements OnInit {
     this.error = null;
 
     this.meService.getProfile().subscribe({
-      next: res => {
+      next: (res) => {
         this.loadingUser = false;
-        if (res.estado === 1 && res.usuario) {
+
+        if (res?.estado === 1 && res?.usuario) {
           this.user = res.usuario;
         } else {
-          this.error = res.mensaje || 'No se pudo cargar el usuario';
+          this.error = res?.mensaje || 'No se pudo cargar el usuario';
         }
       },
-      error: err => {
+      error: (err) => {
         this.loadingUser = false;
         this.error = err?.error?.mensaje || 'Error al cargar usuario';
       }
     });
   }
 
-  // Header user menu
   toggleUserMenu(): void {
     this.showUserMenu = !this.showUserMenu;
   }
 
   closeUserMenu(): void {
     this.showUserMenu = false;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.closeUserMenu();
   }
 
   onLogout(): void {
@@ -71,8 +75,18 @@ export class MainLayoutComponent implements OnInit {
     this.router.navigate(['/admin/approvals']);
   }
 
-  goToAdminResportList(): void {
+  goToAdminReportList(): void {
     this.closeUserMenu();
     this.router.navigate(['/admin/report/list']);
+  }
+
+  goToAdminBannedUsers(): void {
+    this.closeUserMenu();
+    this.router.navigate(['/admin/banned/users']);
+  }
+
+  goToAdminAnalytics(): void {
+    this.closeUserMenu();
+    this.router.navigate(['/admin/analytics']);
   }
 }

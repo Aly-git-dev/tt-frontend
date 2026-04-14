@@ -18,4 +18,25 @@ export class ChatThreadComponent {
 
   @Output() send = new EventEmitter<string>();
   @Output() backMobile = new EventEmitter<void>();
+
+  get displayName(): string {
+    return this.conversation?.otherName?.trim()
+      || this.conversation?.otherUserId?.trim()
+      || 'Usuario';
+  }
+
+  get subtitle(): string {
+    if (this.loading) return 'Cargando conversación...';
+    if (!this.messages.length) return 'Aún no hay mensajes';
+    return 'Conversación activa';
+  }
+
+  get avatarText(): string {
+    const source = this.displayName.trim();
+    return source.charAt(0).toUpperCase();
+  }
+
+  trackByMessage(index: number, message: Message): string | number {
+    return (message as any).id ?? index;
+  }
 }

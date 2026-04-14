@@ -5,9 +5,11 @@ import {
   Validators,
   FormArray
 } from '@angular/forms';
-import { ForumService } from '../../core/services/forum.service';
-import { ThreadCreateDto } from '../../core/models/forum.models';
 import { Router } from '@angular/router';
+
+import { ForumService } from '../../core/services/forum.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
+import { ThreadCreateDto } from '../../core/models/forum.models';
 
 @Component({
   selector: 'app-new-thread',
@@ -15,21 +17,18 @@ import { Router } from '@angular/router';
   styleUrls: ['./new-thread.component.css']
 })
 export class NewThreadComponent {
-
   form: FormGroup;
   submitting = false;
   error: string | null = null;
 
   showAttachmentPanel = false;
 
-  // Opciones de tipo
   threadTypes = [
-    { value: 'PREGUNTA',  label: 'Pregunta' },
+    { value: 'PREGUNTA', label: 'Pregunta' },
     { value: 'DISCUSSION', label: 'Discusión' },
-    { value: 'ANUNCIO',   label: 'Anuncio' }
+    { value: 'ANUNCIO', label: 'Anuncio' }
   ];
 
-  // Catálogo local de categorías (placeholder)
   categories = [
     { id: 1, label: 'Inteligencia Artificial' },
     { id: 2, label: 'Sistemas Computacionales' },
@@ -42,27 +41,27 @@ export class NewThreadComponent {
     { id: 9, label: 'Evaluación docente' }
   ];
 
-  subareas = [
-    // { id: 101, label: 'Cálculo Diferencial' },
-    // { id: 102, label: 'Programación I' },
-  ];
+  subareas: { id: number; label: string }[] = [
+  // { id: 101, label: 'Cálculo Diferencial' },
+  // { id: 102, label: 'Programación I' },
+];
 
   constructor(
     private fb: FormBuilder,
     private forumService: ForumService,
+    private analyticsService: AnalyticsService,
     private router: Router
   ) {
     this.form = this.fb.group({
       categoryId: [null, [Validators.required]],
       subareaId: [null],
       type: ['PREGUNTA', [Validators.required]],
+      difficultyLevel: [3],
       title: ['', [Validators.required, Validators.minLength(5)]],
       body: ['', [Validators.required, Validators.minLength(10)]],
       attachments: this.fb.array([])
     });
   }
-
-  // ======= Getters =======
 
   get attachments(): FormArray {
     return this.form.get('attachments') as FormArray;
@@ -72,12 +71,9 @@ export class NewThreadComponent {
     return this.form.get('body');
   }
 
-  // ======= Panel de enlaces =======
-
   openAttachmentPanel(): void {
     this.showAttachmentPanel = true;
 
-    // Si no hay ninguno, creamos un primer renglón
     if (this.attachments.length === 0) {
       this.addLinkAttachment();
     }
@@ -98,12 +94,11 @@ export class NewThreadComponent {
 
   removeLinkAttachment(index: number): void {
     this.attachments.removeAt(index);
+
     if (this.attachments.length === 0) {
       this.showAttachmentPanel = false;
     }
   }
-
-  // ======= Helpers para insertar bloques de código / LaTeX =======
 
   insertCodeTemplate(): void {
     const template = '\n\n```cpp\n// Escribe tu código aquí\n```\n';
@@ -117,14 +112,12 @@ export class NewThreadComponent {
 
   private appendToBody(fragment: string): void {
     const ctrl = this.bodyCtrl;
-    if (!ctrl) { return; }
+    if (!ctrl) return;
 
     const current = ctrl.value || '';
     ctrl.setValue(current + fragment);
     ctrl.markAsDirty();
   }
-
-  // ======= Enviar formulario =======
 
   onSubmit(): void {
     this.error = null;
@@ -153,22 +146,61 @@ export class NewThreadComponent {
 
     this.forumService.createThread(payload).subscribe({
       next: (created) => {
-        this.submitting = false;
-        this.form.reset({
-          categoryId: null,
-          subareaId: null,
-          type: 'PREGUNTA',
-          title: '',
-          body: '',
-          attachments: []
+        const isQuestion = raw.type === 'PREGUNTA';
+
+        if (!isQuestion) {
+          this.resetForm();
+          this.router.navigate(['/forums', created.id]);
+          return;
+        }
+
+        this.analyticsService.createTopicDifficultyEvent({
+          userId: null,
+          teacherId: null,
+          categoryId: raw.categoryId,
+          subareaId: raw.subareaId || null,
+          threadId: created.id,
+          appointmentId: null,
+          videoMeetingId: null,
+          sourceType: 'FORUM_QUESTION',
+          difficultyLevel: raw.difficultyLevel || 3,
+          notes: `Dificultad registrada desde foro: ${raw.title.trim()}`
+        }).subscribe({
+          next: () => {
+            this.resetForm();
+            this.router.navigate(['/forums', created.id]);
+          },
+          error: (err) => {
+            console.error('No se pudo registrar la dificultad del tema', err);
+            this.resetForm();
+            this.router.navigate(['/forums', created.id]);
+          }
         });
-        this.showAttachmentPanel = false;
-        this.router.navigate(['/forums', created.id]);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al crear el hilo', err);
         this.submitting = false;
         this.error = 'No se pudo crear el hilo. Intenta de nuevo más tarde.';
       }
+    });
+  }
+
+  private resetForm(): void {
+    this.submitting = false;
+    this.error = null;
+    this.showAttachmentPanel = false;
+
+    while (this.attachments.length > 0) {
+      this.attachments.removeAt(0);
+    }
+
+    this.form.reset({
+      categoryId: null,
+      subareaId: null,
+      type: 'PREGUNTA',
+      difficultyLevel: 3,
+      title: '',
+      body: ''
     });
   }
 }

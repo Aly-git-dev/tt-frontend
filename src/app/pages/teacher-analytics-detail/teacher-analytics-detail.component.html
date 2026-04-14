@@ -1,0 +1,101 @@
+<section class="teacher-detail-page">
+  <div *ngIf="loading" class="state-card">Cargando detalle del docente...</div>
+  <div *ngIf="error && !loading" class="state-card error">{{ error }}</div>
+
+  <ng-container *ngIf="teacher && !loading && !error">
+    <header class="teacher-hero">
+      <div>
+        <p class="eyebrow">Desempeño docente</p>
+        <h1>{{ teacher.fullName }}</h1>
+        <p class="teacher-mail">{{ teacher.emailInst }}</p>
+      </div>
+
+      <div class="global-score">
+        <span>Promedio global</span>
+        <strong>{{ teacher.avgGlobalScore || 0 }}</strong>
+      </div>
+    </header>
+
+    <div class="summary-grid">
+      <article class="summary-card">
+        <span>Evaluaciones</span>
+        <strong>{{ teacher.totalEvaluations }}</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>Posts en foros</span>
+        <strong>{{ teacher.totalForumPosts }}</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>Hilos en foros</span>
+        <strong>{{ teacher.totalForumThreads }}</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>Citas creadas</span>
+        <strong>{{ teacher.totalAppointmentsCreated }}</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>Citas completadas</span>
+        <strong>{{ teacher.completedAppointments }}</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>Videoconferencias</span>
+        <strong>{{ teacher.totalVideoMeetings }}</strong>
+      </article>
+    </div>
+
+    <section class="panel">
+      <h2>Métricas principales</h2>
+
+      <div class="metric-list">
+        <div class="metric-item" *ngFor="let item of averageMetrics()">
+          <div class="metric-top">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+          </div>
+          <div class="metric-track">
+            <div class="metric-fill" [style.width]="trackValue(item.value)"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Áreas de mejora detectadas</h2>
+        <span>{{ areas.length }} registros</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Subárea</th>
+              <th>Eventos</th>
+              <th>Dificultad promedio</th>
+              <th>Último registro</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let area of areas">
+              <td>{{ area.categoryName }}</td>
+              <td>{{ area.subareaName || 'General' }}</td>
+              <td>{{ area.totalDifficultyEvents }}</td>
+              <td>{{ area.avgDifficulty }}</td>
+              <td>{{ formatDate(area.lastEventAt) }}</td>
+            </tr>
+
+            <tr *ngIf="areas.length === 0">
+              <td colspan="5" class="empty-cell">No hay áreas de mejora registradas para este docente.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </ng-container>
+</section>

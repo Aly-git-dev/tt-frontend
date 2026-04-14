@@ -1,0 +1,189 @@
+<section class="analytics-page">
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Incremento 5</p>
+      <h1>Panel de analítica académica</h1>
+      <p class="subtitle">
+        Consulta temas de interés, áreas con mayor dificultad y desempeño docente
+        desde un solo lugar.
+      </p>
+    </div>
+
+    <button class="refresh-btn" (click)="loadDashboard()">Actualizar</button>
+  </div>
+
+  <div *ngIf="loading" class="state-card">
+    Cargando analítica...
+  </div>
+
+  <div *ngIf="error && !loading" class="state-card error">
+    {{ error }}
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <div class="stats-grid">
+      <article class="stat-card">
+        <span class="stat-label">Docentes analizados</span>
+        <strong class="stat-value">{{ teacherPerformance.length }}</strong>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Evaluaciones registradas</span>
+        <strong class="stat-value">{{ totalEvaluations() }}</strong>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Citas generadas</span>
+        <strong class="stat-value">{{ totalAppointments() }}</strong>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Videoconferencias</span>
+        <strong class="stat-value">{{ totalVideoMeetings() }}</strong>
+      </article>
+    </div>
+
+    <div class="content-grid">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Temas de mayor interés</h2>
+          <span>{{ topicInterest.length }} registros</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Categoría</th>
+                <th>Subárea</th>
+                <th>Eventos</th>
+                <th>Peso</th>
+                <th>Usuarios</th>
+                <th>Último</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of topicInterest">
+                <td>{{ item.categoryName }}</td>
+                <td>{{ item.subareaName || 'General' }}</td>
+                <td>{{ item.totalEvents }}</td>
+                <td>{{ item.weightedScore }}</td>
+                <td>{{ item.uniqueUsers }}</td>
+                <td>{{ formatDate(item.lastEventAt) }}</td>
+              </tr>
+
+              <tr *ngIf="topicInterest.length === 0">
+                <td colspan="6" class="empty-cell">Sin datos disponibles</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Áreas con mayor dificultad</h2>
+          <span>{{ topicDifficulty.length }} registros</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Categoría</th>
+                <th>Subárea</th>
+                <th>Reportes</th>
+                <th>Dificultad promedio</th>
+                <th>Alumnos</th>
+                <th>Último</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of topicDifficulty">
+                <td>{{ item.categoryName }}</td>
+                <td>{{ item.subareaName || 'General' }}</td>
+                <td>{{ item.totalReports }}</td>
+                <td>{{ item.avgDifficulty }}</td>
+                <td>{{ item.affectedStudents }}</td>
+                <td>{{ formatDate(item.lastReportAt) }}</td>
+              </tr>
+
+              <tr *ngIf="topicDifficulty.length === 0">
+                <td colspan="6" class="empty-cell">Sin datos disponibles</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-header teacher-header">
+        <div>
+          <h2>Desempeño docente</h2>
+          <span>Consulta detalle y áreas de mejora por profesor</span>
+        </div>
+
+        <input
+          type="text"
+          [(ngModel)]="searchTeacher"
+          placeholder="Buscar docente..."
+          class="teacher-search"
+        />
+      </div>
+
+      <div class="teachers-grid top-grid" *ngIf="topTeachers().length > 0">
+        <article class="top-card" *ngFor="let teacher of topTeachers()">
+          <span class="top-badge">Destacado</span>
+          <h3>{{ teacher.fullName }}</h3>
+          <p>{{ teacher.emailInst }}</p>
+          <div class="score-chip" [ngClass]="scoreClass(teacher.avgGlobalScore)">
+            {{ teacher.avgGlobalScore || 0 }}
+          </div>
+          <button (click)="goToTeacherDetail(teacher.teacherId)">Ver detalle</button>
+        </article>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Docente</th>
+              <th>Correo</th>
+              <th>Promedio global</th>
+              <th>Evaluaciones</th>
+              <th>Foros</th>
+              <th>Citas</th>
+              <th>Videollamadas</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let teacher of filteredTeachers">
+              <td>{{ teacher.fullName }}</td>
+              <td>{{ teacher.emailInst }}</td>
+              <td>
+                <span class="score-chip small" [ngClass]="scoreClass(teacher.avgGlobalScore)">
+                  {{ teacher.avgGlobalScore || 0 }}
+                </span>
+              </td>
+              <td>{{ teacher.totalEvaluations }}</td>
+              <td>{{ teacher.totalForumPosts + teacher.totalForumThreads }}</td>
+              <td>{{ teacher.totalAppointmentsCreated }}</td>
+              <td>{{ teacher.totalVideoMeetings }}</td>
+              <td>
+                <button class="detail-btn" (click)="goToTeacherDetail(teacher.teacherId)">
+                  Ver detalle
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="filteredTeachers.length === 0">
+              <td colspan="8" class="empty-cell">No se encontraron docentes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </ng-container>
+</section>

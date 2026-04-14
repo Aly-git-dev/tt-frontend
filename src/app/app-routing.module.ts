@@ -16,6 +16,9 @@ import { MessagesPageComponent } from './pages/messages-page/messages-page.compo
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { VideoMeetingRoomComponent } from './pages/video-meeting-room.component/video-meeting-room.component.component';
+import { AdminAnalyticsDashboardComponent } from './pages/admin-analytics-dashboard/admin-analytics-dashboard.component';
+import { TeacherAnalyticsDetailComponent } from './pages/teacher-analytics-detail/teacher-analytics-detail.component';
+import { TeacherEvaluationFormComponent } from './pages/teacher-evaluation-form/teacher-evaluation-form.component';
 const routes: Routes = [
     // Páginas públicas (sin layout)
   { path: 'login', component: LoginComponent },
@@ -40,6 +43,7 @@ const routes: Routes = [
       { path: 'admin/approvals', component: AdminApprovalsComponent },
       { path: 'admin/report/list', component: AdminReportListComponent },
       { path: 'admin/banned/users', component: AdminBannedUsersComponent },
+      { path: 'teacher/evaluation', component: TeacherEvaluationFormComponent },
       
       { path: 'messages', component: MessagesPageComponent },
       {path: 'calendar',
@@ -53,6 +57,14 @@ const routes: Routes = [
       {
         path: 'video-meetings/:id',
         component: VideoMeetingRoomComponent
+      },
+      {
+        path: 'admin/analytics',
+        component: AdminAnalyticsDashboardComponent
+      },
+      {
+        path: 'admin/analytics/teachers/:teacherId',
+        component: TeacherAnalyticsDetailComponent
       }
     ]
   },
