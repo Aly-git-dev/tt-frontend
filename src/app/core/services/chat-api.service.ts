@@ -50,4 +50,11 @@ export class ChatApiService {
       body
     );
   }
+
+  sendMessageWithAttachment(conversationId: number, formData: FormData) {
+    return this.http.post(
+      `${this.baseUrl}/conversations/${conversationId}/messages/attachments`,
+      formData
+    );
+  }
 }

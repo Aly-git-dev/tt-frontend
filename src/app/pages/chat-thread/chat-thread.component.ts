@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Conversation, Message } from '../../core/models/chat.models';
+import { Conversation, Message, SendMessagePayload } from '../../core/models/chat.models';
 import { MessageBubbleComponent } from '../message-bubble/message-bubble.component';
 import { MessageComposerComponent } from '../message-composer/message-composer.component';
 
@@ -16,7 +16,7 @@ export class ChatThreadComponent {
   @Input() messages: Message[] = [];
   @Input() loading = false;
 
-  @Output() send = new EventEmitter<string>();
+  @Output() send = new EventEmitter<SendMessagePayload>();
   @Output() backMobile = new EventEmitter<void>();
 
   get displayName(): string {

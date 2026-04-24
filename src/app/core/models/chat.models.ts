@@ -46,3 +46,7 @@ export interface UserSearchResult {
   name?: string;
   avatarUrl?: string | null;
 }
+export interface SendMessagePayload {
+  content: string;
+  file?: File | null;
+}

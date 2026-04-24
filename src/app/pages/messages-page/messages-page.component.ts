@@ -7,6 +7,7 @@ import { ConversationListComponent } from '../conversation-list/conversation-lis
 import { ChatThreadComponent } from '../chat-thread/chat-thread.component';
 import { ChatApiService } from '../../core/services/chat-api.service';
 import { Conversation, Message, UserSearchResult } from '../../core/models/chat.models';
+import { SendMessagePayload } from '../../core/models/chat.models';
 
 @Component({
   selector: 'app-messages-page',
@@ -94,17 +95,40 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSend(text: string): void {
+  onSend(payload: SendMessagePayload): void {
     if (!this.selected) return;
 
-    const content = (text || '').trim();
-    if (!content) return;
+    const content = (payload.content || '').trim();
 
+    // Si no hay texto ni archivo, no enviar
+    if (!content && !payload.file) return;
+
+    // ID único para evitar duplicados (como ya tenías)
     const clientMessageId =
       typeof crypto !== 'undefined' && 'randomUUID' in crypto
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+    // 🔥 CASO 1: ENVÍO CON ARCHIVO
+    if (payload.file) {
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('file', payload.file);
+      formData.append('clientMessageId', clientMessageId);
+
+      this.chatApi.sendMessageWithAttachment(this.selected.id, formData).subscribe({
+        next: () => {
+          this.loadMessages(this.selected!.id);
+        },
+        error: (err) => {
+          console.error('Error enviando archivo', err);
+        }
+      });
+
+      return;
+    }
+
+    // 🔥 CASO 2: SOLO TEXTO (tu lógica original)
     this.chatApi.sendMessage(this.selected.id, { content, clientMessageId }).subscribe({
       next: (m) => {
         this.messages = [...this.messages, m];

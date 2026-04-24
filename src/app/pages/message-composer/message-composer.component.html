@@ -1,6 +1,56 @@
 <div class="composer">
-  <input [(ngModel)]="text" placeholder="Type something here..." (keydown.enter)="submit()" />
-  <button class="icon">📎</button>
-  <button class="icon">🙂</button>
-  <button class="send" (click)="submit()">➤</button>
+  <input
+    #fileInput
+    type="file"
+    hidden
+    (change)="onFileSelected($event)"
+  />
+
+  <button
+    type="button"
+    class="icon-btn"
+    title="Adjuntar archivo"
+    (click)="fileInput.click()">
+    📎
+  </button>
+
+  <div class="input-zone">
+    <input
+      type="text"
+      [(ngModel)]="messageText"
+      placeholder="Escribe un mensaje..."
+      (keydown.enter)="sendMessage()"
+    />
+
+    <div class="file-preview" *ngIf="selectedFile">
+      <span>📄 {{ selectedFile.name }}</span>
+      <button type="button" (click)="removeFile()">×</button>
+    </div>
+  </div>
+
+  <div class="emoji-zone">
+    <button
+      type="button"
+      class="icon-btn"
+      title="Emojis"
+      (click)="toggleEmojiPicker()">
+      😊
+    </button>
+
+    <div class="emoji-picker" *ngIf="showEmojiPicker">
+      <button
+        type="button"
+        *ngFor="let emoji of emojis"
+        (click)="addEmoji(emoji)">
+        {{ emoji }}
+      </button>
+    </div>
+  </div>
+
+  <button
+    type="button"
+    class="send-btn"
+    (click)="sendMessage()">
+    Enviar
+  </button>
 </div>
