@@ -25,4 +25,26 @@ export class MessageBubbleComponent {
     const d = new Date(this.msg.createdAt);
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
+
+  getFileIcon(mimeType?: string): string {
+  if (!mimeType) return '📎';
+
+  if (mimeType.startsWith('image/')) return '🖼️';
+  if (mimeType === 'application/pdf') return '📄';
+  if (mimeType.includes('word')) return '📝';
+  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊';
+  if (mimeType.includes('zip') || mimeType.includes('rar')) return '🗜️';
+
+  return '📎';
+}
+
+formatFileSize(bytes?: number): string {
+  if (!bytes) return '0 KB';
+
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb.toFixed(1)} KB`;
+
+  const mb = kb / 1024;
+  return `${mb.toFixed(1)} MB`;
+}
 }
