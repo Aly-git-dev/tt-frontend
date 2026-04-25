@@ -113,7 +113,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     if (payload.file) {
       const formData = new FormData();
       formData.append('content', content);
-      formData.append('file', payload.file);
+      formData.append('files', payload.file);
       formData.append('clientMessageId', clientMessageId);
 
       this.chatApi.sendMessageWithAttachment(this.selected.id, formData).subscribe({
