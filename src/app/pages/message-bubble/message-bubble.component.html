@@ -1,31 +1,33 @@
 <div class="row" [class.mine]="isMine()">
   <div class="bubble">
-  <div class="message-text" *ngIf="msg.content">
-    {{ msg.content }}
-  </div>
+    <div class="message-text" *ngIf="msg.content">
+      {{ msg.content }}
+    </div>
 
-<button
-  type="button"
-  class="attachment-card"
-  *ngFor="let file of msg.attachments"
-  (click)="downloadFile(file)"
->
-  <div class="file-icon">
-    {{ getFileIcon(file.mimeType) }}
-  </div>
+    <div class="attachments" *ngIf="msg.attachments?.length">
+      <button
+        type="button"
+        class="attachment-card"
+        *ngFor="let file of msg.attachments"
+        (click)="downloadFile(file)"
+      >
+        <div class="file-icon">
+          {{ getFileIcon(file.mimeType) }}
+        </div>
 
-  <div class="file-info">
-    <div class="file-name">{{ file.originalName }}</div>
-    <div class="file-meta">
-      {{ file.mimeType }} · {{ formatFileSize(file.sizeBytes) }}
+        <div class="file-info">
+          <div class="file-name">{{ file.originalName }}</div>
+          <div class="file-meta">
+            {{ file.mimeType }} · {{ formatFileSize(file.sizeBytes) }}
+          </div>
+        </div>
+
+        <div class="download-icon">⬇️</div>
+      </button>
+    </div>
+
+    <div class="message-time">
+      {{ msg.createdAt | date:'shortTime' }}
     </div>
   </div>
-
-  <div class="download-icon">⬇️</div>
-</button>
-
-  <div class="message-time">
-    {{ msg.createdAt | date:'shortTime' }}
-  </div>
-</div>
 </div>
