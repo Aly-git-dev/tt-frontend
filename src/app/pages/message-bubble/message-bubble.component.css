@@ -88,3 +88,10 @@
 .download-icon {
   font-size: 16px;
 }
+
+.attachment-card {
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}

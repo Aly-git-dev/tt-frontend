@@ -50,4 +50,24 @@ export class MessageBubbleComponent {
     const mb = kb / 1024;
     return `${mb.toFixed(1)} MB`;
   }
+  downloadFile(file: any): void {
+    this.chatApi.downloadAttachment(file.id).subscribe({
+      next: (response) => {
+        const blob = response.body;
+        if (!blob) return;
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+
+        a.href = url;
+        a.download = file.originalName || 'archivo';
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error descargando archivo', err);
+      }
+    });
+  }
 }

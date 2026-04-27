@@ -58,7 +58,13 @@ export class ChatApiService {
     );
   }
 
-  getAttachmentDownloadUrl(attachmentId: number): string {
-    return `${this.baseUrl}/attachments/${attachmentId}/download`;
+  downloadAttachment(attachmentId: number) {
+    return this.http.get(
+      `${this.baseUrl}/attachments/${attachmentId}/download`,
+      {
+        responseType: 'blob',
+        observe: 'response'
+      }
+    );
   }
 }

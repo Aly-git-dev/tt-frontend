@@ -4,12 +4,11 @@
     {{ msg.content }}
   </div>
 
-<a
+<button
+  type="button"
   class="attachment-card"
   *ngFor="let file of msg.attachments"
-  [href]="chatApi.getAttachmentDownloadUrl(file.id)"
-  target="_blank"
-  rel="noopener"
+  (click)="downloadFile(file)"
 >
   <div class="file-icon">
     {{ getFileIcon(file.mimeType) }}
@@ -23,7 +22,7 @@
   </div>
 
   <div class="download-icon">⬇️</div>
-</a>
+</button>
 
   <div class="message-time">
     {{ msg.createdAt | date:'shortTime' }}
