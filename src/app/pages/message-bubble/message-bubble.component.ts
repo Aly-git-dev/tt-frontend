@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Message } from '../../core/models/chat.models';
+import { ChatApiService } from '../../core/services/chat-api.service';
 
 @Component({
   selector: 'app-message-bubble',
@@ -12,8 +13,10 @@ import { Message } from '../../core/models/chat.models';
 export class MessageBubbleComponent {
   @Input() msg!: Message;
 
+  constructor(public chatApi: ChatApiService) {}
+
   meId(): string | null {
-    return localStorage.getItem('userId'); // ajusta si tu auth lo maneja distinto
+    return localStorage.getItem('userId');
   }
 
   isMine(): boolean {
@@ -27,24 +30,24 @@ export class MessageBubbleComponent {
   }
 
   getFileIcon(mimeType?: string): string {
-  if (!mimeType) return '📎';
+    if (!mimeType) return '📎';
 
-  if (mimeType.startsWith('image/')) return '🖼️';
-  if (mimeType === 'application/pdf') return '📄';
-  if (mimeType.includes('word')) return '📝';
-  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊';
-  if (mimeType.includes('zip') || mimeType.includes('rar')) return '🗜️';
+    if (mimeType.startsWith('image/')) return '🖼️';
+    if (mimeType === 'application/pdf') return '📄';
+    if (mimeType.includes('word')) return '📝';
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊';
+    if (mimeType.includes('zip') || mimeType.includes('rar')) return '🗜️';
 
-  return '📎';
-}
+    return '📎';
+  }
 
-formatFileSize(bytes?: number): string {
-  if (!bytes) return '0 KB';
+  formatFileSize(bytes?: number): string {
+    if (!bytes) return '0 KB';
 
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${kb.toFixed(1)} KB`;
+    const kb = bytes / 1024;
+    if (kb < 1024) return `${kb.toFixed(1)} KB`;
 
-  const mb = kb / 1024;
-  return `${mb.toFixed(1)} MB`;
-}
+    const mb = kb / 1024;
+    return `${mb.toFixed(1)} MB`;
+  }
 }

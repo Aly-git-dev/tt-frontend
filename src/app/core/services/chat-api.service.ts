@@ -57,4 +57,8 @@ export class ChatApiService {
       formData
     );
   }
+
+  getAttachmentDownloadUrl(attachmentId: number): string {
+    return `${this.baseUrl}/attachments/${attachmentId}/download`;
+  }
 }

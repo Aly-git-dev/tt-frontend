@@ -4,20 +4,26 @@
     {{ msg.content }}
   </div>
 
-  <div class="attachments" *ngIf="msg.attachments && msg.attachments.length">
-    <div class="attachment-card" *ngFor="let file of msg.attachments">
-      <div class="file-icon">
-        {{ getFileIcon(file.mimeType) }}
-      </div>
+<a
+  class="attachment-card"
+  *ngFor="let file of msg.attachments"
+  [href]="chatApi.getAttachmentDownloadUrl(file.id)"
+  target="_blank"
+  rel="noopener"
+>
+  <div class="file-icon">
+    {{ getFileIcon(file.mimeType) }}
+  </div>
 
-      <div class="file-info">
-        <div class="file-name">{{ file.originalName }}</div>
-        <div class="file-meta">
-          {{ file.mimeType }} · {{ formatFileSize(file.sizeBytes) }}
-        </div>
-      </div>
+  <div class="file-info">
+    <div class="file-name">{{ file.originalName }}</div>
+    <div class="file-meta">
+      {{ file.mimeType }} · {{ formatFileSize(file.sizeBytes) }}
     </div>
   </div>
+
+  <div class="download-icon">⬇️</div>
+</a>
 
   <div class="message-time">
     {{ msg.createdAt | date:'shortTime' }}

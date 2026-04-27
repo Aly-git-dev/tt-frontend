@@ -74,3 +74,17 @@
   font-size: 11px;
   color: #6b7280;
 }
+
+.attachment-card {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.attachment-card:hover {
+  background: #e0f2fe;
+}
+
+.download-icon {
+  font-size: 16px;
+}
