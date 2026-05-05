@@ -16,6 +16,7 @@ import {
 export class AuthService {
 
   private readonly baseUrl = `${environment.apiUrl}/upiiz/public/v1/auth`;
+
   private readonly ACCESS_TOKEN_KEY = 'platform_access_token';
   private readonly REFRESH_TOKEN_KEY = 'platform_refresh_token';
   private readonly EXPIRES_KEY = 'platform_expires_in';
@@ -25,27 +26,24 @@ export class AuthService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  // helper: ¿estamos en el navegador?
   private isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);
   }
 
-  // REGISTRO 
-    register(body: RegisterRequest, appBaseUrl?: string): Observable<ApiResponse> {
-      let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+  register(body: RegisterRequest, appBaseUrl?: string): Observable<ApiResponse> {
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
-      if (appBaseUrl) {
-        headers = headers.set('X-App-BaseUrl', appBaseUrl);
-      }
-
-      return this.http.post<ApiResponse>(
-        `${this.baseUrl}/registro`,
-        body,
-        { headers }
-      );
+    if (appBaseUrl) {
+      headers = headers.set('X-App-BaseUrl', appBaseUrl);
     }
 
-  // CONFIRMAR EMAIL
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/registro`,
+      body,
+      { headers }
+    );
+  }
+
   confirmEmail(token: string): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/confirm`,
@@ -53,7 +51,6 @@ export class AuthService {
     );
   }
 
-  // APROBAR USUARIO
   approveUser(userId: string): Observable<ApiResponse> {
     return this.http.patch<ApiResponse>(
       `${this.baseUrl}/approve/${userId}`,
@@ -61,7 +58,6 @@ export class AuthService {
     );
   }
 
-  // LOGIN 
   login(body: LoginRequest): Observable<ApiResponse> {
     return this.http.post<ApiResponse>(
       `${this.baseUrl}/login`,
@@ -75,9 +71,9 @@ export class AuthService {
     );
   }
 
-  // REFRESH 
   refresh(): Observable<ApiResponse> {
     const tokens = this.getTokens();
+
     if (!tokens) {
       throw new Error('No hay refreshToken guardado');
     }
@@ -102,12 +98,10 @@ export class AuthService {
     );
   }
 
-  // LOGOUT
   logout(): void {
     this.clearTokens();
   }
 
-  // Manejo de tokens (browser-safe)
   private storeTokens(tokens: TokensResponse): void {
     if (!this.isBrowser()) return;
 
@@ -149,19 +143,124 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    if (!this.isBrowser()) return false;
     return !!this.getAccessToken();
   }
 
   forgotPassword(email: string): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(`${this.baseUrl}/forgot-password`, { email });
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/forgot-password`,
+      { email }
+    );
   }
 
   resetPassword(token: string, newPassword: string, confirmPassword: string): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(`${this.baseUrl}/reset-password`, {
-      token,
-      newPassword,
-      confirmPassword
-    });
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/reset-password`,
+      {
+        token,
+        newPassword,
+        confirmPassword
+      }
+    );
+  }
+
+  // =====================================================
+  // USUARIO ACTUAL DESDE JWT
+  // =====================================================
+
+  private decodeAccessToken(): any | null {
+    const token = this.getAccessToken();
+
+    if (!token) return null;
+
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+
+      const normalizedPayload = payload
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+
+      const decoded = atob(normalizedPayload);
+      return JSON.parse(decoded);
+    } catch (error) {
+      console.error('No se pudo decodificar el token JWT', error);
+      return null;
+    }
+  }
+
+  getCurrentUserId(): string | null {
+    const payload = this.decodeAccessToken();
+
+    return (
+      payload?.userId ||
+      payload?.id ||
+      payload?.uid ||
+      payload?.user_id ||
+      payload?.user?.id ||
+      null
+    );
+  }
+
+  getCurrentUserEmail(): string | null {
+    const payload = this.decodeAccessToken();
+
+    return (
+      payload?.sub ||
+      payload?.email ||
+      payload?.email_inst ||
+      payload?.username ||
+      null
+    );
+  }
+
+  getCurrentUserRoles(): string[] {
+    const payload = this.decodeAccessToken();
+
+    const roles =
+      payload?.roles ||
+      payload?.authorities ||
+      payload?.role ||
+      payload?.scope ||
+      [];
+
+    if (Array.isArray(roles)) {
+      return roles.map((r: any) => {
+        if (typeof r === 'string') {
+          return r.replace('ROLE_', '');
+        }
+
+        if (r?.authority) {
+          return String(r.authority).replace('ROLE_', '');
+        }
+
+        if (r?.name) {
+          return String(r.name).replace('ROLE_', '');
+        }
+
+        return String(r).replace('ROLE_', '');
+      });
+    }
+
+    if (typeof roles === 'string') {
+      return roles
+        .split(/[,\s]+/)
+        .map(r => r.replace('ROLE_', '').trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  }
+
+  isAdmin(): boolean {
+    return this.getCurrentUserRoles()
+      .some(role => role.toUpperCase() === 'ADMIN');
+  }
+
+  debugToken(): void {
+    console.log('JWT payload:', this.decodeAccessToken());
+    console.log('currentUserId:', this.getCurrentUserId());
+    console.log('currentUserEmail:', this.getCurrentUserEmail());
+    console.log('roles:', this.getCurrentUserRoles());
   }
 }

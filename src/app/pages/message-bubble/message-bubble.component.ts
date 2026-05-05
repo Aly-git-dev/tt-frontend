@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Message } from '../../core/models/chat.models';
 import { ChatApiService } from '../../core/services/chat-api.service';
@@ -12,8 +12,14 @@ import { ChatApiService } from '../../core/services/chat-api.service';
 })
 export class MessageBubbleComponent {
   @Input() msg!: Message;
+  @Output() report = new EventEmitter<Message>();
 
   constructor(public chatApi: ChatApiService) {}
+  
+  onReport(event: MouseEvent): void {
+    event.stopPropagation();
+    this.report.emit(this.msg);
+  }
 
   meId(): string | null {
     return localStorage.getItem('userId');

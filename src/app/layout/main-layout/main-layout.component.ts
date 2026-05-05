@@ -89,4 +89,13 @@ export class MainLayoutComponent implements OnInit {
     this.closeUserMenu();
     this.router.navigate(['/admin/analytics']);
   }
+
+  goToAdminMessageReports(): void {
+    this.closeUserMenu();
+    this.router.navigate(['/admin/message-reports']);
+  }
+  goToAdminUsers(): void {
+  this.closeUserMenu();
+  this.router.navigate(['/admin/users']);
+}
 }

@@ -1,0 +1,44 @@
+<div class="report-overlay">
+  <div class="report-modal">
+    <button class="close-x" type="button" (click)="close.emit()">✕</button>
+
+    <div class="report-icon">⚠️</div>
+
+    <h2>Reportar mensaje</h2>
+
+    <p class="report-subtitle">
+      Selecciona el motivo del reporte. Un administrador revisará el caso.
+    </p>
+
+    <label for="reason">Motivo</label>
+    <select id="reason" [(ngModel)]="reasonCode">
+      <option value="">Selecciona uno</option>
+      <option value="ACOSO">Acoso</option>
+      <option value="SPAM">Spam</option>
+      <option value="OFENSIVO">Contenido ofensivo</option>
+      <option value="INAPROPIADO">Contenido inapropiado</option>
+      <option value="OTRO">Otro</option>
+    </select>
+
+    <label for="description">Descripción opcional</label>
+    <textarea
+      id="description"
+      [(ngModel)]="description"
+      placeholder="Describe brevemente lo ocurrido...">
+    </textarea>
+
+    <div class="actions">
+      <button class="cancel" type="button" (click)="close.emit()">
+        Cancelar
+      </button>
+
+      <button
+        class="send"
+        type="button"
+        [disabled]="!reasonCode"
+        (click)="submitReport()">
+        Enviar reporte
+      </button>
+    </div>
+  </div>
+</div>

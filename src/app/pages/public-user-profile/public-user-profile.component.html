@@ -1,0 +1,81 @@
+<div class="profile-container">
+
+  <div *ngIf="loading" class="profile-card">Cargando perfil...</div>
+  <div *ngIf="error" class="profile-card profile-error">{{ error }}</div>
+
+  <div *ngIf="profile" class="profile-card">
+
+    <!-- COVER -->
+    <div
+      class="profile-cover"
+      [style.backgroundImage]="profile.coverUrl ? 'url(' + profile.coverUrl + ')' : ''">
+    </div>
+
+    <!-- HEADER -->
+    <div class="profile-header">
+
+      <div class="profile-avatar">
+        <img
+          *ngIf="profile.avatarUrl; else avatarFallback"
+          [src]="profile.avatarUrl"
+          alt="avatar" />
+
+        <ng-template #avatarFallback>
+          <span>{{ getInitial(profile.fullName) }}</span>
+        </ng-template>
+      </div>
+
+      <div class="profile-info">
+        <h2>{{ profile.fullName }}</h2>
+        <p class="profile-sub">{{ profile.carrera }}</p>
+      </div>
+
+    </div>
+
+    <!-- STATS -->
+    <div class="profile-stats">
+      <div class="stat">
+        <strong>{{ profile.threadsCount }}</strong>
+        <span>Hilos</span>
+      </div>
+
+      <div class="stat">
+        <strong>{{ profile.postsCount }}</strong>
+        <span>Respuestas</span>
+      </div>
+    </div>
+
+    <!-- BIO -->
+    <div *ngIf="profile.bio" class="profile-section">
+      <h3>Sobre mí</h3>
+      <p>{{ profile.bio }}</p>
+    </div>
+
+    <!-- INTERESES -->
+    <div *ngIf="profile.interests" class="profile-section">
+      <h3>Intereses</h3>
+      <div class="interests-container">
+  <span
+    *ngFor="let interest of getParsedInterests()"
+    class="interest-tag">
+    {{ interest }}
+  </span>
+</div>
+    </div>
+
+    <!-- LINKS -->
+    <div *ngIf="profile.links" class="profile-section">
+      <h3>Links</h3>
+      <div class="links-container">
+  <a
+    *ngFor="let link of getParsedLinks()"
+    [href]="link.url"
+    target="_blank"
+    class="link-btn">
+    {{ link.label }}
+  </a>
+</div>
+    </div>
+
+  </div>
+</div>

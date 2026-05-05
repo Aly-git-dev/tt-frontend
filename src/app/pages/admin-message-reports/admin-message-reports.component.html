@@ -1,0 +1,146 @@
+<div class="reports-page">
+  <div class="header">
+    <div>
+      <div class="eyebrow">Moderación</div>
+      <h1>Reportes de mensajes</h1>
+      <p>Revisa mensajes reportados y toma acciones administrativas.</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="status === 'PENDIENTE'" (click)="changeStatus('PENDIENTE')">
+      Pendientes
+    </button>
+    <button [class.active]="status === 'RESUELTO'" (click)="changeStatus('RESUELTO')">
+      Resueltos
+    </button>
+    <button [class.active]="status === 'DESESTIMADO'" (click)="changeStatus('DESESTIMADO')">
+      Desestimados
+    </button>
+  </div>
+
+  <div class="error" *ngIf="error">{{ error }}</div>
+
+  <div class="layout">
+    <section class="list-card">
+      <div class="card-title">Reportes</div>
+
+      <div class="loading" *ngIf="loading">Cargando reportes...</div>
+
+      <div class="empty" *ngIf="!loading && !reports.length">
+        No hay reportes con este estado.
+      </div>
+
+      <button
+        class="report-row"
+        type="button"
+        *ngFor="let r of reports"
+        [class.selected]="selected?.id === r.id"
+        (click)="openReport(r)">
+        <div class="row-top">
+          <strong>#{{ r.id }}</strong>
+          <span class="badge" [ngClass]="statusClass(r.status)">
+            {{ r.status }}
+          </span>
+        </div>
+
+        <div class="reason">{{ r.reasonCode }}</div>
+
+        <div class="meta">
+          Conversación {{ r.conversationId }} · Mensaje {{ r.reportedMessageId }}
+        </div>
+
+        <div class="date">{{ formatDate(r.createdAt) }}</div>
+      </button>
+    </section>
+
+    <section class="detail-card">
+      <div class="card-title">Detalle del reporte</div>
+
+      <div class="loading" *ngIf="detailLoading">
+        Cargando detalle...
+      </div>
+
+      <div class="empty detail-empty" *ngIf="!detailLoading && !selected">
+        Selecciona un reporte para revisar el contexto.
+      </div>
+
+      <ng-container *ngIf="selected && !detailLoading">
+        <div class="detail-head">
+          <div>
+            <h2>Reporte #{{ selected.id }}</h2>
+            <p>{{ formatDate(selected.createdAt) }}</p>
+          </div>
+
+          <span class="badge" [ngClass]="statusClass(selected.status)">
+            {{ selected.status }}
+          </span>
+        </div>
+
+        <div class="info-grid">
+          <div>
+            <span>Motivo</span>
+            <strong>{{ selected.reasonCode }}</strong>
+          </div>
+
+          <div>
+            <span>Reportante</span>
+            <strong>{{ selected.reporterId }}</strong>
+          </div>
+
+          <div>
+            <span>Conversación</span>
+            <strong>{{ selected.conversationId }}</strong>
+          </div>
+
+          <div>
+            <span>Mensaje reportado</span>
+            <strong>{{ selected.reportedMessageId }}</strong>
+          </div>
+        </div>
+
+        <div class="context-title">Contexto del mensaje</div>
+
+        <div class="context-list">
+          <div
+            class="context-item"
+            *ngFor="let item of selected.context"
+            [class.reported]="item.messageId === selected.reportedMessageId">
+            <div class="context-meta">
+              <span>
+                {{ item.senderRoleSnapshot || 'Usuario' }}
+              </span>
+              <small>{{ formatDate(item.createdAtSnapshot) }}</small>
+            </div>
+
+            <div class="context-content">
+              {{ item.contentSnapshot || '[Archivo o contenido sin texto]' }}
+            </div>
+
+            <div class="reported-label" *ngIf="item.messageId === selected.reportedMessageId">
+              Mensaje reportado
+            </div>
+          </div>
+        </div>
+
+        <div class="actions" *ngIf="selected.status === 'PENDIENTE'">
+          <button
+            class="dismiss"
+            type="button"
+            [disabled]="actionLoading"
+            (click)="dismissSelected()">
+            Desestimar
+          </button>
+
+          <button
+            class="resolve"
+            type="button"
+            [disabled]="actionLoading"
+            (click)="resolveSelected()">
+            Marcar como resuelto
+          </button>
+        </div>
+      </ng-container>
+    </section>
+  </div>
+</div>

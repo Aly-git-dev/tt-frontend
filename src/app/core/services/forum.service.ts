@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { Observable } from 'rxjs';
+
 import {
   ThreadSummaryDto,
   ThreadDetailDto,
   ThreadCreateDto,
+  ThreadUpdateDto,
   PostCreateDto,
+  PostUpdateDto,
   PostDto,
   ReportCreateDto,
   ForumSummaryDto,
   AdminReportDto,
   ReportAdminActionDto
 } from '../models/forum.models';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -20,39 +23,42 @@ import { Observable } from 'rxjs';
 export class ForumService {
 
   private readonly baseUrl = `${environment.apiUrl}/upiiz/public/v1/forums`;
-  // Base admin
   private readonly adminBaseUrl = `${environment.apiUrl}/upiiz/admin/v1/forums`;
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Obtener hilos recomendados para el dashboard.
-   * GET /api/forums/recommended
-   */
+  // ========== HILOS ==========
+
   getRecommendedThreads(): Observable<ThreadSummaryDto[]> {
     return this.http.get<ThreadSummaryDto[]>(`${this.baseUrl}/recommended`);
   }
 
-  /**
-   * Obtener detalle de un hilo (con sus posts).
-   * GET /api/forums/threads/{id}
-   */
   getThread(id: number): Observable<ThreadDetailDto> {
     return this.http.get<ThreadDetailDto>(`${this.baseUrl}/threads/${id}`);
   }
 
-  /**
-   * Crear un nuevo hilo.
-   * POST /api/forums/threads
-   */
   createThread(payload: ThreadCreateDto): Observable<ThreadDetailDto> {
     return this.http.post<ThreadDetailDto>(`${this.baseUrl}/threads`, payload);
   }
 
-  /**
-   * Crear una respuesta / comentario en un hilo.
-   * POST /api/forums/threads/{id}/posts
-   */
+  updateThread(id: number, payload: ThreadUpdateDto): Observable<ThreadDetailDto> {
+    return this.http.put<ThreadDetailDto>(`${this.baseUrl}/threads/${id}`, payload);
+  }
+
+  deleteThread(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/threads/${id}`);
+  }
+
+  likeThread(id: number): Observable<ThreadDetailDto> {
+    return this.http.post<ThreadDetailDto>(`${this.baseUrl}/threads/${id}/like`, {});
+  }
+
+  unlikeThread(id: number): Observable<ThreadDetailDto> {
+    return this.http.delete<ThreadDetailDto>(`${this.baseUrl}/threads/${id}/like`);
+  }
+
+  // ========== RESPUESTAS / POSTS ==========
+
   createPost(threadId: number, payload: PostCreateDto): Observable<PostDto> {
     return this.http.post<PostDto>(
       `${this.baseUrl}/threads/${threadId}/posts`,
@@ -60,17 +66,30 @@ export class ForumService {
     );
   }
 
-  /**
-   * Reportar contenido (hilo o post).
-   * POST /api/forums/reports
-   */
+  updatePost(postId: number, payload: PostUpdateDto): Observable<PostDto> {
+    return this.http.put<PostDto>(`${this.baseUrl}/posts/${postId}`, payload);
+  }
+
+  deletePost(postId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/posts/${postId}`);
+  }
+
+  likePost(postId: number): Observable<PostDto> {
+    return this.http.post<PostDto>(`${this.baseUrl}/posts/${postId}/like`, {});
+  }
+
+  unlikePost(postId: number): Observable<PostDto> {
+    return this.http.delete<PostDto>(`${this.baseUrl}/posts/${postId}/like`);
+  }
+
+  // ========== REPORTES ==========
+
   reportContent(payload: ReportCreateDto): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/reports`, payload);
   }
-  /**
-   * Obtener el resumen.
-   * GET /upiiz/public/v1/forums/me/summary
-   */
+
+  // ========== RESUMEN ==========
+
   getMySummary(): Observable<ForumSummaryDto> {
     return this.http.get<ForumSummaryDto>(`${this.baseUrl}/me/summary`);
   }
@@ -86,6 +105,13 @@ export class ForumService {
   }
 
   resolveReport(id: number, payload: ReportAdminActionDto): Observable<void> {
-    return this.http.post<void>(`${this.adminBaseUrl}/reports/${id}/resolve`, payload);
+    return this.http.post<void>(
+      `${this.adminBaseUrl}/reports/${id}/resolve`,
+      payload
+    );
+  }
+
+  getAllThreads(): Observable<ThreadSummaryDto[]> {
+    return this.http.get<ThreadSummaryDto[]>(`${this.baseUrl}/threads`);
   }
 }

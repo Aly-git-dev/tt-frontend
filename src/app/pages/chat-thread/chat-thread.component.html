@@ -34,7 +34,8 @@
         <div class="messages-list">
           <app-message-bubble
             *ngFor="let m of messages; trackBy: trackByMessage"
-            [msg]="m">
+            [msg]="m"
+            (report)="onReportMessage($event)">
           </app-message-bubble>
         </div>
       </ng-container>

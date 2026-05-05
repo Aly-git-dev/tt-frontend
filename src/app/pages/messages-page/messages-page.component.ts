@@ -9,10 +9,12 @@ import { ChatApiService } from '../../core/services/chat-api.service';
 import { Conversation, Message, UserSearchResult } from '../../core/models/chat.models';
 import { SendMessagePayload } from '../../core/models/chat.models';
 
+import { ReportModalComponent } from '../report-modal/report-modal.component';
+
 @Component({
   selector: 'app-messages-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConversationListComponent, ChatThreadComponent],
+  imports: [CommonModule, FormsModule, ConversationListComponent, ChatThreadComponent, ReportModalComponent],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.css'
 })
@@ -31,6 +33,9 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
 
   private refreshSub?: Subscription;
   private userSearchDebounce?: ReturnType<typeof setTimeout>;
+
+      selectedMessage: Message | null = null;
+    showReportModal = false;
 
   constructor(private chatApi: ChatApiService) {}
 
@@ -288,4 +293,28 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
       return bTime - aTime;
     });
   }
+
+
+
+    onReportMessage(message: Message) {
+      this.selectedMessage = message;
+      this.showReportModal = true;
+    }
+
+    submitReport(data: any) {
+  if (!this.selectedMessage) return;
+
+  this.chatApi.reportMessage(this.selectedMessage.id, data).subscribe({
+    next: () => {
+      alert('Reporte enviado');
+      this.closeReportModal(); // 👈 usa el método
+    },
+    error: () => alert('Error al reportar')
+  });
+}
+
+    closeReportModal(): void {
+      this.showReportModal = false;
+      this.selectedMessage = null;
+    }
 }

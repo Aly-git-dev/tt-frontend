@@ -28,7 +28,8 @@
           [messages]="messages"
           [loading]="loading"
           (send)="onSend($event)"
-          (backMobile)="backToListMobile()">
+          (backMobile)="backToListMobile()"
+          (reportMessage)="onReportMessage($event)">
         </app-chat-thread>
       </ng-container>
 
@@ -44,6 +45,12 @@
     </section>
 
   </div>
+
+  <app-report-modal
+    *ngIf="showReportModal"
+    (close)="closeReportModal()"
+    (submit)="submitReport($event)">
+  </app-report-modal>
 
   <div class="modal-backdrop" *ngIf="showNewConversationModal" (click)="closeNewConversationModal()"></div>
 
@@ -82,8 +89,7 @@
           type="button"
           *ngFor="let user of userSearchResults"
           [disabled]="creatingConversation"
-          (click)="createDirectConversation(user)"
-        >
+          (click)="createDirectConversation(user)">
           <div class="user-avatar">
             <img *ngIf="user.avatarUrl; else userFallback" [src]="user.avatarUrl" [alt]="user.name || user.email" />
             <ng-template #userFallback>

@@ -19,6 +19,8 @@ export class ChatThreadComponent {
   @Output() send = new EventEmitter<SendMessagePayload>();
   @Output() backMobile = new EventEmitter<void>();
 
+  @Output() reportMessage = new EventEmitter<Message>();
+
   get displayName(): string {
     return this.conversation?.otherName?.trim()
       || this.conversation?.otherUserId?.trim()
@@ -38,5 +40,9 @@ export class ChatThreadComponent {
 
   trackByMessage(index: number, message: Message): string | number {
     return (message as any).id ?? index;
+  }
+
+  onReportMessage(message: Message): void {
+    this.reportMessage.emit(message);
   }
 }

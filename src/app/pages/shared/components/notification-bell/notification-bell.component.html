@@ -1,0 +1,49 @@
+<div class="notification-wrapper">
+  <button class="bell-button" type="button" (click)="togglePanel()">
+    <mat-icon>notifications</mat-icon>
+
+    <span *ngIf="unreadCount > 0" class="badge">
+      {{ unreadCount > 9 ? '9+' : unreadCount }}
+    </span>
+  </button>
+
+  <div class="notification-panel" *ngIf="opened">
+    <div class="panel-header">
+      <div>
+        <h3>Notificaciones</h3>
+        <p>{{ unreadCount }} sin leer</p>
+      </div>
+
+      <button
+        type="button"
+        class="read-all-button"
+        *ngIf="unreadCount > 0"
+        (click)="markAllAsRead()">
+        Marcar todas
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+      Cargando notificaciones...
+    </div>
+
+    <div *ngIf="!loading && notifications.length === 0" class="empty">
+      No tienes notificaciones.
+    </div>
+
+    <div
+      class="notification-item"
+      *ngFor="let n of notifications"
+      [class.unread]="!n.read"
+      (click)="markAsRead(n)">
+
+      <mat-icon class="item-icon">{{ getIcon(n.type) }}</mat-icon>
+
+      <div class="item-content">
+        <strong>{{ n.title }}</strong>
+        <p>{{ n.body }}</p>
+        <small>{{ n.createdAt | date:'short' }}</small>
+      </div>
+    </div>
+  </div>
+</div>

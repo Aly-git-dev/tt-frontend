@@ -67,4 +67,11 @@ export class ChatApiService {
       }
     );
   }
+
+  reportMessage(messageId: number, body: { reasonCode: string; description?: string | null }) {
+    return this.http.post(
+      `${this.baseUrl}/messages/${messageId}/report`,
+      body
+    );
+  }
 }

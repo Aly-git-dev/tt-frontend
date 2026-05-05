@@ -1,5 +1,4 @@
 <div class="layout" *ngIf="user; else loadingTpl">
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <img src="assets/logo.png" alt="UPIIZ-IPN" />
@@ -31,56 +30,44 @@
 
       <div class="menu-section-title">Foros</div>
 
-      <a class="menu-item" [routerLink]="['/forums']" routerLinkActive="active">
-        <span>💬</span>
-        <span>Mis foros</span>
-      </a>
-
       <a class="menu-item" [routerLink]="['/forums/new']" routerLinkActive="active">
         <span>➕</span>
         <span>Nuevo foro</span>
       </a>
 
-      <!-- Admin -->
-      <a
-        class="menu-item"
-        *ngIf="user?.roles?.includes('ADMIN')"
-        [routerLink]="['/admin/approvals']"
-        routerLinkActive="active"
-      >
-        <span>✅</span>
-        <span>Validar usuarios</span>
-      </a>
+      <ng-container *ngIf="user?.roles?.includes('ADMIN')">
+        <div class="menu-section-title">Administración</div>
 
-      <a
-        class="menu-item"
-        *ngIf="user?.roles?.includes('ADMIN')"
-        [routerLink]="['/admin/report/list']"
-        routerLinkActive="active"
-      >
-        <span>📋</span>
-        <span>Reportes</span>
-      </a>
+        <a class="menu-item" [routerLink]="['/admin/approvals']" routerLinkActive="active">
+          <span>✅</span>
+          <span>Validar usuarios</span>
+        </a>
 
-      <a
-        class="menu-item"
-        *ngIf="user?.roles?.includes('ADMIN')"
-        [routerLink]="['/admin/banned/users']"
-        routerLinkActive="active"
-      >
-        <span>⛔</span>
-        <span>Usuarios bloqueados</span>
-      </a>
+        <a class="menu-item" [routerLink]="['/admin/users']" routerLinkActive="active">
+          <span>👥</span>
+          <span>Gestión de usuarios</span>
+        </a>
 
-      <a
-        class="menu-item"
-        *ngIf="user?.roles?.includes('ADMIN')"
-        [routerLink]="['/admin/analytics']"
-        routerLinkActive="active"
-      >
-        <span>📊</span>
-        <span>Analíticas</span>
-      </a>
+        <a class="menu-item" [routerLink]="['/admin/report/list']" routerLinkActive="active">
+          <span>📋</span>
+          <span>Reportes</span>
+        </a>
+
+        <a class="menu-item" [routerLink]="['/admin/banned/users']" routerLinkActive="active">
+          <span>⛔</span>
+          <span>Usuarios bloqueados</span>
+        </a>
+
+        <a class="menu-item" [routerLink]="['/admin/message-reports']" routerLinkActive="active">
+          <span>🚨</span>
+          <span>Reportes de mensajes</span>
+        </a>
+
+        <a class="menu-item" [routerLink]="['/admin/analytics']" routerLinkActive="active">
+          <span>📊</span>
+          <span>Analíticas</span>
+        </a>
+      </ng-container>
     </nav>
 
     <div class="sidebar-footer">
@@ -90,7 +77,6 @@
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main">
     <header class="main-header">
       <div class="main-header-left">
@@ -101,7 +87,7 @@
       </div>
 
       <div class="main-header-right">
-        <button class="icon-btn" type="button">🔔</button>
+        <app-notification-bell></app-notification-bell>
 
         <div class="header-user-wrapper" (click)="toggleUserMenu(); $event.stopPropagation()">
           <div class="header-user">
@@ -126,7 +112,6 @@
             <span class="header-user-arrow">▾</span>
           </div>
 
-          <!-- Menú desplegable -->
           <div class="user-menu" *ngIf="showUserMenu" (click)="$event.stopPropagation()">
             <div class="user-menu-header">
               <ng-container *ngIf="user?.avatarUrl; else menuAvatarFallback">
@@ -156,45 +141,61 @@
               <span>Ver perfil</span>
             </button>
 
-            <button
-              type="button"
-              class="user-menu-item"
-              *ngIf="user?.roles?.includes('ADMIN')"
-              (click)="goToAdminApprovals(); $event.stopPropagation()"
-            >
-              <span class="user-menu-icon">✅</span>
-              <span>Validar usuarios</span>
-            </button>
+            <ng-container *ngIf="user?.roles?.includes('ADMIN')">
+              <button
+                type="button"
+                class="user-menu-item"
+                (click)="goToAdminApprovals(); $event.stopPropagation()"
+              >
+                <span class="user-menu-icon">✅</span>
+                <span>Validar usuarios</span>
+              </button>
 
-            <button
-              type="button"
-              class="user-menu-item"
-              *ngIf="user?.roles?.includes('ADMIN')"
-              (click)="goToAdminReportList(); $event.stopPropagation()"
-            >
-              <span class="user-menu-icon">📋</span>
-              <span>Reportes</span>
-            </button>
+              <button
+                type="button"
+                class="user-menu-item"
+                (click)="goToAdminUsers(); $event.stopPropagation()"
+              >
+                <span class="user-menu-icon">👥</span>
+                <span>Gestión de usuarios</span>
+              </button>
 
-            <button
-              type="button"
-              class="user-menu-item"
-              *ngIf="user?.roles?.includes('ADMIN')"
-              (click)="goToAdminBannedUsers(); $event.stopPropagation()"
-            >
-              <span class="user-menu-icon">⛔</span>
-              <span>Usuarios bloqueados</span>
-            </button>
+              <button
+                type="button"
+                class="user-menu-item"
+                (click)="goToAdminReportList(); $event.stopPropagation()"
+              >
+                <span class="user-menu-icon">📋</span>
+                <span>Reportes</span>
+              </button>
 
-            <button
-              type="button"
-              class="user-menu-item"
-              *ngIf="user?.roles?.includes('ADMIN')"
-              (click)="goToAdminAnalytics(); $event.stopPropagation()"
-            >
-              <span class="user-menu-icon">📊</span>
-              <span>Analíticas</span>
-            </button>
+              <button
+                type="button"
+                class="user-menu-item"
+                (click)="goToAdminBannedUsers(); $event.stopPropagation()"
+              >
+                <span class="user-menu-icon">⛔</span>
+                <span>Usuarios bloqueados</span>
+              </button>
+
+              <button
+                type="button"
+                class="user-menu-item"
+                (click)="goToAdminMessageReports(); $event.stopPropagation()"
+              >
+                <span class="user-menu-icon">🚨</span>
+                <span>Reportes de mensajes</span>
+              </button>
+
+              <button
+                type="button"
+                class="user-menu-item"
+                (click)="goToAdminAnalytics(); $event.stopPropagation()"
+              >
+                <span class="user-menu-icon">📊</span>
+                <span>Analíticas</span>
+              </button>
+            </ng-container>
 
             <div class="user-menu-divider"></div>
 
@@ -211,7 +212,6 @@
       </div>
     </header>
 
-    <!-- Contenido interno -->
     <router-outlet></router-outlet>
   </main>
 </div>

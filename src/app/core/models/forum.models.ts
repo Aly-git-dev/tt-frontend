@@ -1,10 +1,39 @@
+export interface AttachmentDto {
+  id?: number;
+  kind: 'IMAGEN' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'LINK' | string;
+  url: string;
+}
+
+export interface AttachmentCreateDto {
+  kind: string;
+  url: string;
+}
+
 export interface ThreadCreateDto {
   categoryId: number;
   subareaId?: number | null;
   title: string;
   body: string;
   type: 'PREGUNTA' | 'DISCUSSION' | 'ANUNCIO';
-  attachments: AttachmentCreateDto[];
+  attachments?: AttachmentCreateDto[];
+}
+
+export interface ThreadUpdateDto {
+  categoryId?: number | null;
+  subareaId?: number | null;
+  title?: string;
+  body?: string;
+  type?: 'PREGUNTA' | 'DISCUSSION' | 'ANUNCIO' | string;
+}
+
+export interface PostCreateDto {
+  body: string;
+  parentPostId?: number | null;
+  attachments?: AttachmentDto[];
+}
+
+export interface PostUpdateDto {
+  body: string;
 }
 
 export interface ThreadSummaryDto {
@@ -17,18 +46,11 @@ export interface ThreadSummaryDto {
   answersCount: number;
   views: number;
   status: string;
-  createdAt: string; // viene como ISO string
-}
+  createdAt: string;
+  likedByMe?: boolean;
 
-export interface AttachmentDto {
-  id?: number;
-  kind: 'IMAGEN' | 'VIDEO' | 'AUDIO' | 'LINK' | string;
-  url: string;
-}
-
-export interface AttachmentCreateDto {
-  kind: string;
-  url: string;
+  // 👇 NUEVO
+  authorAvatarUrl?: string | null;
 }
 
 export interface PostDto {
@@ -37,11 +59,17 @@ export interface PostDto {
   status: string;
   score: number;
   acceptedAnswer: boolean;
+
   authorId: string;
   authorName: string;
+  authorAvatarUrl?: string | null; // 👈 NUEVO
+
   parentPostId?: number | null;
   createdAt: string;
-  attachments: AttachmentCreateDto[];
+  updatedAt?: string;
+  likedByMe?: boolean;
+
+  attachments: AttachmentDto[];
 }
 
 export interface ThreadDetailDto {
@@ -61,18 +89,14 @@ export interface ThreadDetailDto {
 
   authorId: string;
   authorName: string;
+  authorAvatarUrl?: string | null; // 👈 NUEVO
 
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+  likedByMe?: boolean;
 
   attachments: AttachmentDto[];
   posts: PostDto[];
-}
-
-export interface PostCreateDto {
-  body: string;
-  parentPostId?: number | null;
-  attachments?: AttachmentDto[];
 }
 
 export interface ReportCreateDto {
@@ -81,17 +105,13 @@ export interface ReportCreateDto {
   reasonCode: string;
   description?: string | null;
 }
+
 export interface ForumSummaryDto {
   threadsCreated: number;
   postsCreated: number;
   interestsCount: number;
 }
-export interface ReportCreateDto {
-  threadId?: number | null;
-  postId?: number | null;
-  reasonCode: string;     // p.ej. 'SPAM', 'OFENSIVO', 'OTRO'
-  description?: string | null;   // opcional
-}
+
 export interface AdminReportDto {
   id: number;
 
@@ -118,4 +138,18 @@ export interface ReportAdminActionDto {
   deleteContent: boolean;
   banUser: boolean;
   adminNote?: string;
+}
+
+export interface PublicUserProfileDto {
+  id: string;
+  fullName: string;
+  emailInst?: string | null;
+  carrera?: string | null;
+  bio?: string | null;
+  interests?: string | null;
+  links?: string | null;
+  avatarUrl?: string | null;
+  coverUrl?: string | null;
+  threadsCount: number;
+  postsCount: number;
 }

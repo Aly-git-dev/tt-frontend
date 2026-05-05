@@ -47,4 +47,43 @@ export class AdminUsersService {
   unbanUser(id: string) {
     return this.http.post<void>(`${this.baseUrl}/forums/${id}/unban`, {});
   }
+  // 🔥 NUEVO: listar todos los usuarios (admin panel)
+getAllUsers(q: string = '') {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/admin/users`,
+    { params: { q } }
+  );
+}
+
+// 🔥 NUEVO: actualizar roles
+updateRoles(id: string, roles: string[]) {
+  return this.http.patch<any>(
+    `${this.baseUrl}/admin/users/${id}/roles`,
+    { roles }
+  );
+}
+
+// 🔥 NUEVO: banear usuario (global)
+banUser(id: string) {
+  return this.http.patch<any>(
+    `${this.baseUrl}/admin/users/${id}/ban`,
+    {}
+  );
+}
+
+// 🔥 NUEVO: desbanear usuario (global)
+unbanUserGlobal(id: string) {
+  return this.http.patch<any>(
+    `${this.baseUrl}/admin/users/${id}/unban`,
+    {}
+  );
+}
+
+banUserGlobal(id: string): Observable<any> {
+  return this.http.patch<any>(
+    `${this.baseUrl}/admin/users/${id}/ban`,
+    {}
+  );
+}
+
 }

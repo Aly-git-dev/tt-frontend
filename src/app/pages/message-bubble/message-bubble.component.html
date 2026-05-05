@@ -25,6 +25,14 @@
         <div class="download-icon">⬇️</div>
       </button>
     </div>
+    <button
+      *ngIf="!isMine()"
+      class="report-btn"
+      type="button"
+      (click)="onReport($event)"
+      title="Reportar mensaje">
+      ⚠️
+    </button>
 
     <div class="message-time">
       {{ msg.createdAt | date:'shortTime' }}

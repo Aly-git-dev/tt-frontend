@@ -19,6 +19,7 @@ import { VideoMeetingRoomComponent } from './pages/video-meeting-room.component/
 import { AdminAnalyticsDashboardComponent } from './pages/admin-analytics-dashboard/admin-analytics-dashboard.component';
 import { TeacherAnalyticsDetailComponent } from './pages/teacher-analytics-detail/teacher-analytics-detail.component';
 import { TeacherEvaluationFormComponent } from './pages/teacher-evaluation-form/teacher-evaluation-form.component';
+import { PublicUserProfileComponent } from './pages/public-user-profile/public-user-profile.component';
 const routes: Routes = [
     // Páginas públicas (sin layout)
   { path: 'login', component: LoginComponent },
@@ -40,11 +41,26 @@ const routes: Routes = [
 
       // Perfil y admin
       { path: 'profile', component: ProfileComponent },
+      // Perfil y admin
+      { path: 'profile', component: ProfileComponent },
+      { path: 'users/:id/profile', component: PublicUserProfileComponent },
       { path: 'admin/approvals', component: AdminApprovalsComponent },
       { path: 'admin/report/list', component: AdminReportListComponent },
       { path: 'admin/banned/users', component: AdminBannedUsersComponent },
       { path: 'teacher/evaluation', component: TeacherEvaluationFormComponent },
-      
+
+      {
+        path: 'admin/message-reports',
+            loadComponent: () =>
+              import('./pages/admin-message-reports/admin-message-reports.component')
+                .then(m => m.AdminMessageReportsComponent)
+          },
+          {
+  path: 'admin/users',
+  loadComponent: () =>
+    import('./pages/admin-users/admin-users.component')
+      .then(m => m.AdminUsersComponent)
+},
       { path: 'messages', component: MessagesPageComponent },
       {path: 'calendar',
         loadComponent: () => import('./pages/calendar-page.component/calendar-page.component')

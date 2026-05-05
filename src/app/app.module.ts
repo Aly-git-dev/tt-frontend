@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -28,6 +28,11 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { AdminAnalyticsDashboardComponent } from './pages/admin-analytics-dashboard/admin-analytics-dashboard.component';
 import { TeacherAnalyticsDetailComponent } from './pages/teacher-analytics-detail/teacher-analytics-detail.component';
 import { TeacherEvaluationFormComponent } from './pages/teacher-evaluation-form/teacher-evaluation-form.component';
+import { NotificationBellComponent } from './pages/shared/components/notification-bell/notification-bell.component';
+import { MatIconModule } from '@angular/material/icon';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { PublicUserProfileComponent } from './pages/public-user-profile/public-user-profile.component';
+
 
 @NgModule({
   declarations: [
@@ -45,7 +50,8 @@ import { TeacherEvaluationFormComponent } from './pages/teacher-evaluation-form/
     AdminBannedUsersComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
-    VideoMeetingRoomComponent
+    VideoMeetingRoomComponent,
+    NotificationBellComponent
   ],
   imports: [
     BrowserModule,
@@ -55,10 +61,17 @@ import { TeacherEvaluationFormComponent } from './pages/teacher-evaluation-form/
     CommonModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-
+    MatIconModule,
+    
     AdminAnalyticsDashboardComponent,
     TeacherAnalyticsDetailComponent,
-    TeacherEvaluationFormComponent
+    TeacherEvaluationFormComponent,
+    PublicUserProfileComponent,
+
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   providers: [
     {

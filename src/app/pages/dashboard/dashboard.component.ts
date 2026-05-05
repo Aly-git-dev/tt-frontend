@@ -6,13 +6,19 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css'] // o .css
+  styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
 
   recommendedThreads: ThreadSummaryDto[] = [];
+  allThreads: ThreadSummaryDto[] = [];
+
   loadingForums = false;
+  loadingFeed = false;
+
   forumsError: string | null = null;
+  feedError: string | null = null;
+
   summary: ForumSummaryDto | null = null;
   summaryLoading = false;
   summaryError: string | null = null;
@@ -24,6 +30,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRecommendedThreads();
+    this.loadAllThreads();
     this.loadSummary();
   }
 
@@ -49,14 +56,31 @@ export class DashboardComponent implements OnInit {
     this.forumsError = null;
 
     this.forumService.getRecommendedThreads().subscribe({
-      next: threads => {
+      next: (threads) => {
         this.recommendedThreads = threads;
         this.loadingForums = false;
       },
-      error: err => {
+      error: (err) => {
         console.error('Error cargando recomendados', err);
         this.forumsError = 'No se pudieron cargar los foros recomendados.';
         this.loadingForums = false;
+      }
+    });
+  }
+
+  private loadAllThreads(): void {
+    this.loadingFeed = true;
+    this.feedError = null;
+
+    this.forumService.getAllThreads().subscribe({
+      next: (threads) => {
+        this.allThreads = threads;
+        this.loadingFeed = false;
+      },
+      error: (err) => {
+        console.error('Error cargando feed de foros', err);
+        this.feedError = 'No se pudo cargar el feed de foros.';
+        this.loadingFeed = false;
       }
     });
   }
@@ -67,5 +91,23 @@ export class DashboardComponent implements OnInit {
 
   goToNewThread(): void {
     this.router.navigate(['/forums', 'new']);
+  }
+
+  getThreadIcon(type: string): string {
+    switch (type) {
+      case 'PREGUNTA':
+        return '❔';
+      case 'DISCUSSION':
+        return '💬';
+      case 'ANUNCIO':
+        return '📢';
+      default:
+        return '🧵';
+    }
+  }
+
+  getInitial(title?: string | null): string {
+    if (!title) return '?';
+    return title.trim().charAt(0).toUpperCase();
   }
 }

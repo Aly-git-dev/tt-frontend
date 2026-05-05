@@ -1,0 +1,90 @@
+<div class="admin-users-page">
+  <div class="header">
+    <div>
+      <div class="eyebrow">Administración</div>
+      <h1>Gestión de usuarios</h1>
+      <p>Administra roles, permisos y estado de las cuentas.</p>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input
+      [(ngModel)]="searchTerm"
+      placeholder="Buscar por nombre o correo..."
+      (keyup.enter)="loadUsers()" />
+
+    <button type="button" (click)="loadUsers()">
+      Buscar
+    </button>
+  </div>
+
+  <div class="error" *ngIf="error">{{ error }}</div>
+
+  <div class="loading" *ngIf="loading">
+    Cargando usuarios...
+  </div>
+
+  <div class="users-table" *ngIf="!loading">
+    <div class="table-head">
+      <div>Usuario</div>
+      <div>Roles</div>
+      <div>Estado</div>
+      <div>Acciones</div>
+    </div>
+
+    <div class="table-row" *ngFor="let user of users">
+      <div class="user-cell">
+        <div class="avatar">
+          {{ (user.fullName || user.emailInst || 'U').charAt(0).toUpperCase() }}
+        </div>
+
+        <div>
+          <div class="name">{{ user.fullName || 'Sin nombre' }}</div>
+          <div class="email">{{ user.emailInst }}</div>
+          <div class="id">{{ user.id }}</div>
+        </div>
+      </div>
+
+      <div class="roles-cell">
+        <button
+          type="button"
+          class="role-chip"
+          *ngFor="let role of roles"
+          [class.active]="hasRole(user, role)"
+          [disabled]="savingId === user.id"
+          (click)="toggleRole(user, role)">
+          {{ role }}
+        </button>
+      </div>
+
+      <div>
+        <span class="status active" *ngIf="user.active">Activo</span>
+        <span class="status banned" *ngIf="!user.active">Baneado</span>
+      </div>
+
+      <div class="actions">
+        <button
+          *ngIf="user.active"
+          type="button"
+          class="ban"
+          [disabled]="savingId === user.id"
+          (click)="ban(user)">
+          Banear
+        </button>
+
+        <button
+          *ngIf="!user.active"
+          type="button"
+          class="unban"
+          [disabled]="savingId === user.id"
+          (click)="unban(user)">
+          Reactivar
+        </button>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="!users.length">
+      No se encontraron usuarios.
+    </div>
+  </div>
+</div>
