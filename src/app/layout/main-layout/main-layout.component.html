@@ -1,7 +1,10 @@
 <div class="layout" *ngIf="user; else loadingTpl">
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <img src="assets/logo.svg" alt="CoLaB" />
+      <div class="logo-container">
+        <img src="assets/logo.svg" alt="CoLaB" class="logo-colab" />
+        <img src="assets/upiiz-logo.svg" alt="UPIIZ" class="logo-upiiz" />
+      </div>
       <div class="sidebar-logo-text">
         <span class="logo-title">CoLaB</span>
       </div>

@@ -70,7 +70,7 @@
         </div>
 
         <div
-          *ngIf="!loadingFeed && !searching && !feedError && allThreads.length === 0"
+          *ngIf="!loadingFeed && !searching && !feedError && (allThreads?.length ?? 0) === 0"
           class="dashboard-empty">
           <span *ngIf="searchQuery">No se encontraron resultados para "{{ searchQuery }}"</span>
           <span *ngIf="!searchQuery">Aún no hay publicaciones. Crea el primer hilo de la comunidad ✨</span>

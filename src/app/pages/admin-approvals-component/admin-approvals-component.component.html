@@ -11,11 +11,11 @@
       <div *ngIf="error" class="error-text">{{ error }}</div>
       <div *ngIf="success" class="success-text">{{ success }}</div>
 
-      <div *ngIf="!loading && !pendingUsers.length && !error" class="info-text">
+      <div *ngIf="!loading && !pendingUsers?.length && !error" class="info-text">
         No hay solicitudes pendientes 🎉
       </div>
 
-      <table class="users-table" *ngIf="pendingUsers.length">
+      <table class="users-table" *ngIf="pendingUsers?.length">
         <thead>
           <tr>
             <th>Nombre</th>
