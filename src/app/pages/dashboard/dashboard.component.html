@@ -18,7 +18,7 @@
   <section class="welcome-card">
     <div class="welcome-content">
       <div class="welcome-text">
-        <p class="welcome-eyebrow">Comunidad UPIIZ ✨</p>
+        <p class="welcome-eyebrow">Comunidad CoLaB ✨</p>
         <h3 class="welcome-title">Foros académicos colaborativos</h3>
         <p class="welcome-description">
           Comparte dudas, responde preguntas, publica recursos y encuentra conversaciones útiles para tu carrera.
@@ -47,7 +47,21 @@
           </div>
         </div>
 
-        <div *ngIf="loadingFeed" class="dashboard-empty">
+        <!-- Buscador -->
+        <div class="search-section">
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            placeholder="Buscar por usuario, título o tema..."
+            class="search-input">
+          <button (click)="onSearch()" [disabled]="searching" class="btn-search">
+            <span *ngIf="!searching">Buscar</span>
+            <span *ngIf="searching">Buscando...</span>
+          </button>
+        </div>
+
+        <div *ngIf="loadingFeed || searching" class="dashboard-empty">
           Cargando publicaciones...
         </div>
 
@@ -56,9 +70,10 @@
         </div>
 
         <div
-          *ngIf="!loadingFeed && !feedError && allThreads.length === 0"
+          *ngIf="!loadingFeed && !searching && !feedError && allThreads.length === 0"
           class="dashboard-empty">
-          Aún no hay publicaciones. Crea el primer hilo de la comunidad ✨
+          <span *ngIf="searchQuery">No se encontraron resultados para "{{ searchQuery }}"</span>
+          <span *ngIf="!searchQuery">Aún no hay publicaciones. Crea el primer hilo de la comunidad ✨</span>
         </div>
 
         <article
@@ -111,6 +126,28 @@
             </div>
           </div>
         </article>
+
+        <!-- Paginación -->
+        <div *ngIf="totalPages > 1" class="pagination">
+          <button
+            (click)="onPageChange(currentPage - 1)"
+            [disabled]="currentPage === 0 || searching"
+            class="btn-page">
+            ← Anterior
+          </button>
+
+          <span class="page-info">
+            Página {{ currentPage + 1 }} de {{ totalPages }}
+            ({{ totalElements }} resultados)
+          </span>
+
+          <button
+            (click)="onPageChange(currentPage + 1)"
+            [disabled]="currentPage >= totalPages - 1 || searching"
+            class="btn-page">
+            Siguiente →
+          </button>
+        </div>
       </section>
 
     </main>

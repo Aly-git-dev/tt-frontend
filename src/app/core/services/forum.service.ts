@@ -114,4 +114,11 @@ export class ForumService {
   getAllThreads(): Observable<ThreadSummaryDto[]> {
     return this.http.get<ThreadSummaryDto[]>(`${this.baseUrl}/threads`);
   }
+
+  // Búsqueda de threads con paginación
+  searchThreads(query: string = '', page: number = 0, size: number = 10): Observable<{ threads: ThreadSummaryDto[], totalPages: number, totalElements: number }> {
+    const params: any = { page, size };
+    if (query) params.q = query;
+    return this.http.get<{ threads: ThreadSummaryDto[], totalPages: number, totalElements: number }>(`${this.baseUrl}/threads/search`, { params });
+  }
 }

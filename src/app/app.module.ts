@@ -42,7 +42,6 @@ import { PublicUserProfileComponent } from './pages/public-user-profile/public-u
     RegisterComponent,
     AdminApprovalsComponent,
     MainLayoutComponent,
-    DashboardComponent,
     ThreadDetailComponent,
     NewThreadComponent,
     SafeUrlPipe,

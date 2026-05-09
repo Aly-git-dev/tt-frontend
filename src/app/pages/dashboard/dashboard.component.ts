@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ForumService } from '../../core/services/forum.service';
 import { ThreadSummaryDto, ForumSummaryDto } from '../../core/models/forum.models';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -23,6 +27,14 @@ export class DashboardComponent implements OnInit {
   summaryLoading = false;
   summaryError: string | null = null;
 
+  // Búsqueda y paginación
+  searchQuery = '';
+  currentPage = 0;
+  pageSize = 10;
+  totalPages = 0;
+  totalElements = 0;
+  searching = false;
+
   constructor(
     private forumService: ForumService,
     private router: Router
@@ -30,7 +42,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRecommendedThreads();
-    this.loadAllThreads();
+    this.searchThreads(); // Cargar threads iniciales con paginación
     this.loadSummary();
   }
 
@@ -83,6 +95,36 @@ export class DashboardComponent implements OnInit {
         this.loadingFeed = false;
       }
     });
+  }
+
+  // Método para búsqueda con paginación
+  searchThreads(): void {
+    this.searching = true;
+    this.feedError = null;
+
+    this.forumService.searchThreads(this.searchQuery, this.currentPage, this.pageSize).subscribe({
+      next: (response) => {
+        this.allThreads = response.threads;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
+        this.searching = false;
+      },
+      error: (err) => {
+        console.error('Error buscando threads', err);
+        this.feedError = 'Error en la búsqueda.';
+        this.searching = false;
+      }
+    });
+  }
+
+  onSearch(): void {
+    this.currentPage = 0; // Reset to first page
+    this.searchThreads();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.searchThreads();
   }
 
   goToThread(thread: ThreadSummaryDto): void {
