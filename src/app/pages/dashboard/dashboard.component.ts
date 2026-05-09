@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRecommendedThreads();
-    this.searchThreads(); // Cargar threads iniciales con paginación
+    this.loadAllThreads(); // Cargar todos los threads al inicio
     this.loadSummary();
   }
 
@@ -102,17 +102,45 @@ export class DashboardComponent implements OnInit {
     this.searching = true;
     this.feedError = null;
 
-    this.forumService.searchThreads(this.searchQuery, this.currentPage, this.pageSize).subscribe({
-      next: (response) => {
-        this.allThreads = response.threads;
-        this.totalPages = response.totalPages;
-        this.totalElements = response.totalElements;
-        this.searching = false;
+    // Si hay un query, intentar búsqueda; si no, cargar todos
+    if (this.searchQuery.trim().length > 0) {
+      this.forumService.searchThreads(this.searchQuery, this.currentPage, this.pageSize).subscribe({
+        next: (response) => {
+          this.allThreads = response.threads;
+          this.totalPages = response.totalPages;
+          this.totalElements = response.totalElements;
+          this.searching = false;
+        },
+        error: (err) => {
+          console.error('Error buscando threads', err);
+          // Si el endpoint de búsqueda no existe, filtrar localmente
+          this.filterThreadsLocally(this.searchQuery);
+          this.searching = false;
+        }
+      });
+    } else {
+      // Si el query está vacío, cargar todos los threads
+      this.loadAllThreads();
+      this.searching = false;
+    }
+  }
+
+  // Filtro local de threads cuando el backend no está disponible
+  private filterThreadsLocally(query: string): void {
+    const lowerQuery = query.toLowerCase();
+    this.forumService.getAllThreads().subscribe({
+      next: (allThreads) => {
+        this.allThreads = allThreads.filter(thread =>
+          thread.title.toLowerCase().includes(lowerQuery) ||
+          (thread.categoryName?.toLowerCase().includes(lowerQuery) || false) ||
+          (thread.subareaName?.toLowerCase().includes(lowerQuery) || false)
+        );
+        this.totalElements = this.allThreads.length;
+        this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
       },
       error: (err) => {
-        console.error('Error buscando threads', err);
-        this.feedError = 'Error en la búsqueda.';
-        this.searching = false;
+        console.error('Error filtrando threads', err);
+        this.feedError = 'No se pudo procesar la búsqueda.';
       }
     });
   }
@@ -124,7 +152,9 @@ export class DashboardComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.searchThreads();
+    if (this.searchQuery.trim().length > 0) {
+      this.searchThreads();
+    }
   }
 
   goToThread(thread: ThreadSummaryDto): void {
