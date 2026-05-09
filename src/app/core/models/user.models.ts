@@ -16,6 +16,9 @@ export interface UserDTO {
   roles: string[];
   boleta?: string;
   programa?: string;
+  approved?: boolean;
+  emailVerified?: boolean;
+  createdAt?: string;
 }
 
 export interface UpdateProfileRequest {

@@ -23,6 +23,7 @@ import {
 } from '../../core/models/forum.models';
 
 import { AuthService } from '../../core/services/auth.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 
 declare const hljs: any;
 declare const mermaid: any;
@@ -85,7 +86,8 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     private forumService: ForumService,
     private markdownService: MarkdownService,
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private analyticsService: AnalyticsService
   ) {}
 
   ngOnInit(): void {
@@ -173,6 +175,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
         this.setThreadState(thread);
         this.loading = false;
         this.needsEnhance = true;
+        this.registerThreadViewInterest(thread);
       },
       error: (err) => {
         console.error('Error loading thread', err);
@@ -196,6 +199,24 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
 
   private renderBody(raw: string): string {
     return this.markdownService.render(raw);
+  }
+
+  private registerThreadViewInterest(thread: ThreadDetailDto): void {
+    const userId = this.authService.getCurrentUserId();
+    if (!userId || !thread.categoryId) return;
+
+    this.analyticsService.createTopicInterestEvent({
+      userId,
+      categoryId: thread.categoryId,
+      subareaId: thread.subareaId ?? null,
+      threadId: thread.id,
+      appointmentId: null,
+      videoMeetingId: null,
+      sourceType: 'THREAD_VIEW',
+      weight: 1
+    }).subscribe({
+      error: err => console.error('No se pudo registrar interés del hilo', err)
+    });
   }
 
   // ==========================

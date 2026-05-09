@@ -36,18 +36,27 @@ export class AdminApprovalsComponent implements OnInit {
     this.error = null;
     this.success = null;
 
-    this.adminService.getPendingUsers().subscribe({
-      next: res => {
+    this.loadPendingUsersFallback();
+  }
+
+  private loadPendingUsersFallback(): void {
+    this.adminService.getAllUsers('').subscribe({
+      next: users => {
         this.loading = false;
-        if (res.estado === 1) {
-          this.pendingUsers = res.usuarios ?? [];
-        } else {
-          this.error = res.mensaje;
+        this.pendingUsers = (users ?? []).filter((u: any) =>
+          u?.emailVerified === true &&
+          u?.approved === false &&
+          u?.active === true
+        ) as UserDTO[];
+
+        if (this.pendingUsers.length === 0) {
+          this.error = null;
         }
       },
-      error: err => {
+      error: fallbackErr => {
         this.loading = false;
-        this.error = err?.error?.mensaje || 'Error al obtener solicitudes pendientes';
+        console.error('Error cargando fallback de usuarios pendientes', fallbackErr);
+        this.error = fallbackErr?.error?.mensaje || 'Error al obtener solicitudes pendientes';
       }
     });
   }

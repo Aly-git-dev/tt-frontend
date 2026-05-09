@@ -127,6 +127,52 @@
               </button>
             </div>
           </ng-template>
+
+          <div class="evaluation-fields" *ngIf="selectedTeacher">
+            <div class="evaluation-grid">
+              <label class="rating-field">
+                <span>Claridad</span>
+                <select class="field-input" formControlName="ratingClarity">
+                  <option *ngFor="let n of ratingOptions" [ngValue]="n">{{ n }} / 5</option>
+                </select>
+              </label>
+
+              <label class="rating-field">
+                <span>Conocimiento</span>
+                <select class="field-input" formControlName="ratingKnowledge">
+                  <option *ngFor="let n of ratingOptions" [ngValue]="n">{{ n }} / 5</option>
+                </select>
+              </label>
+
+              <label class="rating-field">
+                <span>Apoyo</span>
+                <select class="field-input" formControlName="ratingSupport">
+                  <option *ngFor="let n of ratingOptions" [ngValue]="n">{{ n }} / 5</option>
+                </select>
+              </label>
+
+              <label class="rating-field">
+                <span>Puntualidad</span>
+                <select class="field-input" formControlName="ratingPunctuality">
+                  <option *ngFor="let n of ratingOptions" [ngValue]="n">{{ n }} / 5</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field-label" for="evaluationComment">Comentario para analÃ­tica</label>
+            <textarea
+              id="evaluationComment"
+              rows="4"
+              class="field-input field-textarea evaluation-comment"
+              formControlName="evaluationComment"
+              placeholder="Comentario opcional sobre el desempeÃ±o del docente.">
+            </textarea>
+
+            <label class="anonymous-row">
+              <input type="checkbox" formControlName="anonymous" />
+              <span>Enviar evaluaciÃ³n de forma anÃ³nima</span>
+            </label>
+          </div>
         </div>
 
         <!-- DIFICULTAD -->

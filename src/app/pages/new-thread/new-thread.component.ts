@@ -6,12 +6,14 @@ import {
   FormArray
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 import { ForumService } from '../../core/services/forum.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { ThreadCreateDto } from '../../core/models/forum.models';
 import { ChatApiService } from '../../core/services/chat-api.service';
 import { UserSearchResult } from '../../core/models/chat.models';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-new-thread',
@@ -25,6 +27,7 @@ export class NewThreadComponent implements OnDestroy {
 
   showAttachmentPanel = false;
   readonly teacherEvaluationCategoryId = 9;
+  readonly ratingOptions = [1, 2, 3, 4, 5];
 
   teacherSearchTerm = '';
   teacherSearchLoading = false;
@@ -61,6 +64,7 @@ export class NewThreadComponent implements OnDestroy {
     private forumService: ForumService,
     private analyticsService: AnalyticsService,
     private chatApi: ChatApiService,
+    private authService: AuthService,
     private router: Router
   ) {
     this.form = this.fb.group({
@@ -70,6 +74,12 @@ export class NewThreadComponent implements OnDestroy {
       difficultyLevel: [3],
       title: ['', [Validators.required, Validators.minLength(5)]],
       body: ['', [Validators.required, Validators.minLength(10)]],
+      ratingClarity: [5, [Validators.required]],
+      ratingKnowledge: [5, [Validators.required]],
+      ratingSupport: [5, [Validators.required]],
+      ratingPunctuality: [5, [Validators.required]],
+      evaluationComment: [''],
+      anonymous: [false],
       attachments: this.fb.array([])
     });
 
@@ -228,27 +238,64 @@ export class NewThreadComponent implements OnDestroy {
       next: (created) => {
         const isQuestion = raw.type === 'PREGUNTA';
         const shouldCreateDifficultyEvent = isQuestion || this.isTeacherEvaluationThread;
+        const currentUserId = this.authService.getCurrentUserId();
+        const analyticsRequests: any[] = [];
 
-        if (!shouldCreateDifficultyEvent) {
+        if (currentUserId) {
+          analyticsRequests.push(
+            this.analyticsService.createTopicInterestEvent({
+              userId: currentUserId,
+              categoryId: raw.categoryId,
+              subareaId: raw.subareaId || null,
+              threadId: created.id,
+              appointmentId: null,
+              videoMeetingId: null,
+              sourceType: 'THREAD_CREATE',
+              weight: this.isTeacherEvaluationThread ? 3 : 2
+            })
+          );
+        }
+
+        if (!shouldCreateDifficultyEvent && analyticsRequests.length === 0) {
           this.resetForm();
           this.router.navigate(['/forums', created.id]);
           return;
         }
 
-        this.analyticsService.createTopicDifficultyEvent({
-          userId: null,
-          teacherId: this.isTeacherEvaluationThread ? this.selectedTeacher?.id ?? null : null,
-          categoryId: raw.categoryId,
-          subareaId: raw.subareaId || null,
-          threadId: created.id,
-          appointmentId: null,
-          videoMeetingId: null,
-          sourceType: isQuestion ? 'FORUM_QUESTION' : 'TEACHER_OBSERVATION',
-          difficultyLevel: raw.difficultyLevel || 3,
-          notes: this.isTeacherEvaluationThread && this.selectedTeacher
-            ? `Evaluación docente desde foro para ${this.selectedTeacher.name || this.selectedTeacher.email}: ${raw.title.trim()}`
-            : `Dificultad registrada desde foro: ${raw.title.trim()}`
-        }).subscribe({
+        if (this.isTeacherEvaluationThread && this.selectedTeacher) {
+          analyticsRequests.push(
+            this.analyticsService.createTeacherEvaluation({
+              teacherId: this.selectedTeacher.id,
+              evaluatorId: null,
+              appointmentId: null,
+              ratingClarity: Number(raw.ratingClarity || 5),
+              ratingKnowledge: Number(raw.ratingKnowledge || 5),
+              ratingSupport: Number(raw.ratingSupport || 5),
+              ratingPunctuality: Number(raw.ratingPunctuality || 5),
+              comment: raw.evaluationComment?.trim() || raw.body.trim(),
+              anonymous: !!raw.anonymous
+            })
+          );
+        }
+
+        if (shouldCreateDifficultyEvent) {
+          analyticsRequests.push(this.analyticsService.createTopicDifficultyEvent({
+            userId: currentUserId || null,
+            teacherId: this.isTeacherEvaluationThread ? this.selectedTeacher?.id ?? null : null,
+            categoryId: raw.categoryId,
+            subareaId: raw.subareaId || null,
+            threadId: created.id,
+            appointmentId: null,
+            videoMeetingId: null,
+            sourceType: isQuestion ? 'FORUM_QUESTION' : 'TEACHER_OBSERVATION',
+            difficultyLevel: raw.difficultyLevel || 3,
+            notes: this.isTeacherEvaluationThread && this.selectedTeacher
+              ? `Evaluación docente desde foro para ${this.selectedTeacher.name || this.selectedTeacher.email}: ${raw.title.trim()}`
+              : `Dificultad registrada desde foro: ${raw.title.trim()}`
+          }));
+        }
+
+        forkJoin(analyticsRequests).subscribe({
           next: () => {
             this.resetForm();
             this.router.navigate(['/forums', created.id]);
@@ -283,6 +330,12 @@ export class NewThreadComponent implements OnDestroy {
       subareaId: null,
       type: 'PREGUNTA',
       difficultyLevel: 3,
+      ratingClarity: 5,
+      ratingKnowledge: 5,
+      ratingSupport: 5,
+      ratingPunctuality: 5,
+      evaluationComment: '',
+      anonymous: false,
       title: '',
       body: ''
     });

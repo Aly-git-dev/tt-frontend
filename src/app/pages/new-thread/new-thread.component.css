@@ -287,6 +287,44 @@
   background: #f8faff;
 }
 
+.evaluation-fields {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #dbeafe;
+}
+
+.evaluation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.rating-field {
+  display: grid;
+  gap: 6px;
+  color: #243447;
+  font-weight: 700;
+}
+
+.rating-field span {
+  font-size: 13px;
+}
+
+.evaluation-comment {
+  min-height: 110px;
+  margin-bottom: 12px;
+}
+
+.anonymous-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .quick-tools {
   display: flex;
   gap: 10px;
