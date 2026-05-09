@@ -72,8 +72,65 @@
           </div>
         </div>
 
+        <div class="teacher-card" *ngIf="isTeacherEvaluationThread">
+          <div class="teacher-card-head">
+            <div>
+              <h3>Profesor evaluado</h3>
+              <p>Busca y selecciona el docente para asociarlo al registro de analÃ­tica.</p>
+            </div>
+          </div>
+
+          <div class="teacher-selected" *ngIf="selectedTeacher; else teacherSearchTpl">
+            <div class="teacher-avatar">
+              {{ (selectedTeacher.name || selectedTeacher.email || '?').charAt(0).toUpperCase() }}
+            </div>
+            <div class="teacher-meta">
+              <strong>{{ selectedTeacher.name || 'Sin nombre' }}</strong>
+              <span>{{ selectedTeacher.email }}</span>
+            </div>
+            <button type="button" class="teacher-change-btn" (click)="clearSelectedTeacher()">
+              Cambiar
+            </button>
+          </div>
+
+          <ng-template #teacherSearchTpl>
+            <label class="field-label" for="teacherSearch">Buscar profesor</label>
+            <input
+              id="teacherSearch"
+              type="text"
+              class="field-input"
+              [(ngModel)]="teacherSearchTerm"
+              [ngModelOptions]="{ standalone: true }"
+              (input)="onTeacherSearchInput()"
+              placeholder="Nombre o correo institucional del profesor"
+              autocomplete="off" />
+
+            <div class="field-hint" *ngIf="!teacherSearchTerm.trim()">
+              Este campo es obligatorio para la categorÃ­a de evaluaciÃ³n docente.
+            </div>
+            <div class="field-hint" *ngIf="teacherSearchLoading">Buscando docentes...</div>
+            <div class="field-error" *ngIf="teacherSearchError">{{ teacherSearchError }}</div>
+
+            <div class="teacher-results" *ngIf="teacherSearchResults.length">
+              <button
+                type="button"
+                class="teacher-result"
+                *ngFor="let teacher of teacherSearchResults"
+                (click)="selectTeacher(teacher)">
+                <span class="teacher-avatar small">
+                  {{ (teacher.name || teacher.email || '?').charAt(0).toUpperCase() }}
+                </span>
+                <span class="teacher-meta">
+                  <strong>{{ teacher.name || 'Sin nombre' }}</strong>
+                  <span>{{ teacher.email }}</span>
+                </span>
+              </button>
+            </div>
+          </ng-template>
+        </div>
+
         <!-- DIFICULTAD -->
-        <div class="field-group" *ngIf="form.get('type')?.value === 'PREGUNTA'">
+        <div class="field-group" *ngIf="form.get('type')?.value === 'PREGUNTA' || isTeacherEvaluationThread">
           <label class="field-label">Nivel de dificultad percibida</label>
           <select class="field-input" formControlName="difficultyLevel">
             <option [ngValue]="1">Baja</option>
@@ -209,7 +266,7 @@
           <button
             class="btn-primary"
             type="submit"
-            [disabled]="submitting || form.invalid">
+            [disabled]="submitting || form.invalid || (isTeacherEvaluationThread && !selectedTeacher)">
             <span *ngIf="!submitting">Publicar hilo</span>
             <span *ngIf="submitting">Publicando...</span>
           </button>

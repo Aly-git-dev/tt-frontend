@@ -83,6 +83,8 @@ export class DashboardComponent implements OnInit {
   private loadAllThreads(): void {
     this.loadingFeed = true;
     this.feedError = null;
+    this.totalPages = 0;
+    this.totalElements = 0;
 
     this.forumService.getAllThreads().subscribe({
       next: (threads) => {
@@ -120,6 +122,7 @@ export class DashboardComponent implements OnInit {
       });
     } else {
       // Si el query está vacío, cargar todos los threads
+      this.currentPage = 0;
       this.loadAllThreads();
       this.searching = false;
     }

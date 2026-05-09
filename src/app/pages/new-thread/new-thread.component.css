@@ -175,6 +175,118 @@
   border: 1px solid #fee2e2;
 }
 
+.teacher-card {
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid #dbeafe;
+  border-radius: 22px;
+  background: #f8fbff;
+}
+
+.teacher-card-head {
+  margin-bottom: 14px;
+}
+
+.teacher-card-head h3 {
+  margin: 0 0 6px;
+  color: #243447;
+  font-size: 18px;
+}
+
+.teacher-card-head p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.teacher-selected,
+.teacher-result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.teacher-selected {
+  padding: 12px;
+  border: 1px solid #d8e2ee;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.teacher-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #3730a3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+.teacher-avatar.small {
+  width: 34px;
+  height: 34px;
+  font-size: 13px;
+}
+
+.teacher-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.teacher-meta strong,
+.teacher-meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-meta strong {
+  color: #1e293b;
+}
+
+.teacher-meta span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.teacher-change-btn {
+  border: 1px solid #d8e2ee;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #334155;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.teacher-results {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.teacher-result {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.teacher-result:hover {
+  border-color: #4f46e5;
+  background: #f8faff;
+}
+
 .quick-tools {
   display: flex;
   gap: 10px;

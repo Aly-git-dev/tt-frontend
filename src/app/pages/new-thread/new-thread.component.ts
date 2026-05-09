@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -10,18 +10,28 @@ import { Router } from '@angular/router';
 import { ForumService } from '../../core/services/forum.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { ThreadCreateDto } from '../../core/models/forum.models';
+import { ChatApiService } from '../../core/services/chat-api.service';
+import { UserSearchResult } from '../../core/models/chat.models';
 
 @Component({
   selector: 'app-new-thread',
   templateUrl: './new-thread.component.html',
   styleUrls: ['./new-thread.component.css']
 })
-export class NewThreadComponent {
+export class NewThreadComponent implements OnDestroy {
   form: FormGroup;
   submitting = false;
   error: string | null = null;
 
   showAttachmentPanel = false;
+  readonly teacherEvaluationCategoryId = 9;
+
+  teacherSearchTerm = '';
+  teacherSearchLoading = false;
+  teacherSearchError: string | null = null;
+  teacherSearchResults: UserSearchResult[] = [];
+  selectedTeacher: UserSearchResult | null = null;
+  private teacherSearchDebounce?: ReturnType<typeof setTimeout>;
 
   threadTypes = [
     { value: 'PREGUNTA', label: 'Pregunta' },
@@ -50,6 +60,7 @@ export class NewThreadComponent {
     private fb: FormBuilder,
     private forumService: ForumService,
     private analyticsService: AnalyticsService,
+    private chatApi: ChatApiService,
     private router: Router
   ) {
     this.form = this.fb.group({
@@ -61,6 +72,18 @@ export class NewThreadComponent {
       body: ['', [Validators.required, Validators.minLength(10)]],
       attachments: this.fb.array([])
     });
+
+    this.form.get('categoryId')?.valueChanges.subscribe(categoryId => {
+      if (categoryId !== this.teacherEvaluationCategoryId) {
+        this.clearSelectedTeacher();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.teacherSearchDebounce) {
+      clearTimeout(this.teacherSearchDebounce);
+    }
   }
 
   get attachments(): FormArray {
@@ -69,6 +92,58 @@ export class NewThreadComponent {
 
   get bodyCtrl() {
     return this.form.get('body');
+  }
+
+  get isTeacherEvaluationThread(): boolean {
+    return this.form.get('categoryId')?.value === this.teacherEvaluationCategoryId;
+  }
+
+  onTeacherSearchInput(): void {
+    const query = this.teacherSearchTerm.trim();
+    this.teacherSearchError = null;
+
+    if (this.teacherSearchDebounce) {
+      clearTimeout(this.teacherSearchDebounce);
+    }
+
+    if (!query) {
+      this.teacherSearchResults = [];
+      this.teacherSearchLoading = false;
+      return;
+    }
+
+    this.teacherSearchLoading = true;
+
+    this.teacherSearchDebounce = setTimeout(() => {
+      this.chatApi.searchUsers(query).subscribe({
+        next: results => {
+          this.teacherSearchResults = results ?? [];
+        },
+        error: err => {
+          console.error('Error buscando docentes', err);
+          this.teacherSearchResults = [];
+          this.teacherSearchError = 'No se pudo buscar docentes.';
+        },
+        complete: () => {
+          this.teacherSearchLoading = false;
+        }
+      });
+    }, 300);
+  }
+
+  selectTeacher(teacher: UserSearchResult): void {
+    this.selectedTeacher = teacher;
+    this.teacherSearchTerm = teacher.name || teacher.email;
+    this.teacherSearchResults = [];
+    this.teacherSearchError = null;
+  }
+
+  clearSelectedTeacher(): void {
+    this.selectedTeacher = null;
+    this.teacherSearchTerm = '';
+    this.teacherSearchResults = [];
+    this.teacherSearchError = null;
+    this.teacherSearchLoading = false;
   }
 
   openAttachmentPanel(): void {
@@ -127,6 +202,11 @@ export class NewThreadComponent {
       return;
     }
 
+    if (this.isTeacherEvaluationThread && !this.selectedTeacher) {
+      this.error = 'Selecciona el profesor relacionado con la evaluación docente.';
+      return;
+    }
+
     this.submitting = true;
     const raw = this.form.value;
 
@@ -147,8 +227,9 @@ export class NewThreadComponent {
     this.forumService.createThread(payload).subscribe({
       next: (created) => {
         const isQuestion = raw.type === 'PREGUNTA';
+        const shouldCreateDifficultyEvent = isQuestion || this.isTeacherEvaluationThread;
 
-        if (!isQuestion) {
+        if (!shouldCreateDifficultyEvent) {
           this.resetForm();
           this.router.navigate(['/forums', created.id]);
           return;
@@ -156,15 +237,17 @@ export class NewThreadComponent {
 
         this.analyticsService.createTopicDifficultyEvent({
           userId: null,
-          teacherId: null,
+          teacherId: this.isTeacherEvaluationThread ? this.selectedTeacher?.id ?? null : null,
           categoryId: raw.categoryId,
           subareaId: raw.subareaId || null,
           threadId: created.id,
           appointmentId: null,
           videoMeetingId: null,
-          sourceType: 'FORUM_QUESTION',
+          sourceType: isQuestion ? 'FORUM_QUESTION' : 'TEACHER_OBSERVATION',
           difficultyLevel: raw.difficultyLevel || 3,
-          notes: `Dificultad registrada desde foro: ${raw.title.trim()}`
+          notes: this.isTeacherEvaluationThread && this.selectedTeacher
+            ? `Evaluación docente desde foro para ${this.selectedTeacher.name || this.selectedTeacher.email}: ${raw.title.trim()}`
+            : `Dificultad registrada desde foro: ${raw.title.trim()}`
         }).subscribe({
           next: () => {
             this.resetForm();
@@ -189,6 +272,7 @@ export class NewThreadComponent {
     this.submitting = false;
     this.error = null;
     this.showAttachmentPanel = false;
+    this.clearSelectedTeacher();
 
     while (this.attachments.length > 0) {
       this.attachments.removeAt(0);

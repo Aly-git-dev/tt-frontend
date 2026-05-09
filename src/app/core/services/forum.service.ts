@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import {
   ThreadSummaryDto,
@@ -119,6 +119,12 @@ export class ForumService {
   searchThreads(query: string = '', page: number = 0, size: number = 10): Observable<{ threads: ThreadSummaryDto[], totalPages: number, totalElements: number }> {
     const params: any = { page, size };
     if (query) params.q = query;
-    return this.http.get<{ threads: ThreadSummaryDto[], totalPages: number, totalElements: number }>(`${this.baseUrl}/threads/search`, { params });
+    return this.http.get<any>(`${this.baseUrl}/threads/search`, { params }).pipe(
+      map(response => ({
+        threads: response?.threads ?? response?.content ?? [],
+        totalPages: response?.totalPages ?? 0,
+        totalElements: response?.totalElements ?? 0
+      }))
+    );
   }
 }

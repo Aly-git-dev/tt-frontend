@@ -162,6 +162,14 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
 
     this.forumService.getThread(this.threadId).subscribe({
       next: (thread) => {
+        if (thread.status !== 'ABIERTO') {
+          this.thread = null;
+          this.postsVmInternal = [];
+          this.error = 'Este hilo ya no está disponible.';
+          this.loading = false;
+          return;
+        }
+
         this.setThreadState(thread);
         this.loading = false;
         this.needsEnhance = true;
@@ -178,10 +186,12 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     this.thread = thread;
     this.threadRenderedBody = this.renderBody(thread.body || '');
 
-    this.postsVmInternal = (thread.posts || []).map(post => ({
-      ...post,
-      renderedBody: this.renderBody(post.body || '')
-    }));
+    this.postsVmInternal = (thread.posts || [])
+      .filter(post => post.status === 'VISIBLE')
+      .map(post => ({
+        ...post,
+        renderedBody: this.renderBody(post.body || '')
+      }));
   }
 
   private renderBody(raw: string): string {
@@ -274,7 +284,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
 
     this.forumService.deleteThread(this.thread.id).subscribe({
       next: () => {
-        this.router.navigate(['/forums']);
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error('Error eliminando hilo', err);
