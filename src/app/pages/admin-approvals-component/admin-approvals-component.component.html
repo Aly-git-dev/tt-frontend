@@ -20,7 +20,6 @@
           <tr>
             <th>Nombre</th>
             <th>Correo</th>
-            <th>Correo confirmado</th>
             <th>Roles solicitados</th>
             <th style="width: 180px;">Acciones</th>
           </tr>
@@ -29,19 +28,13 @@
           <tr *ngFor="let u of pendingUsers">
             <td>{{ u.fullName }}</td>
             <td>{{ u.emailInst }}</td>
-            <td>{{ u.emailVerified === false ? 'No' : 'Sí' }}</td>
             <td>
               <span class="role-pill small" *ngFor="let r of u.roles">
                 {{ r }}
               </span>
             </td>
             <td class="actions-cell">
-              <button
-                type="button"
-                class="btn-approve"
-                [disabled]="u.emailVerified === false"
-                [title]="u.emailVerified === false ? 'El usuario aún no confirma su correo' : ''"
-                (click)="approve(u)">
+              <button type="button" class="btn-approve" (click)="approve(u)">
                 Aprobar
               </button>
               <button type="button" class="btn-reject" (click)="reject(u)">

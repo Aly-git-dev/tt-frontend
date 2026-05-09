@@ -46,8 +46,9 @@ export class AdminApprovalsComponent implements OnInit {
         this.pendingUsers = (users ?? []).filter((u: any) => {
           const approved = this.toBoolean(u?.approved ?? u?.aprobado);
           const active = this.toBoolean(u?.active ?? u?.activo);
+          const emailVerified = this.toBoolean(u?.emailVerified ?? u?.correoVerificado);
 
-          return approved !== true && active !== false;
+          return emailVerified === true && approved !== true && active !== false;
         }) as UserDTO[];
 
         if (this.pendingUsers.length === 0) {
