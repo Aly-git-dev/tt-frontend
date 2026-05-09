@@ -30,7 +30,7 @@ export class DashboardComponent implements OnInit {
   // Búsqueda y paginación
   searchQuery = '';
   currentPage = 0;
-  pageSize = 10;
+  pageSize = 2;
   totalPages = 0;
   totalElements = 0;
   searching = false;
