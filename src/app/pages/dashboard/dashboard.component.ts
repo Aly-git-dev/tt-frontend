@@ -83,16 +83,32 @@ export class DashboardComponent implements OnInit {
   private loadAllThreads(): void {
     this.loadingFeed = true;
     this.feedError = null;
-    this.totalPages = 0;
-    this.totalElements = 0;
 
-    this.forumService.getAllThreads().subscribe({
-      next: (threads) => {
-        this.allThreads = threads;
+    this.forumService.searchThreads('', this.currentPage, this.pageSize).subscribe({
+      next: (response) => {
+        this.allThreads = response.threads;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
         this.loadingFeed = false;
       },
       error: (err) => {
         console.error('Error cargando feed de foros', err);
+        this.loadAllThreadsFallback();
+      }
+    });
+  }
+
+  private loadAllThreadsFallback(): void {
+    this.forumService.getAllThreads().subscribe({
+      next: (threads) => {
+        this.totalElements = threads.length;
+        this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
+        const start = this.currentPage * this.pageSize;
+        this.allThreads = threads.slice(start, start + this.pageSize);
+        this.loadingFeed = false;
+      },
+      error: (err) => {
+        console.error('Error cargando fallback de foros', err);
         this.feedError = 'No se pudo cargar el feed de foros.';
         this.loadingFeed = false;
       }
@@ -122,7 +138,6 @@ export class DashboardComponent implements OnInit {
       });
     } else {
       // Si el query está vacío, cargar todos los threads
-      this.currentPage = 0;
       this.loadAllThreads();
       this.searching = false;
     }
@@ -155,9 +170,7 @@ export class DashboardComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    if (this.searchQuery.trim().length > 0) {
-      this.searchThreads();
-    }
+    this.searchThreads();
   }
 
   goToThread(thread: ThreadSummaryDto): void {

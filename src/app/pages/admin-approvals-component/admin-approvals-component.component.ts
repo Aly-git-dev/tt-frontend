@@ -43,11 +43,12 @@ export class AdminApprovalsComponent implements OnInit {
     this.adminService.getAllUsers('').subscribe({
       next: users => {
         this.loading = false;
-        this.pendingUsers = (users ?? []).filter((u: any) =>
-          u?.emailVerified === true &&
-          u?.approved === false &&
-          u?.active === true
-        ) as UserDTO[];
+        this.pendingUsers = (users ?? []).filter((u: any) => {
+          const approved = this.toBoolean(u?.approved ?? u?.aprobado);
+          const active = this.toBoolean(u?.active ?? u?.activo);
+
+          return approved !== true && active !== false;
+        }) as UserDTO[];
 
         if (this.pendingUsers.length === 0) {
           this.error = null;
@@ -59,6 +60,20 @@ export class AdminApprovalsComponent implements OnInit {
         this.error = fallbackErr?.error?.mensaje || 'Error al obtener solicitudes pendientes';
       }
     });
+  }
+
+  private toBoolean(value: any): boolean | null {
+    if (value === true || value === false) return value;
+    if (value === 1 || value === '1') return true;
+    if (value === 0 || value === '0') return false;
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (['true', 't', 'yes', 'si', 'sí'].includes(normalized)) return true;
+      if (['false', 'f', 'no'].includes(normalized)) return false;
+    }
+
+    return null;
   }
 
   approve(u: UserDTO): void {
