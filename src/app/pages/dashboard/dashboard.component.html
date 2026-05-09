@@ -77,7 +77,7 @@
         </div>
 
         <article
-          *ngFor="let thread of allThreads"
+          *ngFor="let thread of pagedThreads"
           class="feed-card"
           (click)="goToThread(thread)">
 

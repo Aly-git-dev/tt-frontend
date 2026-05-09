@@ -120,11 +120,17 @@ export class ForumService {
     const params: any = { page, size };
     if (query) params.q = query;
     return this.http.get<any>(`${this.baseUrl}/threads/search`, { params }).pipe(
-      map(response => ({
-        threads: response?.threads ?? response?.content ?? [],
-        totalPages: response?.totalPages ?? 0,
-        totalElements: response?.totalElements ?? 0
-      }))
+      map(response => {
+        const threads = Array.isArray(response)
+          ? response
+          : response?.threads ?? response?.content ?? [];
+
+        return {
+          threads,
+          totalPages: response?.totalPages ?? Math.ceil(threads.length / size) ?? 0,
+          totalElements: response?.totalElements ?? threads.length
+        };
+      })
     );
   }
 }

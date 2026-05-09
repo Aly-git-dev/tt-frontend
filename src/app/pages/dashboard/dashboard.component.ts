@@ -40,6 +40,15 @@ export class DashboardComponent implements OnInit {
     private router: Router
   ) {}
 
+  get pagedThreads(): ThreadSummaryDto[] {
+    if (this.allThreads.length <= this.pageSize) {
+      return this.allThreads;
+    }
+
+    const start = this.currentPage * this.pageSize;
+    return this.allThreads.slice(start, start + this.pageSize);
+  }
+
   ngOnInit(): void {
     this.loadRecommendedThreads();
     this.loadAllThreads(); // Cargar todos los threads al inicio
@@ -87,8 +96,8 @@ export class DashboardComponent implements OnInit {
     this.forumService.searchThreads('', this.currentPage, this.pageSize).subscribe({
       next: (response) => {
         this.allThreads = response.threads;
-        this.totalPages = response.totalPages;
-        this.totalElements = response.totalElements;
+        this.totalElements = response.totalElements || response.threads.length;
+        this.totalPages = response.totalPages || Math.ceil(this.totalElements / this.pageSize) || 1;
         this.loadingFeed = false;
       },
       error: (err) => {
@@ -125,8 +134,8 @@ export class DashboardComponent implements OnInit {
       this.forumService.searchThreads(this.searchQuery, this.currentPage, this.pageSize).subscribe({
         next: (response) => {
           this.allThreads = response.threads;
-          this.totalPages = response.totalPages;
-          this.totalElements = response.totalElements;
+          this.totalElements = response.totalElements || response.threads.length;
+          this.totalPages = response.totalPages || Math.ceil(this.totalElements / this.pageSize) || 1;
           this.searching = false;
         },
         error: (err) => {
