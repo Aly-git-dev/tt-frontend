@@ -22,6 +22,7 @@ import { AdminBannedUsersComponent } from './pages/admin-banned-users/admin-bann
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { VideoMeetingRoomComponent } from './pages/video-meeting-room.component/video-meeting-room.component.component';
+import { ResendVerificationComponent } from './pages/resend-verification/resend-verification.component';
 
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
@@ -49,6 +50,7 @@ import { PublicUserProfileComponent } from './pages/public-user-profile/public-u
     AdminBannedUsersComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
+    ResendVerificationComponent,
     VideoMeetingRoomComponent,
     NotificationBellComponent
   ],

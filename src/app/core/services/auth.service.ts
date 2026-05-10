@@ -51,6 +51,20 @@ export class AuthService {
     );
   }
 
+  resendVerification(emailInst: string, appBaseUrl?: string): Observable<ApiResponse> {
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    if (appBaseUrl) {
+      headers = headers.set('X-App-BaseUrl', appBaseUrl);
+    }
+
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/resend-verification`,
+      { emailInst },
+      { headers }
+    );
+  }
+
   approveUser(userId: string): Observable<ApiResponse> {
     return this.http.patch<ApiResponse>(
       `${this.baseUrl}/approve/${userId}`,

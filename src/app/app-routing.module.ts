@@ -20,12 +20,14 @@ import { AdminAnalyticsDashboardComponent } from './pages/admin-analytics-dashbo
 import { TeacherAnalyticsDetailComponent } from './pages/teacher-analytics-detail/teacher-analytics-detail.component';
 import { TeacherEvaluationFormComponent } from './pages/teacher-evaluation-form/teacher-evaluation-form.component';
 import { PublicUserProfileComponent } from './pages/public-user-profile/public-user-profile.component';
+import { ResendVerificationComponent } from './pages/resend-verification/resend-verification.component';
 const routes: Routes = [
     // Páginas públicas (sin layout)
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'resend-verification', component: ResendVerificationComponent },
 
   // Páginas con layout principal
   {

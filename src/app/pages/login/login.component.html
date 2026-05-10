@@ -51,6 +51,11 @@
               ¿Olvidaste tu contraseña?
             </button>
           </div>
+          <div class="auth-links">
+            <button type="button" class="link-btn" (click)="goToResendVerification()">
+              Reenviar verificacion
+            </button>
+          </div>
         </div>
         <p *ngIf="error" class="login-error">{{ error }}</p>
       </form>

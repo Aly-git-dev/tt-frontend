@@ -60,4 +60,8 @@ goToRegister(): void {
 goToForgotPassword(): void {
   this.router.navigate(['/forgot-password']);
 }
+
+goToResendVerification(): void {
+  this.router.navigate(['/resend-verification']);
+}
 }
