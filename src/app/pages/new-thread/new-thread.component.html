@@ -76,7 +76,7 @@
           <div class="teacher-card-head">
             <div>
               <h3>Profesor evaluado</h3>
-              <p>Busca y selecciona el docente para asociarlo al registro de analÃ­tica.</p>
+              <p>Busca y selecciona el docente para asociarlo al registro de analítica.</p>
             </div>
           </div>
 
@@ -106,7 +106,7 @@
               autocomplete="off" />
 
             <div class="field-hint" *ngIf="!teacherSearchTerm.trim()">
-              Este campo es obligatorio para la categorÃ­a de evaluaciÃ³n docente.
+              Este campo es obligatorio para la categoría de evaluación docente.
             </div>
             <div class="field-hint" *ngIf="teacherSearchLoading">Buscando docentes...</div>
             <div class="field-error" *ngIf="teacherSearchError">{{ teacherSearchError }}</div>
@@ -159,18 +159,18 @@
               </label>
             </div>
 
-            <label class="field-label" for="evaluationComment">Comentario para analÃ­tica</label>
+            <label class="field-label" for="evaluationComment">Comentario para analítica</label>
             <textarea
               id="evaluationComment"
               rows="4"
               class="field-input field-textarea evaluation-comment"
               formControlName="evaluationComment"
-              placeholder="Comentario opcional sobre el desempeÃ±o del docente.">
+              placeholder="Comentario opcional sobre el desempeño del docente.">
             </textarea>
 
             <label class="anonymous-row">
               <input type="checkbox" formControlName="anonymous" />
-              <span>Enviar evaluaciÃ³n de forma anÃ³nima</span>
+              <span>Enviar evaluación de forma anónima</span>
             </label>
           </div>
         </div>

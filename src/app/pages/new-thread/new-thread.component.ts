@@ -11,9 +11,10 @@ import { forkJoin } from 'rxjs';
 import { ForumService } from '../../core/services/forum.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { ThreadCreateDto } from '../../core/models/forum.models';
-import { ChatApiService } from '../../core/services/chat-api.service';
 import { UserSearchResult } from '../../core/models/chat.models';
 import { AuthService } from '../../core/services/auth.service';
+import { AdminUsersService } from '../../core/services/admin-users.service';
+import { UserDTO } from '../../core/models/user.models';
 
 @Component({
   selector: 'app-new-thread',
@@ -63,7 +64,7 @@ export class NewThreadComponent implements OnDestroy {
     private fb: FormBuilder,
     private forumService: ForumService,
     private analyticsService: AnalyticsService,
-    private chatApi: ChatApiService,
+    private adminUsersService: AdminUsersService,
     private authService: AuthService,
     private router: Router
   ) {
@@ -125,9 +126,11 @@ export class NewThreadComponent implements OnDestroy {
     this.teacherSearchLoading = true;
 
     this.teacherSearchDebounce = setTimeout(() => {
-      this.chatApi.searchUsers(query).subscribe({
-        next: results => {
-          this.teacherSearchResults = results ?? [];
+      this.adminUsersService.getAllUsers(query).subscribe({
+        next: users => {
+          this.teacherSearchResults = (users ?? [])
+            .filter(user => this.isProfessor(user))
+            .map(user => this.toTeacherSearchResult(user));
         },
         error: err => {
           console.error('Error buscando docentes', err);
@@ -139,6 +142,19 @@ export class NewThreadComponent implements OnDestroy {
         }
       });
     }, 300);
+  }
+
+  private isProfessor(user: UserDTO): boolean {
+    return (user.roles ?? []).some(role => role.replace(/^ROLE_/i, '').toUpperCase() === 'PROFESOR');
+  }
+
+  private toTeacherSearchResult(user: UserDTO): UserSearchResult {
+    return {
+      id: user.id,
+      email: user.emailInst,
+      name: user.fullName,
+      avatarUrl: user.avatarUrl
+    };
   }
 
   selectTeacher(teacher: UserSearchResult): void {
