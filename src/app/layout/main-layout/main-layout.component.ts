@@ -36,14 +36,24 @@ export class MainLayoutComponent implements OnInit {
         if (res?.estado === 1 && res?.usuario) {
           this.user = res.usuario;
         } else {
-          this.error = res?.mensaje || 'No se pudo cargar el usuario';
+          this.handleInactiveSession();
         }
       },
       error: (err) => {
         this.loadingUser = false;
+        if (err?.status === 401 || err?.status === 403) {
+          this.handleInactiveSession();
+          return;
+        }
+
         this.error = err?.error?.mensaje || 'Error al cargar usuario';
       }
     });
+  }
+
+  private handleInactiveSession(): void {
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 
   toggleUserMenu(): void {

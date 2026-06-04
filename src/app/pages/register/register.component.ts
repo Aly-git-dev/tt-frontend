@@ -29,11 +29,11 @@ export class RegisterComponent {
         [
           Validators.required,
           Validators.email,
-          Validators.pattern(/ipn\.mx$/i)
+          Validators.pattern(/@(upiiz|alumno)\.ipn\.mx$/i)
         ]
       ],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      role: ['PROFESOR', [Validators.required]]
+      role: ['ALUMNO', [Validators.required]]
     });
   }
 

@@ -10,7 +10,7 @@
 
       <h1 class="auth-title">Crear cuenta</h1>
       <p class="auth-subtitle">
-        Registra un nuevo usuario de plataforma (profesor / admin).
+        Registra una cuenta con correo institucional UPIIZ o alumno.
       </p>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
@@ -29,7 +29,7 @@
           type="email"
           class="field-input"
           formControlName="emailInst"
-          placeholder="user@upiiz.ipn.mx"
+          placeholder="usuario@alumno.ipn.mx"
         />
 
         <!-- Contraseña -->
@@ -44,6 +44,7 @@
         <!-- Rol -->
         <label class="field-label">Rol</label>
         <select class="field-input" formControlName="role">
+          <option value="ALUMNO">ALUMNO</option>
           <option value="PROFESOR">PROFESOR</option>
           <option value="ADMIN">ADMINISTRADOR</option>
         </select>

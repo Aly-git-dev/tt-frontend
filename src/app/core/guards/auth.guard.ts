@@ -20,6 +20,6 @@ export class AuthGuard implements CanActivate {
     if (this.auth.isAuthenticated()) {
       return true;
     }
-    return this.router.parseUrl('/upiiz/public/v1/auth/login');
+    return this.router.parseUrl('/login');
   }
 }

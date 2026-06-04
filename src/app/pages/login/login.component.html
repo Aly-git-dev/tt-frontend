@@ -10,16 +10,16 @@
 
       <h1 class="login-title">Iniciar Sesión</h1>
 
-      <p class="login-subtitle">Ingresa tus credenciales de GESCO</p>
+      <p class="login-subtitle">Ingresa con tu boleta, usuario o correo institucional</p>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
         <label class="field-label">
-          Usuario / Boleta
+          Usuario / Boleta / Correo
           <div class="field-wrapper">
             <input
               type="text"
               formControlName="username"
-              placeholder="Ingresa tu usuario o boleta"
+              placeholder="Boleta, usuario o correo institucional"
             />
             <span class="field-icon">✉️</span>
           </div>
@@ -41,7 +41,7 @@
           {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
         </button>
         <div class="auth-footer">
-          <p class="hint">¿Eres profesor o admin y aún no tienes cuenta?
+          <p class="hint">Crea una cuenta para alumno, profesor o administrador.
           <button type="button" class="link-btn" (click)="goToRegister()">
             Regístrate
           </button>

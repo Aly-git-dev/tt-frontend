@@ -26,7 +26,7 @@ export class ResendVerificationComponent {
         [
           Validators.required,
           Validators.email,
-          Validators.pattern(/ipn\.mx$/i)
+          Validators.pattern(/@(upiiz|alumno)\.ipn\.mx$/i)
         ]
       ]
     });
