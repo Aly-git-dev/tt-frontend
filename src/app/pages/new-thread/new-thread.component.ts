@@ -13,8 +13,7 @@ import { AnalyticsService } from '../../core/services/analytics.service';
 import { ThreadCreateDto } from '../../core/models/forum.models';
 import { UserSearchResult } from '../../core/models/chat.models';
 import { AuthService } from '../../core/services/auth.service';
-import { AdminUsersService } from '../../core/services/admin-users.service';
-import { UserDTO } from '../../core/models/user.models';
+import { ChatApiService } from '../../core/services/chat-api.service';
 
 @Component({
   selector: 'app-new-thread',
@@ -64,7 +63,7 @@ export class NewThreadComponent implements OnDestroy {
     private fb: FormBuilder,
     private forumService: ForumService,
     private analyticsService: AnalyticsService,
-    private adminUsersService: AdminUsersService,
+    private chatApi: ChatApiService,
     private authService: AuthService,
     private router: Router
   ) {
@@ -85,7 +84,10 @@ export class NewThreadComponent implements OnDestroy {
     });
 
     this.form.get('categoryId')?.valueChanges.subscribe(categoryId => {
-      if (categoryId !== this.teacherEvaluationCategoryId) {
+      const isTeacherEvaluation = categoryId === this.teacherEvaluationCategoryId;
+      this.updateThreadFieldsForCategory(isTeacherEvaluation);
+
+      if (!isTeacherEvaluation) {
         this.clearSelectedTeacher();
       }
     });
@@ -126,11 +128,9 @@ export class NewThreadComponent implements OnDestroy {
     this.teacherSearchLoading = true;
 
     this.teacherSearchDebounce = setTimeout(() => {
-      this.adminUsersService.getAllUsers(query).subscribe({
+      this.chatApi.searchUsers(query).subscribe({
         next: users => {
-          this.teacherSearchResults = (users ?? [])
-            .filter(user => this.isProfessor(user))
-            .map(user => this.toTeacherSearchResult(user));
+          this.teacherSearchResults = users ?? [];
         },
         error: err => {
           console.error('Error buscando docentes', err);
@@ -142,19 +142,6 @@ export class NewThreadComponent implements OnDestroy {
         }
       });
     }, 300);
-  }
-
-  private isProfessor(user: UserDTO): boolean {
-    return (user.roles ?? []).some(role => role.replace(/^ROLE_/i, '').toUpperCase() === 'PROFESOR');
-  }
-
-  private toTeacherSearchResult(user: UserDTO): UserSearchResult {
-    return {
-      id: user.id,
-      email: user.emailInst,
-      name: user.fullName,
-      avatarUrl: user.avatarUrl
-    };
   }
 
   selectTeacher(teacher: UserSearchResult): void {
@@ -235,17 +222,18 @@ export class NewThreadComponent implements OnDestroy {
 
     this.submitting = true;
     const raw = this.form.value;
+    const teacherName = this.selectedTeacher?.name || this.selectedTeacher?.email || 'Docente seleccionado';
     const body = this.isTeacherEvaluationThread
       ? this.buildTeacherEvaluationThreadBody(raw)
       : raw.body.trim();
 
     const payload: ThreadCreateDto = {
       categoryId: raw.categoryId,
-      subareaId: raw.subareaId || null,
-      type: raw.type,
-      title: raw.title.trim(),
+      subareaId: this.isTeacherEvaluationThread ? null : raw.subareaId || null,
+      type: this.isTeacherEvaluationThread ? 'DISCUSSION' : raw.type,
+      title: this.isTeacherEvaluationThread ? `Evaluación docente: ${teacherName}` : raw.title.trim(),
       body,
-      attachments: (raw.attachments || [])
+      attachments: this.isTeacherEvaluationThread ? [] : (raw.attachments || [])
         .filter((a: any) => a && (a.url || '').trim().length > 0)
         .map((a: any) => ({
           kind: a.kind,
@@ -256,7 +244,7 @@ export class NewThreadComponent implements OnDestroy {
     this.forumService.createThread(payload).subscribe({
       next: (created) => {
         const isQuestion = raw.type === 'PREGUNTA';
-        const shouldCreateDifficultyEvent = isQuestion || this.isTeacherEvaluationThread;
+        const shouldCreateDifficultyEvent = !this.isTeacherEvaluationThread && isQuestion;
         const currentUserId = this.authService.getCurrentUserId();
         const analyticsRequests: any[] = [];
 
@@ -275,12 +263,6 @@ export class NewThreadComponent implements OnDestroy {
           );
         }
 
-        if (!shouldCreateDifficultyEvent && analyticsRequests.length === 0) {
-          this.resetForm();
-          this.router.navigate(['/forums', created.id]);
-          return;
-        }
-
         if (this.isTeacherEvaluationThread && this.selectedTeacher) {
           analyticsRequests.push(
             this.analyticsService.createTeacherEvaluation({
@@ -291,7 +273,7 @@ export class NewThreadComponent implements OnDestroy {
               ratingKnowledge: Number(raw.ratingKnowledge || 5),
               ratingSupport: Number(raw.ratingSupport || 5),
               ratingPunctuality: Number(raw.ratingPunctuality || 5),
-              comment: raw.evaluationComment?.trim() || raw.body.trim(),
+              comment: raw.evaluationComment?.trim() || null,
               anonymous: !!raw.anonymous
             })
           );
@@ -312,6 +294,12 @@ export class NewThreadComponent implements OnDestroy {
               ? `Evaluación docente desde foro para ${this.selectedTeacher.name || this.selectedTeacher.email}: ${raw.title.trim()}`
               : `Dificultad registrada desde foro: ${raw.title.trim()}`
           }));
+        }
+
+        if (analyticsRequests.length === 0) {
+          this.resetForm();
+          this.router.navigate(['/forums', created.id]);
+          return;
         }
 
         forkJoin(analyticsRequests).subscribe({
@@ -360,17 +348,15 @@ export class NewThreadComponent implements OnDestroy {
       title: '',
       body: ''
     });
+    this.updateThreadFieldsForCategory(false);
   }
 
   private buildTeacherEvaluationThreadBody(raw: any): string {
     const teacherName = this.selectedTeacher?.name || this.selectedTeacher?.email || 'Docente seleccionado';
     const anonymousLabel = raw.anonymous ? 'Anónima' : 'Con nombre visible';
-    const comment = raw.evaluationComment?.trim() || raw.body.trim();
+    const comment = raw.evaluationComment?.trim();
 
     return [
-      raw.body.trim(),
-      '',
-      '---',
       '',
       '### Evaluación docente',
       '',
@@ -383,5 +369,33 @@ export class NewThreadComponent implements OnDestroy {
       '',
       comment ? `Comentario para analítica: ${comment}` : ''
     ].filter(line => line !== '').join('\n');
+  }
+
+  private updateThreadFieldsForCategory(isTeacherEvaluation: boolean): void {
+    const titleCtrl = this.form.get('title');
+    const bodyCtrl = this.form.get('body');
+
+    if (isTeacherEvaluation) {
+      titleCtrl?.clearValidators();
+      bodyCtrl?.clearValidators();
+      this.form.patchValue({
+        subareaId: null,
+        type: 'DISCUSSION',
+        difficultyLevel: 3,
+        title: '',
+        body: ''
+      }, { emitEvent: false });
+      this.showAttachmentPanel = false;
+
+      while (this.attachments.length > 0) {
+        this.attachments.removeAt(0);
+      }
+    } else {
+      titleCtrl?.setValidators([Validators.required, Validators.minLength(5)]);
+      bodyCtrl?.setValidators([Validators.required, Validators.minLength(10)]);
+    }
+
+    titleCtrl?.updateValueAndValidity({ emitEvent: false });
+    bodyCtrl?.updateValueAndValidity({ emitEvent: false });
   }
 }

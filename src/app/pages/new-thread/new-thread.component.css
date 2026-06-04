@@ -614,3 +614,8 @@ code {
     width: 100%;
   }
 }
+.teacher-evaluation-mode .field-group:has([formControlName="title"]),
+.teacher-evaluation-mode .field-group:has([formControlName="body"]),
+.teacher-evaluation-mode .attachment-card {
+  display: none;
+}

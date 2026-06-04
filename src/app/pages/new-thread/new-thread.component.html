@@ -20,7 +20,11 @@
 
   <div class="forum-layout">
     <section class="forum-main">
-      <form class="thread-card" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <form
+        class="thread-card"
+        [class.teacher-evaluation-mode]="isTeacherEvaluationThread"
+        [formGroup]="form"
+        (ngSubmit)="onSubmit()">
 
         <div class="card-head">
           <div>
@@ -45,7 +49,7 @@
           </div>
 
           <!-- TIPO -->
-          <div class="field-group">
+          <div class="field-group" *ngIf="!isTeacherEvaluationThread">
             <label class="field-label">Tipo de hilo</label>
             <select class="field-input" formControlName="type">
               <option *ngFor="let t of threadTypes" [ngValue]="t.value">
@@ -59,7 +63,7 @@
         </div>
 
         <!-- SUBAREA -->
-        <div class="field-group">
+        <div class="field-group" *ngIf="!isTeacherEvaluationThread">
           <label class="field-label">Subárea / Materia (opcional)</label>
           <select class="field-input" formControlName="subareaId">
             <option [ngValue]="null">Selecciona una subárea</option>
@@ -176,7 +180,7 @@
         </div>
 
         <!-- DIFICULTAD -->
-        <div class="field-group" *ngIf="form.get('type')?.value === 'PREGUNTA' || isTeacherEvaluationThread">
+        <div class="field-group" *ngIf="!isTeacherEvaluationThread && form.get('type')?.value === 'PREGUNTA'">
           <label class="field-label">Nivel de dificultad percibida</label>
           <select class="field-input" formControlName="difficultyLevel">
             <option [ngValue]="1">Baja</option>
