@@ -50,16 +50,17 @@
 
           <ng-template #avatarFallback>
             <span class="thread-avatar-initial">
-              {{ getInitial(thread.authorName) }}
+              {{ getThreadAuthorInitial() }}
             </span>
           </ng-template>
         </div>
 
         <div class="thread-meta-text">
           <div
-              class="thread-meta-author clickable-user"
+              class="thread-meta-author"
+              [class.clickable-user]="!isAnonymousTeacherEvaluation()"
               (click)="goToUserProfile(thread.authorId)">
-              {{ thread.authorName }}
+              {{ getThreadAuthorName() }}
             </div>
 
           <div class="thread-meta-date">

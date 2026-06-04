@@ -1,6 +1,5 @@
 <div class="login-page">
   <div class="login-card">
-    <!-- Columna izquierda: formulario -->
     <div class="login-left">
       <div class="login-breadcrumb">
         <a href="#">Inicio</a>
@@ -21,8 +20,11 @@
               formControlName="username"
               placeholder="Boleta, usuario o correo institucional"
             />
-            <span class="field-icon">✉️</span>
+            <span class="field-icon">&#64;</span>
           </div>
+          <span class="field-error" *ngIf="getFieldError('username')">
+            {{ getFieldError('username') }}
+          </span>
         </label>
 
         <label class="field-label">
@@ -33,35 +35,42 @@
               formControlName="password"
               placeholder="Ingresa tu contraseña"
             />
-            <span class="field-icon">🔒</span>
+            <span class="field-icon">#</span>
           </div>
+          <span class="field-error" *ngIf="getFieldError('password')">
+            {{ getFieldError('password') }}
+          </span>
         </label>
 
         <button type="submit" [disabled]="loading" class="login-btn">
           {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
         </button>
+
         <div class="auth-footer">
-          <p class="hint">Crea una cuenta para alumno, profesor o administrador.
-          <button type="button" class="link-btn" (click)="goToRegister()">
-            Regístrate
-          </button>
+          <p class="hint">
+            Crea una cuenta para alumno, profesor o administrador.
+            <button type="button" class="link-btn" (click)="goToRegister()">
+              Regístrate
+            </button>
           </p>
+
           <div class="auth-links">
             <button type="button" class="link-btn" (click)="goToForgotPassword()">
               ¿Olvidaste tu contraseña?
             </button>
           </div>
+
           <div class="auth-links">
             <button type="button" class="link-btn" (click)="goToResendVerification()">
-              Reenviar verificacion
+              Reenviar verificación
             </button>
           </div>
         </div>
+
         <p *ngIf="error" class="login-error">{{ error }}</p>
       </form>
     </div>
 
-    <!-- Columna derecha: bienvenida -->
     <div class="login-right">
       <div class="login-right-content">
         <div class="login-logo">

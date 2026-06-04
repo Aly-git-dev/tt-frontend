@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminUsersService } from '../../core/services/admin-users.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-users',
@@ -19,7 +20,10 @@ export class AdminUsersComponent implements OnInit {
 
   roles = ['ADMIN', 'PROFESOR', 'ALUMNO', 'ASESOR'];
 
-  constructor(private adminUsersService: AdminUsersService) {}
+  constructor(
+    private adminUsersService: AdminUsersService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -99,5 +103,10 @@ export class AdminUsersComponent implements OnInit {
       },
       complete: () => this.savingId = null
     });
+  }
+
+  viewProfile(user: any): void {
+    if (!user?.id) return;
+    this.router.navigate(['/users', user.id, 'profile']);
   }
 }

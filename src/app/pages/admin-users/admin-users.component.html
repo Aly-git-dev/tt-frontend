@@ -3,7 +3,7 @@
     <div>
       <div class="eyebrow">Administración</div>
       <h1>Gestión de usuarios</h1>
-      <p>Administra roles, permisos y estado de las cuentas.</p>
+      <p>Administra roles, permisos, estado de las cuentas y revisa perfiles.</p>
     </div>
   </div>
 
@@ -63,6 +63,14 @@
       </div>
 
       <div class="actions">
+        <button
+          type="button"
+          class="profile"
+          [disabled]="savingId === user.id"
+          (click)="viewProfile(user)">
+          Ver perfil
+        </button>
+
         <button
           *ngIf="user.active"
           type="button"

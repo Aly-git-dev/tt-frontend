@@ -13,6 +13,17 @@
   <div class="content">
 
     <section class="left" [class.hidden-mobile]="!!selected">
+      <div class="policy-panel">
+        <div class="policy-title">Reglas de mensajería</div>
+        <p>
+          Usa el chat para fines académicos. Evita datos sensibles, acoso, spam o contenido ofensivo.
+          Los mensajes pueden reportarse y revisarse por administración.
+        </p>
+        <p *ngIf="selected?.allowedPair">
+          Par permitido: <strong>{{ selected?.allowedPair }}</strong>
+        </p>
+      </div>
+
       <app-conversation-list
         [items]="conversations"
         [selectedId]="selected?.id ?? null"

@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { ChatApiService } from '../../core/services/chat-api.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-teacher-evaluation-form',
@@ -14,7 +15,6 @@ import { ChatApiService } from '../../core/services/chat-api.service';
 })
 export class TeacherEvaluationFormComponent implements OnDestroy {
   teacherId = '';
-  evaluatorId = '';
   appointmentId = '';
 
   loading = false;
@@ -44,7 +44,8 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
   constructor(
     private fb: FormBuilder,
     private analyticsService: AnalyticsService,
-    private chatApi: ChatApiService
+    private chatApi: ChatApiService,
+    private authService: AuthService
   ) {}
 
   ngOnDestroy(): void {
@@ -109,6 +110,21 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
     return source.charAt(0).toUpperCase();
   }
 
+  get averageRating(): number {
+    const values = [
+      Number(this.form.value.ratingClarity || 0),
+      Number(this.form.value.ratingKnowledge || 0),
+      Number(this.form.value.ratingSupport || 0),
+      Number(this.form.value.ratingPunctuality || 0)
+    ];
+
+    return values.reduce((sum, value) => sum + value, 0) / values.length;
+  }
+
+  get visibilityLabel(): string {
+    return this.form.value.anonymous ? 'Anónima' : 'Con nombre visible';
+  }
+
   submit(): void {
     if (this.form.invalid || !this.teacherId) {
       this.form.markAllAsTouched();
@@ -120,16 +136,18 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
     this.successMessage = '';
     this.errorMessage = '';
 
+    const anonymous = !!this.form.value.anonymous;
+
     this.analyticsService.createTeacherEvaluation({
       teacherId: this.teacherId,
-      evaluatorId: this.evaluatorId || null,
+      evaluatorId: anonymous ? null : this.authService.getCurrentUserId(),
       appointmentId: this.appointmentId || null,
       ratingClarity: this.form.value.ratingClarity as number,
       ratingKnowledge: this.form.value.ratingKnowledge as number,
       ratingSupport: this.form.value.ratingSupport as number,
       ratingPunctuality: this.form.value.ratingPunctuality as number,
       comment: this.form.value.comment || null,
-      anonymous: !!this.form.value.anonymous
+      anonymous
     }).subscribe({
       next: () => {
         this.successMessage = 'Evaluación enviada correctamente.';
@@ -144,7 +162,7 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
         this.loading = false;
       },
       error: (err) => {
-        this.errorMessage = err?.error?.message || 'No se pudo registrar la evaluación.';
+        this.errorMessage = err?.error?.mensaje || err?.error?.message || 'No se pudo registrar la evaluación.';
         this.loading = false;
       }
     });

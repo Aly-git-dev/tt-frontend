@@ -235,13 +235,16 @@ export class NewThreadComponent implements OnDestroy {
 
     this.submitting = true;
     const raw = this.form.value;
+    const body = this.isTeacherEvaluationThread
+      ? this.buildTeacherEvaluationThreadBody(raw)
+      : raw.body.trim();
 
     const payload: ThreadCreateDto = {
       categoryId: raw.categoryId,
       subareaId: raw.subareaId || null,
       type: raw.type,
       title: raw.title.trim(),
-      body: raw.body.trim(),
+      body,
       attachments: (raw.attachments || [])
         .filter((a: any) => a && (a.url || '').trim().length > 0)
         .map((a: any) => ({
@@ -282,7 +285,7 @@ export class NewThreadComponent implements OnDestroy {
           analyticsRequests.push(
             this.analyticsService.createTeacherEvaluation({
               teacherId: this.selectedTeacher.id,
-              evaluatorId: null,
+              evaluatorId: raw.anonymous ? null : currentUserId,
               appointmentId: null,
               ratingClarity: Number(raw.ratingClarity || 5),
               ratingKnowledge: Number(raw.ratingKnowledge || 5),
@@ -317,9 +320,11 @@ export class NewThreadComponent implements OnDestroy {
             this.router.navigate(['/forums', created.id]);
           },
           error: (err) => {
-            console.error('No se pudo registrar la dificultad del tema', err);
-            this.resetForm();
-            this.router.navigate(['/forums', created.id]);
+            console.error('No se pudieron registrar los datos de analítica', err);
+            this.submitting = false;
+            this.error = this.isTeacherEvaluationThread
+              ? 'El hilo se creó, pero no se pudo registrar la evaluación docente. Revisa conexión/API e intenta registrar la evaluación desde Analítica.'
+              : 'El hilo se creó, pero no se pudieron registrar los datos de analítica.';
           }
         });
       },
@@ -355,5 +360,28 @@ export class NewThreadComponent implements OnDestroy {
       title: '',
       body: ''
     });
+  }
+
+  private buildTeacherEvaluationThreadBody(raw: any): string {
+    const teacherName = this.selectedTeacher?.name || this.selectedTeacher?.email || 'Docente seleccionado';
+    const anonymousLabel = raw.anonymous ? 'Anónima' : 'Con nombre visible';
+    const comment = raw.evaluationComment?.trim() || raw.body.trim();
+
+    return [
+      raw.body.trim(),
+      '',
+      '---',
+      '',
+      '### Evaluación docente',
+      '',
+      `- Docente evaluado: ${teacherName}`,
+      `- Modalidad: ${anonymousLabel}`,
+      `- Claridad: ${Number(raw.ratingClarity || 5)} / 5`,
+      `- Conocimiento: ${Number(raw.ratingKnowledge || 5)} / 5`,
+      `- Apoyo: ${Number(raw.ratingSupport || 5)} / 5`,
+      `- Puntualidad: ${Number(raw.ratingPunctuality || 5)} / 5`,
+      '',
+      comment ? `Comentario para analítica: ${comment}` : ''
+    ].filter(line => line !== '').join('\n');
   }
 }

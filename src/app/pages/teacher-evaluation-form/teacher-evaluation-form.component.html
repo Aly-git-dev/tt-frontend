@@ -127,6 +127,17 @@
           ></textarea>
         </div>
 
+        <div class="evaluation-summary" *ngIf="selectedTeacher">
+          <div>
+            <span>Promedio</span>
+            <strong>{{ averageRating | number:'1.1-1' }} / 5</strong>
+          </div>
+          <div>
+            <span>Modalidad</span>
+            <strong>{{ visibilityLabel }}</strong>
+          </div>
+        </div>
+
         <div class="form-footer">
           <label class="check-row">
             <input type="checkbox" formControlName="anonymous" />

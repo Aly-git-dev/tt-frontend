@@ -166,6 +166,17 @@
   cursor: pointer;
 }
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile {
+  background: #e0f2fe;
+  color: #075985;
+}
+
 .ban {
   background: #fee2e2;
   color: #991b1b;

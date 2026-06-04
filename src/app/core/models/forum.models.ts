@@ -1,6 +1,6 @@
 export interface AttachmentDto {
   id?: number;
-  kind: 'IMAGEN' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'LINK' | string;
+  kind: 'IMAGEN' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'LINK' | 'ARCHIVO' | 'FILE' | string;
   url: string;
 }
 

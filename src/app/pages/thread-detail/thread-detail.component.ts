@@ -68,6 +68,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
 
   attachmentKinds = [
     { value: 'LINK', label: 'Enlace' },
+    { value: 'ARCHIVO', label: 'Archivo / documento' },
     { value: 'IMAGEN', label: 'Imagen (URL)' },
     { value: 'VIDEO', label: 'Video (URL)' },
     { value: 'AUDIO', label: 'Audio (URL)' }
@@ -130,6 +131,23 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     if (!name) return '?';
     const trimmed = name.trim();
     return trimmed ? trimmed.charAt(0).toUpperCase() : '?';
+  }
+
+  isAnonymousTeacherEvaluation(): boolean {
+    if (!this.thread) return false;
+
+    const category = (this.thread.categoryName || '').toLowerCase();
+    const body = (this.thread.body || '').toLowerCase();
+
+    return category.includes('evalu') && body.includes('modalidad: anónima');
+  }
+
+  getThreadAuthorName(): string {
+    return this.isAnonymousTeacherEvaluation() ? 'Anónimo' : this.thread?.authorName || 'Usuario';
+  }
+
+  getThreadAuthorInitial(): string {
+    return this.isAnonymousTeacherEvaluation() ? 'A' : this.getInitial(this.thread?.authorName);
   }
 
   private buildForm(): void {
@@ -668,6 +686,7 @@ canDeletePost(post: PostDto): boolean {
 }
 
 goToUserProfile(userId: string): void {
+  if (this.isAnonymousTeacherEvaluation()) return;
   this.router.navigate(['/users', userId, 'profile']);
 }
 }
