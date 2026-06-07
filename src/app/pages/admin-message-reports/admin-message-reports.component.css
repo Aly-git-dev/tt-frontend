@@ -205,6 +205,7 @@
 .context-meta {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 10px;
   color: #64748b;
   font-size: 12px;
@@ -214,6 +215,12 @@
 .context-meta span {
   font-weight: 800;
   color: #334155;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.context-meta small {
+  flex: 0 0 auto;
 }
 
 .context-content {

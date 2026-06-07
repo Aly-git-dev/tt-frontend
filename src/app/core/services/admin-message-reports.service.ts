@@ -15,6 +15,8 @@ export interface ReportContextItem {
   index: number;
   messageId: number;
   senderIdSnapshot: string;
+  senderNameSnapshot?: string;
+  senderEmailSnapshot?: string;
   senderRoleSnapshot: string;
   contentTypeSnapshot: string;
   contentSnapshot: string;
@@ -23,6 +25,8 @@ export interface ReportContextItem {
 
 export interface ReportDetail extends ReportSummary {
   reporterId: string;
+  reporterName?: string;
+  reporterEmail?: string;
   handledBy?: string;
   handledAt?: string;
   context: ReportContextItem[];

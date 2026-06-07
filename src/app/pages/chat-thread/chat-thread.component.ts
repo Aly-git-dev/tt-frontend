@@ -28,6 +28,7 @@ type MessageListItem = MessageDayItem | MessageBubbleItem;
 export class ChatThreadComponent {
   @Input() conversation: Conversation | null = null;
   @Input() messages: Message[] = [];
+  @Input() currentUserId: string | null = null;
   @Input() currentUserAvatarUrl: string | null = null;
   @Input() currentUserName: string | null = null;
   @Input() loading = false;
@@ -114,8 +115,11 @@ export class ChatThreadComponent {
   }
 
   private isMine(message: Message): boolean {
-    const me = localStorage.getItem('userId');
-    return !!me && message.senderId === me;
+    return this.sameUserId(message.senderId, this.currentUserId);
+  }
+
+  private sameUserId(a?: string | null, b?: string | null): boolean {
+    return !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
   }
 
   private getDayKey(value?: string): string {

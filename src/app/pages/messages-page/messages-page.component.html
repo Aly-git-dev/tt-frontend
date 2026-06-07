@@ -37,6 +37,7 @@
         <app-chat-thread
           [conversation]="selected"
           [messages]="messages"
+          [currentUserId]="currentUserId"
           [currentUserAvatarUrl]="currentUser?.avatarUrl || null"
           [currentUserName]="currentUser?.fullName || null"
           [loading]="loading"

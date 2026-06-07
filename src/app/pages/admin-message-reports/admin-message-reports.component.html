@@ -85,7 +85,7 @@
 
           <div>
             <span>Reportante</span>
-            <strong>{{ selected.reporterId }}</strong>
+            <strong>{{ reporterLabel(selected) }}</strong>
           </div>
 
           <div>
@@ -108,7 +108,7 @@
             [class.reported]="item.messageId === selected.reportedMessageId">
             <div class="context-meta">
               <span>
-                {{ item.senderRoleSnapshot || 'Usuario' }}
+                {{ senderLabel(item) }}
               </span>
               <small>{{ formatDate(item.createdAtSnapshot) }}</small>
             </div>

@@ -46,6 +46,7 @@
             <app-message-bubble
               *ngIf="item.type === 'message'"
               [msg]="item.message"
+              [currentUserId]="currentUserId"
               [senderAvatarUrl]="getMessageAvatarUrl(item.message)"
               [senderName]="getMessageSenderName(item.message)"
               (report)="onReportMessage($event)">

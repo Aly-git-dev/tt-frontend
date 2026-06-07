@@ -12,6 +12,7 @@ import { ChatApiService } from '../../core/services/chat-api.service';
 })
 export class MessageBubbleComponent {
   @Input() msg!: Message;
+  @Input() currentUserId: string | null = null;
   @Input() senderAvatarUrl: string | null = null;
   @Input() senderName: string | null = null;
   @Output() report = new EventEmitter<Message>();
@@ -23,13 +24,8 @@ export class MessageBubbleComponent {
     this.report.emit(this.msg);
   }
 
-  meId(): string | null {
-    return localStorage.getItem('userId');
-  }
-
   isMine(): boolean {
-    const me = this.meId();
-    return !!me && this.msg.senderId === me;
+    return this.sameUserId(this.msg.senderId, this.currentUserId);
   }
 
   senderInitial(): string {
@@ -63,6 +59,11 @@ export class MessageBubbleComponent {
     const mb = kb / 1024;
     return `${mb.toFixed(1)} MB`;
   }
+
+  private sameUserId(a?: string | null, b?: string | null): boolean {
+    return !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
+  }
+
   downloadFile(file: any): void {
     this.chatApi.downloadAttachment(file.id).subscribe({
       next: (response) => {

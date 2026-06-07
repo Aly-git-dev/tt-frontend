@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { catchError, forkJoin, of } from 'rxjs';
 import {
   AdminMessageReportsService,
   ReportDetail,
+  ReportContextItem,
   ReportSummary
 } from '../../core/services/admin-message-reports.service';
+import { AdminUsersService } from '../../core/services/admin-users.service';
+import { UserDTO } from '../../core/models/user.models';
 
 @Component({
   selector: 'app-admin-message-reports',
@@ -23,8 +27,13 @@ export class AdminMessageReportsComponent implements OnInit {
 
   status = 'PENDIENTE';
   error = '';
+  private userDirectory = new Map<string, UserDTO>();
+  private usersLoaded = false;
 
-  constructor(private reportsApi: AdminMessageReportsService) {}
+  constructor(
+    private reportsApi: AdminMessageReportsService,
+    private adminUsersService: AdminUsersService
+  ) {}
 
   ngOnInit(): void {
     this.loadReports();
@@ -58,8 +67,12 @@ export class AdminMessageReportsComponent implements OnInit {
     this.detailLoading = true;
     this.error = '';
 
-    this.reportsApi.getReport(report.id).subscribe({
-      next: detail => {
+    forkJoin({
+      detail: this.reportsApi.getReport(report.id),
+      users: this.ensureUsersLoaded()
+    }).subscribe({
+      next: ({ detail, users }) => {
+        this.cacheUsers(users);
         this.selected = detail;
       },
       error: err => {
@@ -119,5 +132,43 @@ export class AdminMessageReportsComponent implements OnInit {
 
   statusClass(status: string): string {
     return status.toLowerCase();
+  }
+
+  reporterLabel(report: ReportDetail): string {
+    return this.userLabel(report.reporterId, report.reporterName, report.reporterEmail);
+  }
+
+  senderLabel(item: ReportContextItem): string {
+    return this.userLabel(item.senderIdSnapshot, item.senderNameSnapshot, item.senderEmailSnapshot);
+  }
+
+  private ensureUsersLoaded() {
+    if (this.usersLoaded) {
+      return of([]);
+    }
+
+    return this.adminUsersService.getAllUsers('').pipe(
+      catchError(err => {
+        console.error('No se pudo cargar el directorio de usuarios para reportes', err);
+        return of([]);
+      })
+    );
+  }
+
+  private userLabel(userId?: string, name?: string, email?: string): string {
+    const user = userId ? this.userDirectory.get(userId) : null;
+    const resolvedName = name || user?.fullName || '';
+    const resolvedEmail = email || user?.emailInst || '';
+
+    if (resolvedName && resolvedEmail) {
+      return `${resolvedName} · ${resolvedEmail}`;
+    }
+
+    return resolvedName || resolvedEmail || 'Usuario no disponible';
+  }
+
+  private cacheUsers(users: UserDTO[]): void {
+    users.forEach(user => this.userDirectory.set(user.id, user));
+    this.usersLoaded = true;
   }
 }
