@@ -1,27 +1,51 @@
 <div class="vm-container">
   <div class="vm-header">
     <div class="vm-title">
-      <span class="vm-dot"></span>
-      Videoconferencia
+      <span class="vm-dot" [class.vm-dot--idle]="loading || error"></span>
+      <div>
+        <strong>{{ meeting?.roomName || 'Videoconferencia' }}</strong>
+        <small>{{ isHost ? 'Anfitrión' : 'Participante' }}</small>
+      </div>
+    </div>
+
+    <div class="vm-user" *ngIf="currentUser">
+      <div class="vm-avatar">
+        <img
+          *ngIf="avatarUrl; else avatarFallback"
+          [src]="avatarUrl"
+          [alt]="displayName" />
+        <ng-template #avatarFallback>
+          <span>{{ displayName.charAt(0).toUpperCase() }}</span>
+        </ng-template>
+      </div>
+      <span>{{ displayName }}</span>
     </div>
 
     <div class="vm-actions">
-      <button class="vm-btn vm-btn-danger" (click)="goBack()">
-        Volver
+      <button
+        class="vm-btn vm-btn-danger"
+        type="button"
+        [disabled]="leaving"
+        (click)="leaveRoom()">
+        {{ leaving ? 'Saliendo...' : (isHost ? 'Finalizar sesión' : 'Salir') }}
       </button>
     </div>
   </div>
 
-  <div *ngIf="loading" class="vm-state">
-    <div class="spinner"></div>
-    <p>Abriendo videoconferencia...</p>
-  </div>
+  <div class="vm-stage">
+    <div #jitsiContainer class="jitsi-container" [class.jitsi-container--hidden]="loading || error"></div>
 
-  <div *ngIf="error && !loading" class="vm-state vm-error">
-    <h3>⚠️ Error</h3>
-    <p>{{ error }}</p>
-    <button class="vm-btn" (click)="goBack()">
-      Volver a agenda
-    </button>
+    <div *ngIf="loading" class="vm-state">
+      <div class="spinner"></div>
+      <p>Preparando sala embebida...</p>
+    </div>
+
+    <div *ngIf="error && !loading" class="vm-state vm-error">
+      <h3>Error</h3>
+      <p>{{ error }}</p>
+      <button class="vm-btn" type="button" (click)="goBack()">
+        Volver a agenda
+      </button>
+    </div>
   </div>
 </div>

@@ -254,7 +254,9 @@ export class AppointmentDialogComponent implements OnInit {
     if (!this.videoMeeting) return;
 
     this.ref.close(false);
-    this.router.navigate(['/video-meetings', this.videoMeeting.id]);
+    this.router.navigate(['/video-meetings', this.videoMeeting.id], {
+      state: { returnUrl: '/calendar' }
+    });
   }
 
   cancelVideoMeeting(): void {

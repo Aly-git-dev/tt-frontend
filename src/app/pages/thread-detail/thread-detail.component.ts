@@ -773,7 +773,9 @@ createForumVideoMeeting(): void {
         next: meeting => {
           this.creatingForumMeeting = false;
           this.showToast('Videoconferencia creada. Entrando a la sala...');
-          this.router.navigate(['/video-meetings', meeting.id]);
+          this.router.navigate(['/video-meetings', meeting.id], {
+            state: { returnUrl: `/forums/${this.thread?.id}` }
+          });
         },
         error: err => {
           console.error('Error creando videoconferencia desde foro', err);
