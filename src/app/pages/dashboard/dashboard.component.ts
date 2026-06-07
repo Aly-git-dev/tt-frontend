@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { ForumService } from '../../core/services/forum.service';
 import { ThreadSummaryDto, ForumSummaryDto } from '../../core/models/forum.models';
+import { UserProfileService } from '../../core/services/user-profile.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -37,6 +40,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private forumService: ForumService,
+    private userProfileService: UserProfileService,
     private router: Router
   ) {}
 
@@ -76,7 +80,9 @@ export class DashboardComponent implements OnInit {
     this.loadingForums = true;
     this.forumsError = null;
 
-    this.forumService.getRecommendedThreads().subscribe({
+    this.forumService.getRecommendedThreads().pipe(
+      switchMap(threads => this.enrichThreadSummaries(threads))
+    ).subscribe({
       next: (threads) => {
         this.recommendedThreads = threads;
         this.loadingForums = false;
@@ -93,7 +99,11 @@ export class DashboardComponent implements OnInit {
     this.loadingFeed = true;
     this.feedError = null;
 
-    this.forumService.searchThreads('', this.currentPage, this.pageSize).subscribe({
+    this.forumService.searchThreads('', this.currentPage, this.pageSize).pipe(
+      switchMap(response => this.enrichThreadSummaries(response.threads).pipe(
+        map(threads => ({ ...response, threads }))
+      ))
+    ).subscribe({
       next: (response) => {
         this.allThreads = response.threads;
         this.totalElements = response.totalElements || response.threads.length;
@@ -108,7 +118,9 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadAllThreadsFallback(): void {
-    this.forumService.getAllThreads().subscribe({
+    this.forumService.getAllThreads().pipe(
+      switchMap(threads => this.enrichThreadSummaries(threads))
+    ).subscribe({
       next: (threads) => {
         this.totalElements = threads.length;
         this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
@@ -131,7 +143,11 @@ export class DashboardComponent implements OnInit {
 
     // Si hay un query, intentar búsqueda; si no, cargar todos
     if (this.searchQuery.trim().length > 0) {
-      this.forumService.searchThreads(this.searchQuery, this.currentPage, this.pageSize).subscribe({
+      this.forumService.searchThreads(this.searchQuery, this.currentPage, this.pageSize).pipe(
+        switchMap(response => this.enrichThreadSummaries(response.threads).pipe(
+          map(threads => ({ ...response, threads }))
+        ))
+      ).subscribe({
         next: (response) => {
           this.allThreads = response.threads;
           this.totalElements = response.totalElements || response.threads.length;
@@ -155,10 +171,13 @@ export class DashboardComponent implements OnInit {
   // Filtro local de threads cuando el backend no está disponible
   private filterThreadsLocally(query: string): void {
     const lowerQuery = query.toLowerCase();
-    this.forumService.getAllThreads().subscribe({
+    this.forumService.getAllThreads().pipe(
+      switchMap(threads => this.enrichThreadSummaries(threads))
+    ).subscribe({
       next: (allThreads) => {
         this.allThreads = allThreads.filter(thread =>
           thread.title.toLowerCase().includes(lowerQuery) ||
+          (thread.authorName?.toLowerCase().includes(lowerQuery) || false) ||
           (thread.categoryName?.toLowerCase().includes(lowerQuery) || false) ||
           (thread.subareaName?.toLowerCase().includes(lowerQuery) || false)
         );
@@ -206,5 +225,44 @@ export class DashboardComponent implements OnInit {
   getInitial(title?: string | null): string {
     if (!title) return '?';
     return title.trim().charAt(0).toUpperCase();
+  }
+
+  private enrichThreadSummaries(threads: ThreadSummaryDto[]): Observable<ThreadSummaryDto[]> {
+    if (!threads.length) {
+      return of([]);
+    }
+
+    return forkJoin(threads.map(thread => this.enrichThreadSummary(thread)));
+  }
+
+  private enrichThreadSummary(thread: ThreadSummaryDto): Observable<ThreadSummaryDto> {
+    if (thread.authorName && thread.authorAvatarUrl) {
+      return of(thread);
+    }
+
+    return this.forumService.getThread(thread.id).pipe(
+      switchMap(detail => {
+        const enriched: ThreadSummaryDto = {
+          ...thread,
+          authorId: thread.authorId || detail.authorId,
+          authorName: thread.authorName || detail.authorName,
+          authorAvatarUrl: thread.authorAvatarUrl || detail.authorAvatarUrl || null
+        };
+
+        if (enriched.authorAvatarUrl || !enriched.authorId) {
+          return of(enriched);
+        }
+
+        return this.userProfileService.getPublicProfile(enriched.authorId).pipe(
+          map(profile => ({
+            ...enriched,
+            authorName: enriched.authorName || profile.fullName,
+            authorAvatarUrl: profile.avatarUrl || null
+          })),
+          catchError(() => of(enriched))
+        );
+      }),
+      catchError(() => of(thread))
+    );
   }
 }
