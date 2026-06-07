@@ -55,7 +55,7 @@ export class AppointmentDialogComponent implements OnInit {
 
   userQuery = '';
   userResults: UserSearchResult[] = [];
-  selectedUser: UserSearchResult | null = null;
+  selectedUsers: UserSearchResult[] = [];
   searchingUsers = false;
   userSearchError = '';
 
@@ -122,7 +122,8 @@ export class AppointmentDialogComponent implements OnInit {
 
     this.chatApi.searchUsers(q).subscribe({
       next: (results) => {
-        this.userResults = results ?? [];
+        const selectedIds = new Set(this.selectedUsers.map(user => user.id));
+        this.userResults = (results ?? []).filter(user => !selectedIds.has(user.id));
         this.searchingUsers = false;
 
         if (!this.userResults.length) {
@@ -138,14 +139,21 @@ export class AppointmentDialogComponent implements OnInit {
   }
 
   selectUser(user: UserSearchResult): void {
-    this.selectedUser = user;
-    this.userQuery = user.name?.trim() ? `${user.name} (${user.email})` : user.email;
+    if (!this.selectedUsers.some(selected => selected.id === user.id)) {
+      this.selectedUsers = [...this.selectedUsers, user];
+    }
+
+    this.userQuery = '';
     this.userResults = [];
     this.userSearchError = '';
   }
 
-  clearSelectedUser(): void {
-    this.selectedUser = null;
+  removeSelectedUser(userId: string): void {
+    this.selectedUsers = this.selectedUsers.filter(user => user.id !== userId);
+  }
+
+  clearSelectedUsers(): void {
+    this.selectedUsers = [];
     this.userQuery = '';
     this.userResults = [];
     this.userSearchError = '';
@@ -173,8 +181,8 @@ export class AppointmentDialogComponent implements OnInit {
   create(): void {
     const v = this.form.getRawValue();
 
-    if (!this.selectedUser?.id) {
-      this.userSearchError = 'Debes seleccionar un invitado.';
+    if (!this.selectedUsers.length) {
+      this.userSearchError = 'Debes seleccionar al menos un invitado.';
       return;
     }
 
@@ -184,7 +192,7 @@ export class AppointmentDialogComponent implements OnInit {
       modality: v.modality,
       startsAt: v.startsAt,
       endsAt: v.endsAt,
-      inviteeUserIds: [this.selectedUser.id],
+      inviteeUserIds: this.selectedUsers.map(user => user.id),
     }).subscribe({
       next: () => this.close(true),
       error: () => this.close(false),

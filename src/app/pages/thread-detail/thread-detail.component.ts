@@ -24,6 +24,8 @@ import {
 
 import { AuthService } from '../../core/services/auth.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
+import { AgendaApiService } from '../../core/services/agenda-api.service';
+import { VideoMeetingApiService } from '../../core/services/video-meeting-api.service';
 
 declare const hljs: any;
 declare const mermaid: any;
@@ -52,6 +54,8 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
   replyForm!: FormGroup;
   submittingReply = false;
   replyError: string | null = null;
+  replySelectedFiles: File[] = [];
+  replyDraggingFiles = false;
 
   editThreadMode = false;
   editThreadForm!: FormGroup;
@@ -62,6 +66,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
   savingPost = false;
 
   actionError: string | null = null;
+  creatingForumMeeting = false;
 
   private viewInitialized = false;
   private needsEnhance = false;
@@ -88,7 +93,9 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     private markdownService: MarkdownService,
     private fb: FormBuilder,
     private authService: AuthService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private agendaApi: AgendaApiService,
+    private videoMeetingApi: VideoMeetingApiService
   ) {}
 
   ngOnInit(): void {
@@ -152,7 +159,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
 
   private buildForm(): void {
     this.replyForm = this.fb.group({
-      body: ['', [Validators.required, Validators.minLength(5)]],
+      body: ['', [Validators.minLength(5)]],
       attachments: this.fb.array([])
     });
   }
@@ -446,13 +453,71 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     this.attachmentsArray.removeAt(index);
   }
 
+  onReplyFileInputChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.addReplyFiles(input.files);
+    input.value = '';
+  }
+
+  onReplyFileDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.replyDraggingFiles = true;
+  }
+
+  onReplyFileDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.replyDraggingFiles = false;
+  }
+
+  onReplyFileDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.replyDraggingFiles = false;
+    this.addReplyFiles(event.dataTransfer?.files ?? null);
+  }
+
+  removeReplyFile(index: number): void {
+    this.replySelectedFiles.splice(index, 1);
+  }
+
+  hasReplyContent(): boolean {
+    const body = (this.replyForm?.value?.body || '').trim();
+    const hasLinks = this.attachmentsArray?.controls?.some(ctrl => (ctrl.value?.url || '').trim().length > 0);
+    return body.length > 0 || !!hasLinks || this.replySelectedFiles.length > 0;
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  private addReplyFiles(files: FileList | null): void {
+    if (!files?.length) return;
+
+    const existing = new Set(this.replySelectedFiles.map(file => this.getFileKey(file)));
+    const incoming = Array.from(files).filter(file => !existing.has(this.getFileKey(file)));
+
+    this.replySelectedFiles = [...this.replySelectedFiles, ...incoming];
+  }
+
+  private getFileKey(file: File): string {
+    return `${file.name}-${file.size}-${file.lastModified}`;
+  }
+
   onSubmitReply(): void {
-    if (this.replyForm.invalid || !this.thread) {
+    if (this.replyForm.invalid || !this.thread || !this.hasReplyContent()) {
       this.replyForm.markAllAsTouched();
+      if (!this.hasReplyContent()) {
+        this.replyError = 'Escribe una respuesta o adjunta al menos un archivo/enlace.';
+      }
       return;
     }
 
     const raw = this.replyForm.value;
+    const body = (raw.body || '').trim();
 
     const attachmentsPayload: AttachmentDto[] = (raw.attachments || [])
       .filter((a: any) => a && (a.url || '').trim().length > 0)
@@ -461,16 +526,41 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
         url: a.url.trim()
       }));
 
-    const payload: PostCreateDto = {
-      body: raw.body,
-      attachments: attachmentsPayload
-    };
-
     this.submittingReply = true;
     this.replyError = null;
 
-    this.forumService.createPost(this.threadId, payload).subscribe({
+    const createPost$ = attachmentsPayload.length > 0 || this.replySelectedFiles.length === 0
+      ? this.forumService.createPost(this.threadId, {
+          body,
+          attachments: attachmentsPayload
+        } as PostCreateDto)
+      : this.forumService.createPostWithFiles(this.threadId, body, this.replySelectedFiles);
+
+    createPost$.subscribe({
       next: (created) => {
+        if (this.replySelectedFiles.length > 0 && attachmentsPayload.length > 0) {
+          this.forumService.addPostAttachments(created.id, this.replySelectedFiles).subscribe({
+            next: updated => this.finishReplySubmit(updated),
+            error: err => {
+              console.error('Error subiendo adjuntos de respuesta', err);
+              this.replyError = 'La respuesta se creó, pero no se pudieron subir los archivos.';
+              this.submittingReply = false;
+            }
+          });
+          return;
+        }
+
+        this.finishReplySubmit(created);
+      },
+      error: (err) => {
+        console.error('Error creando respuesta', err);
+        this.replyError = 'No se pudo enviar tu respuesta.';
+        this.submittingReply = false;
+      }
+    });
+  }
+
+  private finishReplySubmit(created: PostDto): void {
         const vm: PostVm = {
           ...created,
           renderedBody: this.renderBody(created.body || '')
@@ -485,16 +575,11 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
         this.replyForm.reset();
         this.attachmentsArray.clear();
         this.replyForm.patchValue({ body: '' });
+        this.replySelectedFiles = [];
+        this.replyDraggingFiles = false;
 
         this.submittingReply = false;
         this.needsEnhance = true;
-      },
-      error: (err) => {
-        console.error('Error creando respuesta', err);
-        this.replyError = 'No se pudo enviar tu respuesta.';
-        this.submittingReply = false;
-      }
-    });
   }
 
   // ==========================
@@ -610,6 +695,14 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     return /\.(mp4|webm|ogg)$/i.test(url);
   }
 
+  getAttachmentHref(att: AttachmentDto): string {
+    return att.url || (att.id ? this.forumService.getAttachmentDownloadUrl(att.id) : '#');
+  }
+
+  getAttachmentLabel(att: AttachmentDto): string {
+    return att.originalName || att.url || `Adjunto #${att.id}`;
+  }
+
   isDirectAudio(url: string | null | undefined): boolean {
     if (!url) return false;
     return /\.(mp3|wav|ogg)$/i.test(url);
@@ -644,7 +737,7 @@ showToast(message: string): void {
   }, 2200);
 }
 
-copyThreadLink(): void {
+  copyThreadLink(): void {
   const url = window.location.href;
 
   navigator.clipboard.writeText(url).then(() => {
@@ -653,6 +746,76 @@ copyThreadLink(): void {
     this.showToast('No se pudo copiar el enlace');
   });
 }
+
+createForumVideoMeeting(): void {
+  if (!this.thread || this.creatingForumMeeting) return;
+
+  const currentUserId = this.authService.getCurrentUserId();
+  const participantIds = this.getForumParticipantIds()
+    .filter(id => !currentUserId || id !== currentUserId);
+
+  const startsAt = new Date();
+  const endsAt = new Date(startsAt.getTime() + 60 * 60 * 1000);
+
+  this.creatingForumMeeting = true;
+  this.actionError = null;
+
+  this.agendaApi.create({
+    title: `Videoconferencia: ${this.thread.title}`.slice(0, 120),
+    description: `Sala creada desde el foro "${this.thread.title}".`,
+    modality: 'ONLINE',
+    startsAt: this.toLocalDateTimeValue(startsAt),
+    endsAt: this.toLocalDateTimeValue(endsAt),
+    inviteeUserIds: participantIds
+  }).subscribe({
+    next: appointment => {
+      this.videoMeetingApi.create({ appointmentId: appointment.id }).subscribe({
+        next: meeting => {
+          this.creatingForumMeeting = false;
+          this.showToast('Videoconferencia creada. Entrando a la sala...');
+          this.router.navigate(['/video-meetings', meeting.id]);
+        },
+        error: err => {
+          console.error('Error creando videoconferencia desde foro', err);
+          this.creatingForumMeeting = false;
+          this.actionError = 'La cita se creó, pero no se pudo crear la videoconferencia.';
+        }
+      });
+    },
+    error: err => {
+      console.error('Error creando cita desde foro', err);
+      this.creatingForumMeeting = false;
+      this.actionError = 'No se pudo crear la cita para la videoconferencia del foro.';
+    }
+  });
+}
+
+private getForumParticipantIds(): string[] {
+  const ids = new Set<string>();
+
+  if (this.thread?.authorId) {
+    ids.add(this.thread.authorId);
+  }
+
+  for (const post of this.posts) {
+    if (post.authorId) {
+      ids.add(post.authorId);
+    }
+  }
+
+  return Array.from(ids);
+}
+
+private toLocalDateTimeValue(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0');
+
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate())
+  ].join('-') + `T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 canEditThread(): boolean {
   if (!this.thread) return false;
 

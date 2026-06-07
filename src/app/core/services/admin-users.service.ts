@@ -48,8 +48,8 @@ export class AdminUsersService {
     return this.http.post<void>(`${this.baseUrl}/forums/${id}/unban`, {});
   }
   // 🔥 NUEVO: listar todos los usuarios (admin panel)
-getAllUsers(q: string = '') {
-  return this.http.get<any[]>(
+getAllUsers(q: string = ''): Observable<UserDTO[]> {
+  return this.http.get<UserDTO[]>(
     `${this.baseUrl}/admin/users`,
     { params: { q } }
   );

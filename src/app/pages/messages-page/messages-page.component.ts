@@ -60,6 +60,9 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
           const updatedSelected = items.find(c => c.id === this.selected?.id);
           if (updatedSelected) {
             this.selected = updatedSelected;
+          } else {
+            this.selected = null;
+            this.messages = [];
           }
         }
 
@@ -270,6 +273,10 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
           const updatedSelected = items.find(c => c.id === this.selected?.id);
           if (updatedSelected) {
             this.selected = updatedSelected;
+          } else {
+            this.selected = null;
+            this.messages = [];
+            this.stopAutoRefresh();
           }
         },
         error: (err) => {

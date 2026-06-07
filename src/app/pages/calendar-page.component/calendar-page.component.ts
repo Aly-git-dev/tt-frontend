@@ -1,17 +1,15 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 
 import { AgendaApiService, Appointment } from '../../core/services/agenda-api.service';
 import { AppointmentDialogComponent } from '../appointment-dialog.component/appointment-dialog.component';
@@ -26,7 +24,6 @@ import { AppointmentDialogComponent } from '../appointment-dialog.component/appo
     MatButtonModule,
     MatChipsModule,
     MatIconModule,
-    MatInputModule,
   ],
   templateUrl: './calendar-page.component.html',
   styleUrls: ['./calendar-page.component.css'],
@@ -35,33 +32,35 @@ export class CalendarPageComponent {
   private api = inject(AgendaApiService);
   private dialog = inject(MatDialog);
 
-  view = signal<'dayGridMonth' | 'timeGridWeek'>('dayGridMonth');
+  @ViewChild(FullCalendarComponent) calendar?: FullCalendarComponent;
+
   filter = signal<'ALL' | 'CANCELLED'>('ALL');
-  query = signal('');
+  currentMonth = signal(this.startOfMonth(new Date()));
 
   loading = signal(false);
   events = signal<any[]>([]);
 
-  private plugins = [dayGridPlugin, timeGridPlugin, interactionPlugin];
+  private plugins = [dayGridPlugin, interactionPlugin];
 
   filteredEvents = computed(() => {
-    const q = this.query().trim().toLowerCase();
     const f = this.filter();
 
     return this.events()
       .filter(e => {
         if (f === 'CANCELLED') return e.extendedProps?.raw?.status === 'CANCELLED';
         return true;
-      })
-      .filter(e => {
-        if (!q) return true;
-        return (e.title || '').toLowerCase().includes(q);
       });
   });
 
+  monthLabel = computed(() => this.currentMonth().toLocaleDateString('es-MX', {
+    month: 'long',
+    year: 'numeric'
+  }));
+
   calendarOptions = computed<CalendarOptions>(() => ({
     plugins: this.plugins,
-    initialView: this.view(),
+    initialView: 'dayGridMonth',
+    initialDate: this.currentMonth(),
     headerToolbar: false, // ✅ correcto
     height: 'auto',
     dayMaxEvents: true,
@@ -73,12 +72,16 @@ export class CalendarPageComponent {
   }));
 
   ngOnInit() {
-    this.loadMonth();
+    this.loadMonth(this.currentMonth());
   }
 
   loadMonth(date = new Date()) {
-    const from = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
-    const to = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+    const month = this.startOfMonth(date);
+    this.currentMonth.set(month);
+    this.calendar?.getApi().gotoDate(month);
+
+    const from = new Date(month.getFullYear(), month.getMonth(), 1, 0, 0, 0);
+    const to = new Date(month.getFullYear(), month.getMonth() + 1, 0, 23, 59, 59);
     this.load(from.toISOString(), to.toISOString());
   }
 
@@ -91,30 +94,50 @@ export class CalendarPageComponent {
     });
   }
 
-  setView(v: 'dayGridMonth' | 'timeGridWeek') {
-    this.view.set(v);
+  previousMonth(): void {
+    const month = this.currentMonth();
+    this.loadMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1));
+  }
+
+  nextMonth(): void {
+    const month = this.currentMonth();
+    this.loadMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1));
+  }
+
+  goToToday(): void {
+    this.loadMonth(new Date());
   }
 
   openCreate(dateISO?: string) {
     const ref = this.dialog.open(AppointmentDialogComponent, {
       width: '600px',
+      maxWidth: 'calc(100vw - 24px)',
+      maxHeight: '90vh',
+      panelClass: 'appointment-dialog-panel',
       data: { mode: 'create', dateISO },
     });
 
     ref.afterClosed().subscribe((changed: boolean) => {
-      if (changed) this.loadMonth();
+      if (changed) this.loadMonth(this.currentMonth());
     });
   }
 
   openDetails(appt: Appointment) {
     const ref = this.dialog.open(AppointmentDialogComponent, {
       width: '600px',
+      maxWidth: 'calc(100vw - 24px)',
+      maxHeight: '90vh',
+      panelClass: 'appointment-dialog-panel',
       data: { mode: 'details', appt },
     });
 
     ref.afterClosed().subscribe((changed: boolean) => {
-      if (changed) this.loadMonth();
+      if (changed) this.loadMonth(this.currentMonth());
     });
+  }
+
+  private startOfMonth(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), 1);
   }
 
   private mapAppointmentsToEvents(appts: Appointment[]) {

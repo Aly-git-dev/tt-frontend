@@ -41,17 +41,25 @@
           placeholder="Buscar por nombre o correo" />
       </mat-form-field>
 
-      <div class="full" *ngIf="selectedUser" style="margin-top: -4px; margin-bottom: 8px;">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(255,255,255,.12); border-radius:12px;">
-          <div>
-            <div><strong>Invitado seleccionado:</strong></div>
-            <div>{{ selectedUser.name || 'Sin nombre' }}</div>
-            <div style="opacity:.8;">{{ selectedUser.email }}</div>
-          </div>
-
-          <button mat-stroked-button type="button" (click)="clearSelectedUser()">
-            Cambiar
+      <div class="full selected-invitees" *ngIf="selectedUsers.length">
+        <div class="invitees-head">
+          <strong>Invitados seleccionados</strong>
+          <button mat-stroked-button type="button" (click)="clearSelectedUsers()">
+            Quitar todos
           </button>
+        </div>
+
+        <div class="invitee-list">
+          <div class="invitee-chip" *ngFor="let user of selectedUsers">
+            <div class="invitee-meta">
+              <span>{{ user.name || 'Sin nombre' }}</span>
+              <small>{{ user.email }}</small>
+            </div>
+
+            <button mat-icon-button type="button" (click)="removeSelectedUser(user.id)" aria-label="Quitar invitado">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -59,7 +67,7 @@
         Buscando usuarios...
       </div>
 
-      <div class="full" *ngIf="!selectedUser && userResults.length" style="margin-top: -4px; margin-bottom: 8px;">
+      <div class="full" *ngIf="userResults.length" style="margin-top: -4px; margin-bottom: 8px;">
         <div style="display:grid; gap:8px;">
           <button
             mat-stroked-button

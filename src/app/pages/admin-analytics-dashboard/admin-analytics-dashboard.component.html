@@ -23,25 +23,176 @@
   <ng-container *ngIf="!loading && !error">
     <div class="stats-grid">
       <article class="stat-card">
-        <span class="stat-label">Docentes analizados</span>
-        <strong class="stat-value">{{ teacherPerformance.length }}</strong>
+        <span class="stat-label">Docentes activos analizados</span>
+        <strong class="stat-value">{{ activeTeacherPerformance.length }}</strong>
       </article>
 
       <article class="stat-card">
-        <span class="stat-label">Evaluaciones registradas</span>
+        <span class="stat-label">Evaluaciones activas</span>
         <strong class="stat-value">{{ totalEvaluations() }}</strong>
       </article>
 
       <article class="stat-card">
-        <span class="stat-label">Citas generadas</span>
+        <span class="stat-label">Citas de usuarios activos</span>
         <strong class="stat-value">{{ totalAppointments() }}</strong>
       </article>
 
       <article class="stat-card">
-        <span class="stat-label">Videoconferencias</span>
+        <span class="stat-label">Videoconferencias activas</span>
         <strong class="stat-value">{{ totalVideoMeetings() }}</strong>
       </article>
     </div>
+
+    <section class="insights-grid">
+      <article class="chart-panel span-2">
+        <div class="chart-head">
+          <div>
+            <h2>Interes academico dominante</h2>
+            <span>Top categorias por peso acumulado</span>
+          </div>
+        </div>
+
+        <div class="bar-list" *ngIf="topInterestItems().length; else noInterestChart">
+          <div class="bar-row" *ngFor="let item of topInterestItems()">
+            <div class="bar-label">
+              <strong>{{ item.categoryName }}</strong>
+              <span>{{ item.subareaName || 'General' }}</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill interest" [style.width]="barWidth(item.weightedScore, maxInterestScore())"></div>
+            </div>
+            <div class="bar-value">{{ formatNumber(item.weightedScore) }}</div>
+          </div>
+        </div>
+
+        <ng-template #noInterestChart>
+          <div class="chart-empty">Sin datos de interes todavia.</div>
+        </ng-template>
+      </article>
+
+      <article class="chart-panel">
+        <div class="chart-head">
+          <div>
+            <h2>Dificultad critica</h2>
+            <span>Promedio por area</span>
+          </div>
+        </div>
+
+        <div class="bar-list compact" *ngIf="topDifficultyItems(5).length; else noDifficultyChart">
+          <div class="bar-row" *ngFor="let item of topDifficultyItems(5)">
+            <div class="bar-label">
+              <strong>{{ item.categoryName }}</strong>
+              <span>{{ item.subareaName || 'General' }}</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill difficulty" [style.width]="barWidth(item.avgDifficulty, maxDifficultyScore())"></div>
+            </div>
+            <div class="bar-value">{{ formatNumber(item.avgDifficulty) }}</div>
+          </div>
+        </div>
+
+        <ng-template #noDifficultyChart>
+          <div class="chart-empty">Sin datos de dificultad todavia.</div>
+        </ng-template>
+      </article>
+
+      <article class="chart-panel">
+        <div class="chart-head">
+          <div>
+            <h2>Distribucion docente</h2>
+            <span>Calidad percibida por promedio global</span>
+          </div>
+        </div>
+
+        <div class="distribution-list">
+          <div
+            class="distribution-row"
+            *ngFor="let item of teacherScoreDistribution()">
+            <div class="distribution-label">
+              <span class="dot" [ngClass]="item.className"></span>
+              <strong>{{ item.label }}</strong>
+            </div>
+            <div class="mini-track">
+              <div
+                class="mini-fill"
+                [ngClass]="item.className"
+                [style.width]="barWidth(item.count, maxTeacherDistributionCount())">
+              </div>
+            </div>
+            <span class="distribution-count">{{ item.count }}</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="chart-panel summary-panel">
+        <div class="chart-head">
+          <div>
+            <h2>Lectura rapida</h2>
+            <span>Indicadores listos para seguimiento longitudinal</span>
+          </div>
+        </div>
+
+        <div class="summary-metrics">
+          <div>
+            <span>Promedio docente</span>
+            <strong>{{ formatNumber(averageTeacherScore()) }} / 5</strong>
+          </div>
+          <div>
+            <span>Actividad en foros</span>
+            <strong>{{ totalForumActivity() }}</strong>
+          </div>
+          <div>
+            <span>Citas completadas</span>
+            <strong>{{ formatNumber(appointmentCompletionRate()) }}%</strong>
+          </div>
+          <div>
+            <span>Moderacion total</span>
+            <strong>{{ moderationStats.forumReports + moderationStats.messageReports }}</strong>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel moderation-panel">
+      <div class="panel-header">
+        <div>
+          <h2>ModeraciÃ³n y contenido excluido</h2>
+          <span>Estas cifras se muestran separadas para no mezclar baneos o bloqueos con analÃ­tica acadÃ©mica.</span>
+        </div>
+      </div>
+
+      <div class="moderation-grid">
+        <article class="moderation-card danger">
+          <span>Usuarios baneados</span>
+          <strong>{{ moderationStats.bannedUsers }}</strong>
+        </article>
+
+        <article class="moderation-card">
+          <span>Usuarios activos</span>
+          <strong>{{ moderationStats.activeUsers }}</strong>
+        </article>
+
+        <article class="moderation-card warning">
+          <span>Reportes de foro resueltos</span>
+          <strong>{{ moderationStats.forumResolved }}</strong>
+        </article>
+
+        <article class="moderation-card muted">
+          <span>Reportes de foro desestimados</span>
+          <strong>{{ moderationStats.forumDismissed }}</strong>
+        </article>
+
+        <article class="moderation-card warning">
+          <span>Reportes de mensajes resueltos</span>
+          <strong>{{ moderationStats.messageResolved }}</strong>
+        </article>
+
+        <article class="moderation-card muted">
+          <span>Reportes de mensajes desestimados</span>
+          <strong>{{ moderationStats.messageDismissed }}</strong>
+        </article>
+      </div>
+    </section>
 
     <div class="content-grid">
       <section class="panel">

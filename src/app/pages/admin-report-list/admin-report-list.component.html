@@ -156,6 +156,15 @@
         <footer class="modal-footer">
           <button
             type="button"
+            class="btn-dismiss"
+            (click)="dismissReport()"
+            [disabled]="submitting">
+            <span *ngIf="!submitting">Desestimar reporte</span>
+            <span *ngIf="submitting">Procesando...</span>
+          </button>
+
+          <button
+            type="button"
             class="btn-secondary"
             (click)="closeResolveModal()"
             [disabled]="submitting">

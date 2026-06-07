@@ -229,11 +229,24 @@
 .modal-footer {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 4px;
 }
 
 /* Botones del modal */
+.btn-dismiss {
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  background: #ffffff;
+  cursor: pointer;
+  margin-right: auto;
+}
+
 .btn-secondary {
   border-radius: 999px;
   border: 1px solid var(--border-soft);
@@ -260,7 +273,9 @@
   transform: translateY(-1px);
 }
 
-.btn-primary:disabled {
+.btn-primary:disabled,
+.btn-dismiss:disabled,
+.btn-secondary:disabled {
   opacity: 0.7;
   cursor: default;
 }

@@ -66,6 +66,46 @@ export class ForumService {
     );
   }
 
+  createPostWithFiles(threadId: number, body: string, files: File[], parentPostId?: number | null): Observable<PostDto> {
+    const formData = new FormData();
+    formData.append('body', body);
+
+    if (parentPostId) {
+      formData.append('parentPostId', String(parentPostId));
+    }
+
+    files.forEach(file => formData.append('files', file));
+
+    return this.http.post<PostDto>(
+      `${this.baseUrl}/threads/${threadId}/posts/attachments`,
+      formData
+    );
+  }
+
+  addThreadAttachments(threadId: number, files: File[]): Observable<ThreadDetailDto> {
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+
+    return this.http.post<ThreadDetailDto>(
+      `${this.baseUrl}/threads/${threadId}/attachments`,
+      formData
+    );
+  }
+
+  addPostAttachments(postId: number, files: File[]): Observable<PostDto> {
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+
+    return this.http.post<PostDto>(
+      `${this.baseUrl}/posts/${postId}/attachments`,
+      formData
+    );
+  }
+
+  getAttachmentDownloadUrl(attachmentId: number): string {
+    return `${this.baseUrl}/attachments/${attachmentId}/download`;
+  }
+
   updatePost(postId: number, payload: PostUpdateDto): Observable<PostDto> {
     return this.http.put<PostDto>(`${this.baseUrl}/posts/${postId}`, payload);
   }
@@ -109,6 +149,14 @@ export class ForumService {
       `${this.adminBaseUrl}/reports/${id}/resolve`,
       payload
     );
+  }
+
+  dismissReport(id: number, adminNote: string = 'Reporte desestimado por moderacion.'): Observable<void> {
+    return this.resolveReport(id, {
+      deleteContent: false,
+      banUser: false,
+      adminNote
+    });
   }
 
   getAllThreads(): Observable<ThreadSummaryDto[]> {

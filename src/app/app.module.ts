@@ -26,8 +26,6 @@ import { ResendVerificationComponent } from './pages/resend-verification/resend-
 
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
-import { AdminAnalyticsDashboardComponent } from './pages/admin-analytics-dashboard/admin-analytics-dashboard.component';
-import { TeacherAnalyticsDetailComponent } from './pages/teacher-analytics-detail/teacher-analytics-detail.component';
 import { TeacherEvaluationFormComponent } from './pages/teacher-evaluation-form/teacher-evaluation-form.component';
 import { NotificationBellComponent } from './pages/shared/components/notification-bell/notification-bell.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -64,8 +62,6 @@ import { PublicUserProfileComponent } from './pages/public-user-profile/public-u
     AppRoutingModule,
     MatIconModule,
     
-    AdminAnalyticsDashboardComponent,
-    TeacherAnalyticsDetailComponent,
     TeacherEvaluationFormComponent,
     PublicUserProfileComponent,
 

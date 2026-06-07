@@ -26,6 +26,8 @@ export class NewThreadComponent implements OnDestroy {
   error: string | null = null;
 
   showAttachmentPanel = false;
+  selectedFiles: File[] = [];
+  isDraggingFiles = false;
   readonly teacherEvaluationCategoryId = 9;
   readonly ratingOptions = [1, 2, 3, 4, 5];
 
@@ -161,10 +163,6 @@ export class NewThreadComponent implements OnDestroy {
 
   openAttachmentPanel(): void {
     this.showAttachmentPanel = true;
-
-    if (this.attachments.length === 0) {
-      this.addLinkAttachment();
-    }
   }
 
   closeAttachmentPanel(): void {
@@ -183,9 +181,62 @@ export class NewThreadComponent implements OnDestroy {
   removeLinkAttachment(index: number): void {
     this.attachments.removeAt(index);
 
-    if (this.attachments.length === 0) {
+    if (this.attachments.length === 0 && this.selectedFiles.length === 0) {
       this.showAttachmentPanel = false;
     }
+  }
+
+  onFileInputChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.addSelectedFiles(input.files);
+    input.value = '';
+  }
+
+  onFileDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingFiles = true;
+  }
+
+  onFileDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingFiles = false;
+  }
+
+  onFileDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingFiles = false;
+    this.addSelectedFiles(event.dataTransfer?.files ?? null);
+  }
+
+  removeSelectedFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
+
+    if (this.attachments.length === 0 && this.selectedFiles.length === 0) {
+      this.showAttachmentPanel = false;
+    }
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  private addSelectedFiles(files: FileList | null): void {
+    if (!files?.length) return;
+
+    const existing = new Set(this.selectedFiles.map(file => this.getFileKey(file)));
+    const incoming = Array.from(files).filter(file => !existing.has(this.getFileKey(file)));
+
+    this.selectedFiles = [...this.selectedFiles, ...incoming];
+    this.showAttachmentPanel = true;
+  }
+
+  private getFileKey(file: File): string {
+    return `${file.name}-${file.size}-${file.lastModified}`;
   }
 
   insertCodeTemplate(): void {
@@ -243,6 +294,12 @@ export class NewThreadComponent implements OnDestroy {
 
     this.forumService.createThread(payload).subscribe({
       next: (created) => {
+        if (this.selectedFiles.length) {
+          this.forumService.addThreadAttachments(created.id, this.selectedFiles).subscribe({
+            error: err => console.error('Error subiendo adjuntos del hilo', err)
+          });
+        }
+
         const isQuestion = raw.type === 'PREGUNTA';
         const shouldCreateDifficultyEvent = !this.isTeacherEvaluationThread && isQuestion;
         const currentUserId = this.authService.getCurrentUserId();
@@ -328,6 +385,8 @@ export class NewThreadComponent implements OnDestroy {
     this.submitting = false;
     this.error = null;
     this.showAttachmentPanel = false;
+    this.selectedFiles = [];
+    this.isDraggingFiles = false;
     this.clearSelectedTeacher();
 
     while (this.attachments.length > 0) {
@@ -390,6 +449,9 @@ export class NewThreadComponent implements OnDestroy {
       while (this.attachments.length > 0) {
         this.attachments.removeAt(0);
       }
+
+      this.selectedFiles = [];
+      this.isDraggingFiles = false;
     } else {
       titleCtrl?.setValidators([Validators.required, Validators.minLength(5)]);
       bodyCtrl?.setValidators([Validators.required, Validators.minLength(10)]);

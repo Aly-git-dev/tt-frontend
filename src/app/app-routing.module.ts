@@ -16,8 +16,6 @@ import { MessagesPageComponent } from './pages/messages-page/messages-page.compo
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { VideoMeetingRoomComponent } from './pages/video-meeting-room.component/video-meeting-room.component.component';
-import { AdminAnalyticsDashboardComponent } from './pages/admin-analytics-dashboard/admin-analytics-dashboard.component';
-import { TeacherAnalyticsDetailComponent } from './pages/teacher-analytics-detail/teacher-analytics-detail.component';
 import { TeacherEvaluationFormComponent } from './pages/teacher-evaluation-form/teacher-evaluation-form.component';
 import { PublicUserProfileComponent } from './pages/public-user-profile/public-user-profile.component';
 import { ResendVerificationComponent } from './pages/resend-verification/resend-verification.component';
@@ -78,11 +76,15 @@ const routes: Routes = [
       },
       {
         path: 'admin/analytics',
-        component: AdminAnalyticsDashboardComponent
+        loadComponent: () =>
+          import('./pages/admin-analytics-dashboard/admin-analytics-dashboard.component')
+            .then(m => m.AdminAnalyticsDashboardComponent)
       },
       {
         path: 'admin/analytics/teachers/:teacherId',
-        component: TeacherAnalyticsDetailComponent
+        loadComponent: () =>
+          import('./pages/teacher-analytics-detail/teacher-analytics-detail.component')
+            .then(m => m.TeacherAnalyticsDetailComponent)
       }
     ]
   },

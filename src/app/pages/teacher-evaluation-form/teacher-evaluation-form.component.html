@@ -36,7 +36,7 @@
           <img
             *ngIf="selectedTeacher.avatarUrl; else teacherFallback"
             [src]="selectedTeacher.avatarUrl"
-            [alt]="selectedTeacher.name || selectedTeacher.email"
+            [alt]="selectedTeacher.fullName || selectedTeacher.emailInst"
           />
           <ng-template #teacherFallback>
             <span>{{ getUserInitial(selectedTeacher) }}</span>
@@ -44,8 +44,8 @@
         </div>
 
         <div class="selected-meta">
-          <div class="selected-title">{{ selectedTeacher.name || 'Sin nombre' }}</div>
-          <div class="selected-subtitle">{{ selectedTeacher.email }}</div>
+          <div class="selected-title">{{ selectedTeacher.fullName || 'Sin nombre' }}</div>
+          <div class="selected-subtitle">{{ selectedTeacher.emailInst }}</div>
           <div class="selected-badge">Docente seleccionado</div>
         </div>
 
@@ -212,15 +212,15 @@
           (click)="selectTeacher(user)"
         >
           <div class="user-avatar">
-            <img *ngIf="user.avatarUrl; else teacherUserFallback" [src]="user.avatarUrl" [alt]="user.name || user.email" />
+            <img *ngIf="user.avatarUrl; else teacherUserFallback" [src]="user.avatarUrl" [alt]="user.fullName || user.emailInst" />
             <ng-template #teacherUserFallback>
               <span>{{ getUserInitial(user) }}</span>
             </ng-template>
           </div>
 
           <div class="user-meta">
-            <div class="user-name">{{ user.name || 'Sin nombre' }}</div>
-            <div class="user-email">{{ user.email }}</div>
+            <div class="user-name">{{ user.fullName || 'Sin nombre' }}</div>
+            <div class="user-email">{{ user.emailInst }}</div>
           </div>
         </button>
       </div>

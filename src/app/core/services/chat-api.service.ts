@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import {
   Conversation,
   CreateDirectRequest,
@@ -19,7 +19,9 @@ export class ChatApiService {
   private readonly baseUrl = `${environment.apiUrl}/upiiz/admin/v1/chats`;
 
   listConversations(): Observable<Conversation[]> {
-    return this.http.get<Conversation[]>(`${this.baseUrl}/conversations`);
+    return this.http.get<Conversation[]>(`${this.baseUrl}/conversations`).pipe(
+      map(items => (items ?? []).filter(item => this.isActiveConversation(item)))
+    );
   }
 
   startDirectConversation(body: CreateDirectRequest): Observable<Conversation> {
@@ -28,7 +30,17 @@ export class ChatApiService {
 
   searchUsers(query: string): Observable<UserSearchResult[]> {
     const params = new HttpParams().set('q', query);
-    return this.http.get<UserSearchResult[]>(`${this.baseUrl}/users/search`, { params });
+    return this.http.get<UserSearchResult[]>(`${this.baseUrl}/users/search`, { params }).pipe(
+      map(users => (users ?? []).filter(user => this.isActiveUser(user)))
+    );
+  }
+
+  private isActiveUser(user: UserSearchResult): boolean {
+    return user.active !== false && user.banned !== true;
+  }
+
+  private isActiveConversation(conversation: Conversation): boolean {
+    return conversation.otherActive !== false && conversation.otherUserActive !== false;
   }
 
   listMessages(conversationId: number, limit = 30, before?: string): Observable<Message[]> {

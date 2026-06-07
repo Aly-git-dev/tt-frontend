@@ -1,9 +1,14 @@
 .dlg {
   width: 100%;
+  max-height: 86vh;
   padding: 8px 4px 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .dlg-head {
+  flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -47,6 +52,9 @@
 }
 
 .dlg-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding: 14px 8px 6px;
 }
 
@@ -58,6 +66,60 @@
 
 .full {
   grid-column: 1 / -1;
+}
+
+.selected-invitees {
+  display: grid;
+  gap: 10px;
+  margin-top: -4px;
+  margin-bottom: 8px;
+}
+
+.invitees-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.invitee-list {
+  display: grid;
+  gap: 8px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.invitee-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(17, 24, 39, 0.10);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.invitee-meta {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.invitee-meta span,
+.invitee-meta small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.invitee-meta span {
+  color: #111827;
+  font-weight: 700;
+}
+
+.invitee-meta small {
+  color: #6b7280;
 }
 
 .detail-card {
@@ -116,12 +178,16 @@
 }
 
 .dlg-actions {
+  position: sticky;
+  bottom: -6px;
+  z-index: 2;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid rgba(17, 24, 39, 0.08);
+  background: #ffffff;
 }
 
 .primary {

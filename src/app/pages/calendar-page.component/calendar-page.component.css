@@ -70,8 +70,20 @@
   background: transparent;
 }
 
-.search {
-  width: 320px;
+.month-pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pager-btn {
+  min-height: 40px;
+  border-radius: 12px !important;
+}
+
+.pager-btn mat-icon {
+  margin: 0;
 }
 
 .primary-btn {
@@ -228,6 +240,15 @@
   }
   .search {
     width: 100%;
+  }
+  .right-controls,
+  .month-pager {
+    width: 100%;
+  }
+  .pager-btn,
+  .today-btn,
+  .primary-btn {
+    flex: 1;
   }
   .calendar-wrap {
     padding: 0 10px 12px;

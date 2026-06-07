@@ -5,6 +5,8 @@ export interface Conversation {
   otherUserId: string;
   otherName?: string;
   otherAvatarUrl?: string;
+  otherActive?: boolean;
+  otherUserActive?: boolean;
   allowedPair?: AllowedPair;
   lastMessageAt?: string;
   lastMessagePreview?: string;
@@ -45,6 +47,8 @@ export interface UserSearchResult {
   email: string;
   name?: string;
   avatarUrl?: string | null;
+  active?: boolean;
+  banned?: boolean;
 }
 export interface SendMessagePayload {
   content: string;

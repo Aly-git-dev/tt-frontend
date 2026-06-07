@@ -3,8 +3,9 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { AnalyticsService } from '../../core/services/analytics.service';
-import { ChatApiService } from '../../core/services/chat-api.service';
 import { AuthService } from '../../core/services/auth.service';
+import { AdminUsersService } from '../../core/services/admin-users.service';
+import { UserDTO } from '../../core/models/user.models';
 
 @Component({
   selector: 'app-teacher-evaluation-form',
@@ -27,8 +28,8 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
   teacherSearchTerm = '';
   teacherSearchLoading = false;
   teacherSearchError = '';
-  teacherSearchResults: any[] = [];
-  selectedTeacher: any = null;
+  teacherSearchResults: UserDTO[] = [];
+  selectedTeacher: UserDTO | null = null;
 
   private userSearchDebounce?: ReturnType<typeof setTimeout>;
 
@@ -44,8 +45,8 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
   constructor(
     private fb: FormBuilder,
     private analyticsService: AnalyticsService,
-    private chatApi: ChatApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private adminUsersService: AdminUsersService
   ) {}
 
   ngOnDestroy(): void {
@@ -81,14 +82,14 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
     this.teacherSearchLoading = true;
 
     this.userSearchDebounce = setTimeout(() => {
-      this.chatApi.searchUsers(query).subscribe({
+      this.adminUsersService.getAllUsers(query).subscribe({
         next: (results) => {
-          this.teacherSearchResults = results ?? [];
+          this.teacherSearchResults = (results ?? []).filter(user => this.isEvaluableTeacher(user));
         },
         error: (err) => {
           console.error('Error searching teachers', err);
           this.teacherSearchResults = [];
-          this.teacherSearchError = 'No se pudo buscar docentes.';
+          this.teacherSearchError = 'No se pudo buscar docentes con rol PROFESOR.';
         },
         complete: () => {
           this.teacherSearchLoading = false;
@@ -97,7 +98,14 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
     }, 300);
   }
 
-  selectTeacher(user: any): void {
+  selectTeacher(user: UserDTO): void {
+    if (!this.isEvaluableTeacher(user)) {
+      this.selectedTeacher = null;
+      this.teacherId = '';
+      this.errorMessage = 'Sólo se pueden evaluar usuarios con rol PROFESOR. No se permiten alumnos ni administradores.';
+      return;
+    }
+
     this.selectedTeacher = user;
     this.teacherId = user.id;
     this.showTeacherSearchModal = false;
@@ -105,9 +113,17 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
     this.errorMessage = '';
   }
 
-  getUserInitial(user: any): string {
-    const source = user?.name || user?.email || '?';
+  getUserInitial(user: UserDTO | null): string {
+    const source = user?.fullName || user?.emailInst || '?';
     return source.charAt(0).toUpperCase();
+  }
+
+  isEvaluableTeacher(user: UserDTO | null): boolean {
+    const roles = user?.roles ?? [];
+    return user?.active !== false
+      && roles.includes('PROFESOR')
+      && !roles.includes('ALUMNO')
+      && !roles.includes('ADMIN');
   }
 
   get averageRating(): number {
@@ -126,9 +142,9 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
   }
 
   submit(): void {
-    if (this.form.invalid || !this.teacherId) {
+    if (this.form.invalid || !this.teacherId || !this.isEvaluableTeacher(this.selectedTeacher)) {
       this.form.markAllAsTouched();
-      this.errorMessage = 'Completa los campos requeridos y selecciona un docente.';
+      this.errorMessage = 'Completa los campos requeridos y selecciona un docente con rol PROFESOR.';
       return;
     }
 

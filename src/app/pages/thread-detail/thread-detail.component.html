@@ -144,6 +144,15 @@
     </button>
 
     <button
+      class="toolbar-btn toolbar-btn--meeting"
+      type="button"
+      [disabled]="creatingForumMeeting"
+      (click)="createForumVideoMeeting()">
+      <span>{{ creatingForumMeeting ? '...' : 'Video' }}</span>
+      <small>{{ creatingForumMeeting ? 'Creando' : 'Reunirse' }}</small>
+    </button>
+
+    <button
       *ngIf="canEditThread()"
       class="toolbar-btn"
       (click)="startEditThread()">
@@ -250,12 +259,12 @@
 
             <a
               *ngSwitchDefault
-              [href]="att.url"
+              [href]="getAttachmentHref(att)"
               target="_blank"
               rel="noopener noreferrer"
               class="attachment-pill">
               <span class="attachment-kind">{{ att.kind }}</span>
-              <span class="attachment-url">{{ att.url }}</span>
+              <span class="attachment-url">{{ getAttachmentLabel(att) }}</span>
             </a>
 
           </ng-container>
@@ -356,11 +365,11 @@
 
                   <a
                     *ngSwitchDefault
-                    [href]="att.url"
+                    [href]="getAttachmentHref(att)"
                     target="_blank"
                     rel="noopener noreferrer">
                     <span class="attachment-kind">{{ att.kind }}</span>
-                    <span class="attachment-url">{{ att.url }}</span>
+                    <span class="attachment-url">{{ getAttachmentLabel(att) }}</span>
                   </a>
 
                 </ng-container>
@@ -454,7 +463,40 @@
         </div>
 
         <div class="field-group">
-          <label class="field-label">Adjuntar enlaces</label>
+          <label class="field-label">Adjuntar archivos o enlaces</label>
+
+          <div
+            class="file-dropzone"
+            [class.file-dropzone--active]="replyDraggingFiles"
+            (dragover)="onReplyFileDragOver($event)"
+            (dragleave)="onReplyFileDragLeave($event)"
+            (drop)="onReplyFileDrop($event)">
+            <input
+              id="replyFileInput"
+              class="file-input"
+              type="file"
+              multiple
+              (change)="onReplyFileInputChange($event)" />
+
+            <label class="file-dropzone-label" for="replyFileInput">
+              <span class="file-dropzone-icon">Archivo</span>
+              <span class="file-dropzone-title">Arrastra archivos aqui o seleccionalos</span>
+              <span class="file-dropzone-text">Tambien funciona desde la app integrada.</span>
+            </label>
+          </div>
+
+          <div class="selected-files" *ngIf="replySelectedFiles.length">
+            <div class="selected-file" *ngFor="let file of replySelectedFiles; let i = index">
+              <div class="selected-file-meta">
+                <strong>{{ file.name }}</strong>
+                <span>{{ formatFileSize(file.size) }}</span>
+              </div>
+
+              <button type="button" class="attachment-remove-btn" (click)="removeReplyFile(i)">
+                X
+              </button>
+            </div>
+          </div>
 
           <div class="attachments-list">
             <div
@@ -495,7 +537,7 @@
           <button
             class="btn-primary"
             type="submit"
-            [disabled]="submittingReply || replyForm.invalid">
+            [disabled]="submittingReply || replyForm.invalid || !hasReplyContent()">
 
             <span *ngIf="!submittingReply">Enviar respuesta</span>
             <span *ngIf="submittingReply">Enviando...</span>

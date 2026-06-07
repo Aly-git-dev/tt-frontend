@@ -266,6 +266,39 @@
 
           <div class="attachment-card-body" formArrayName="attachments">
             <div
+              class="file-dropzone"
+              [class.file-dropzone--active]="isDraggingFiles"
+              (dragover)="onFileDragOver($event)"
+              (dragleave)="onFileDragLeave($event)"
+              (drop)="onFileDrop($event)">
+              <input
+                id="threadFileInput"
+                class="file-input"
+                type="file"
+                multiple
+                (change)="onFileInputChange($event)" />
+
+              <label class="file-dropzone-label" for="threadFileInput">
+                <span class="file-dropzone-icon">Archivo</span>
+                <span class="file-dropzone-title">Arrastra archivos aqui o seleccionalos</span>
+                <span class="file-dropzone-text">Funciona en navegador y en la app integrada.</span>
+              </label>
+            </div>
+
+            <div class="selected-files" *ngIf="selectedFiles.length">
+              <div class="selected-file" *ngFor="let file of selectedFiles; let i = index">
+                <div class="selected-file-meta">
+                  <strong>{{ file.name }}</strong>
+                  <span>{{ formatFileSize(file.size) }}</span>
+                </div>
+
+                <button type="button" class="attachment-remove-btn" (click)="removeSelectedFile(i)">
+                  X
+                </button>
+              </div>
+            </div>
+
+            <div
               class="attachment-row"
               *ngFor="let att of attachments.controls; let i = index"
               [formGroupName]="i">

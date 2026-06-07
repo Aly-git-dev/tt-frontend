@@ -34,7 +34,7 @@ export class AdminUsersComponent implements OnInit {
     this.error = '';
 
     this.adminUsersService.getAllUsers(this.searchTerm).subscribe({
-      next: users => this.users = users,
+      next: users => this.users = (users ?? []).filter(user => user.active !== false),
       error: err => {
         console.error(err);
         this.error = 'No se pudieron cargar los usuarios.';
@@ -83,7 +83,9 @@ export class AdminUsersComponent implements OnInit {
     this.savingId = user.id;
 
     this.adminUsersService.banUserGlobal(user.id).subscribe({
-      next: updated => user.active = updated.active,
+      next: () => {
+        this.users = this.users.filter(item => item.id !== user.id);
+      },
       error: err => {
         console.error(err);
         alert('No se pudo banear al usuario.');

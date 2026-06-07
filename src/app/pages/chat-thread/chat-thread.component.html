@@ -32,11 +32,17 @@
 
       <ng-container *ngIf="!loading && messages.length; else noMessages">
         <div class="messages-list">
-          <app-message-bubble
-            *ngFor="let m of messages; trackBy: trackByMessage"
-            [msg]="m"
-            (report)="onReportMessage($event)">
-          </app-message-bubble>
+          <ng-container *ngFor="let item of messageItems; trackBy: trackByMessageItem">
+            <div class="day-separator" *ngIf="item.type === 'day'">
+              <span>{{ item.label }}</span>
+            </div>
+
+            <app-message-bubble
+              *ngIf="item.type === 'message'"
+              [msg]="item.message"
+              (report)="onReportMessage($event)">
+            </app-message-bubble>
+          </ng-container>
         </div>
       </ng-container>
 

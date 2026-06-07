@@ -10,11 +10,16 @@
 }
 
 .bubble {
+  position: relative;
   max-width: 520px;
-  padding: 14px 16px;
+  padding: 14px 44px 14px 16px;
   border-radius: 18px;
   background: #eaf4ff; /* izquierda */
   color: #111;
+}
+
+.row.mine .bubble {
+  padding-right: 16px;
 }
 
 .row.mine .bubble {

@@ -472,6 +472,93 @@ button:disabled {
   gap: 10px;
 }
 
+.file-dropzone {
+  position: relative;
+  border: 2px dashed #fecdd3;
+  border-radius: 20px;
+  background: #fff7f8;
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+
+.file-dropzone--active {
+  border-color: #f43f5e;
+  background: #fff1f2;
+  transform: translateY(-1px);
+}
+
+.file-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-dropzone-label {
+  min-height: 112px;
+  padding: 18px;
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  text-align: center;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.file-dropzone-icon {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #ffe4e6;
+  color: #be123c;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.file-dropzone-title {
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.file-dropzone-text {
+  font-size: 0.82rem;
+}
+
+.selected-files {
+  display: grid;
+  gap: 10px;
+}
+
+.selected-file {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 10px;
+  background: #ffffff;
+}
+
+.selected-file-meta {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.selected-file-meta strong,
+.selected-file-meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selected-file-meta span {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
 .attachment-row {
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr) 42px;
@@ -836,6 +923,15 @@ button:disabled {
 
 .toolbar-btn--warning:hover {
   background: #ffedd5;
+}
+
+.toolbar-btn--meeting {
+  background: #ecfeff;
+  color: #0e7490;
+}
+
+.toolbar-btn--meeting:hover {
+  background: #cffafe;
 }
 
 .toolbar-btn:disabled {

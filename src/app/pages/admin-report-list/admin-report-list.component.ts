@@ -115,4 +115,27 @@ export class AdminReportListComponent implements OnInit {
       }
     });
   }
+
+  dismissReport(): void {
+    if (!this.selectedReport) {
+      return;
+    }
+
+    this.submitting = true;
+    this.globalMessage = null;
+
+    const adminNote = this.resolveForm.value?.adminNote?.trim() || 'Reporte desestimado por moderacion.';
+
+    this.forumService.dismissReport(this.selectedReport.id, adminNote).subscribe({
+      next: () => {
+        this.reports = this.reports.filter(r => r.id !== this.selectedReport!.id);
+        this.submitting = false;
+        this.closeResolveModal();
+      },
+      error: () => {
+        this.submitting = false;
+        this.globalMessage = 'No se pudo desestimar el reporte. Intenta de nuevo.';
+      }
+    });
+  }
 }
