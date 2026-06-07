@@ -42,6 +42,8 @@ export interface PostUpdateDto {
 export interface ThreadSummaryDto {
   id: number;
   title: string;
+  authorId?: string;
+  authorName?: string;
   categoryName: string;
   subareaName?: string | null;
   type: string;

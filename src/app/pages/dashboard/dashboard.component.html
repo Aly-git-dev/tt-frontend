@@ -82,7 +82,13 @@
           (click)="goToThread(thread)">
 
           <div class="feed-avatar">
-            <span>{{ getInitial(thread.title) }}</span>
+            <img
+              *ngIf="thread.authorAvatarUrl; else feedAvatarFallback"
+              [src]="thread.authorAvatarUrl"
+              [alt]="thread.authorName || thread.title" />
+            <ng-template #feedAvatarFallback>
+              <span>{{ getInitial(thread.authorName || thread.title) }}</span>
+            </ng-template>
           </div>
 
           <div class="feed-content">

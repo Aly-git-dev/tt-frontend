@@ -7,7 +7,13 @@
         </button>
 
         <div class="avatar">
-          <span>{{ avatarText }}</span>
+          <img
+            *ngIf="otherAvatarUrl; else threadAvatarFallback"
+            [src]="otherAvatarUrl"
+            [alt]="displayName" />
+          <ng-template #threadAvatarFallback>
+            <span>{{ avatarText }}</span>
+          </ng-template>
           <div class="online-dot"></div>
         </div>
 
@@ -40,6 +46,8 @@
             <app-message-bubble
               *ngIf="item.type === 'message'"
               [msg]="item.message"
+              [senderAvatarUrl]="getMessageAvatarUrl(item.message)"
+              [senderName]="getMessageSenderName(item.message)"
               (report)="onReportMessage($event)">
             </app-message-bubble>
           </ng-container>

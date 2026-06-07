@@ -1,12 +1,33 @@
 .row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
+  gap: 8px;
   margin-bottom: 14px;
 }
 
 .row.mine {
-  align-items: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 13px;
+  overflow: hidden;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 900;
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.18);
+}
+
+.message-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .bubble {

@@ -11,9 +11,9 @@ import { forkJoin } from 'rxjs';
 import { ForumService } from '../../core/services/forum.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { ThreadCreateDto } from '../../core/models/forum.models';
-import { UserSearchResult } from '../../core/models/chat.models';
+import { UserDTO } from '../../core/models/user.models';
 import { AuthService } from '../../core/services/auth.service';
-import { ChatApiService } from '../../core/services/chat-api.service';
+import { AdminUsersService } from '../../core/services/admin-users.service';
 
 @Component({
   selector: 'app-new-thread',
@@ -34,8 +34,8 @@ export class NewThreadComponent implements OnDestroy {
   teacherSearchTerm = '';
   teacherSearchLoading = false;
   teacherSearchError: string | null = null;
-  teacherSearchResults: UserSearchResult[] = [];
-  selectedTeacher: UserSearchResult | null = null;
+  teacherSearchResults: UserDTO[] = [];
+  selectedTeacher: UserDTO | null = null;
   private teacherSearchDebounce?: ReturnType<typeof setTimeout>;
 
   threadTypes = [
@@ -65,7 +65,7 @@ export class NewThreadComponent implements OnDestroy {
     private fb: FormBuilder,
     private forumService: ForumService,
     private analyticsService: AnalyticsService,
-    private chatApi: ChatApiService,
+    private adminUsersService: AdminUsersService,
     private authService: AuthService,
     private router: Router
   ) {
@@ -130,9 +130,9 @@ export class NewThreadComponent implements OnDestroy {
     this.teacherSearchLoading = true;
 
     this.teacherSearchDebounce = setTimeout(() => {
-      this.chatApi.searchUsers(query).subscribe({
+      this.adminUsersService.getAllUsers(query).subscribe({
         next: users => {
-          this.teacherSearchResults = users ?? [];
+          this.teacherSearchResults = (users ?? []).filter(user => this.isEvaluableTeacher(user));
         },
         error: err => {
           console.error('Error buscando docentes', err);
@@ -146,11 +146,26 @@ export class NewThreadComponent implements OnDestroy {
     }, 300);
   }
 
-  selectTeacher(teacher: UserSearchResult): void {
+  selectTeacher(teacher: UserDTO): void {
+    if (!this.isEvaluableTeacher(teacher)) {
+      this.selectedTeacher = null;
+      this.teacherSearchError = 'Sólo se pueden evaluar usuarios con rol PROFESOR.';
+      return;
+    }
+
     this.selectedTeacher = teacher;
-    this.teacherSearchTerm = teacher.name || teacher.email;
+    this.teacherSearchTerm = teacher.fullName || teacher.emailInst;
     this.teacherSearchResults = [];
     this.teacherSearchError = null;
+  }
+
+  isEvaluableTeacher(user: UserDTO | null): boolean {
+    const roles = (user?.roles ?? []).map(role => role.toUpperCase().replace(/^ROLE_/, ''));
+
+    return user?.active !== false
+      && roles.includes('PROFESOR')
+      && !roles.includes('ALUMNO')
+      && !roles.includes('ADMIN');
   }
 
   clearSelectedTeacher(): void {
@@ -273,7 +288,7 @@ export class NewThreadComponent implements OnDestroy {
 
     this.submitting = true;
     const raw = this.form.value;
-    const teacherName = this.selectedTeacher?.name || this.selectedTeacher?.email || 'Docente seleccionado';
+    const teacherName = this.selectedTeacher?.fullName || this.selectedTeacher?.emailInst || 'Docente seleccionado';
     const body = this.isTeacherEvaluationThread
       ? this.buildTeacherEvaluationThreadBody(raw)
       : raw.body.trim();
@@ -348,7 +363,7 @@ export class NewThreadComponent implements OnDestroy {
             sourceType: isQuestion ? 'FORUM_QUESTION' : 'TEACHER_OBSERVATION',
             difficultyLevel: raw.difficultyLevel || 3,
             notes: this.isTeacherEvaluationThread && this.selectedTeacher
-              ? `Evaluación docente desde foro para ${this.selectedTeacher.name || this.selectedTeacher.email}: ${raw.title.trim()}`
+              ? `Evaluación docente desde foro para ${this.selectedTeacher.fullName || this.selectedTeacher.emailInst}: ${raw.title.trim()}`
               : `Dificultad registrada desde foro: ${raw.title.trim()}`
           }));
         }
@@ -411,7 +426,7 @@ export class NewThreadComponent implements OnDestroy {
   }
 
   private buildTeacherEvaluationThreadBody(raw: any): string {
-    const teacherName = this.selectedTeacher?.name || this.selectedTeacher?.email || 'Docente seleccionado';
+    const teacherName = this.selectedTeacher?.fullName || this.selectedTeacher?.emailInst || 'Docente seleccionado';
     const anonymousLabel = raw.anonymous ? 'Anónima' : 'Con nombre visible';
     const comment = raw.evaluationComment?.trim();
 

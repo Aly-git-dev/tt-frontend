@@ -10,6 +10,8 @@ import { NotificationResponse } from '../../../../core/models/notification.model
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
 
+  readonly colabLogo = 'assets/logo.svg';
+
   notifications: NotificationResponse[] = [];
   unreadCount = 0;
   loading = false;
@@ -86,19 +88,45 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       });
   }
 
-  getIcon(type: string): string {
+  getNotificationBody(notification: NotificationResponse): string {
+    return notification.body || 'Tienes una nueva notificación.';
+  }
+
+  getNotificationDetails(notification: NotificationResponse): string {
+    const parts = [
+      notification.details || notification.detail || '',
+      this.getTypeLabel(notification.type),
+      this.getTargetLabel(notification)
+    ].filter(Boolean);
+
+    return parts.join(' · ');
+  }
+
+  private getTypeLabel(type: string): string {
     switch (type) {
       case 'INVITE':
-        return 'event_available';
+        return 'Invitación';
       case 'RESCHEDULED':
-        return 'update';
+        return 'Reprogramada';
       case 'CANCELLED':
-        return 'event_busy';
+        return 'Cancelada';
       case 'REMINDER':
-        return 'notifications_active';
+        return 'Recordatorio';
       default:
-        return 'notifications';
+        return type || 'Notificación';
     }
+  }
+
+  private getTargetLabel(notification: NotificationResponse): string {
+    if (!notification.targetType && !notification.targetId) {
+      return '';
+    }
+
+    if (!notification.targetId) {
+      return notification.targetType;
+    }
+
+    return `${notification.targetType}: ${notification.targetId}`;
   }
 
   ngOnDestroy(): void {

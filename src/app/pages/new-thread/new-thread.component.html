@@ -86,11 +86,11 @@
 
           <div class="teacher-selected" *ngIf="selectedTeacher; else teacherSearchTpl">
             <div class="teacher-avatar">
-              {{ (selectedTeacher.name || selectedTeacher.email || '?').charAt(0).toUpperCase() }}
+              {{ (selectedTeacher.fullName || selectedTeacher.emailInst || '?').charAt(0).toUpperCase() }}
             </div>
             <div class="teacher-meta">
-              <strong>{{ selectedTeacher.name || 'Sin nombre' }}</strong>
-              <span>{{ selectedTeacher.email }}</span>
+              <strong>{{ selectedTeacher.fullName || 'Sin nombre' }}</strong>
+              <span>{{ selectedTeacher.emailInst }}</span>
             </div>
             <button type="button" class="teacher-change-btn" (click)="clearSelectedTeacher()">
               Cambiar
@@ -122,11 +122,11 @@
                 *ngFor="let teacher of teacherSearchResults"
                 (click)="selectTeacher(teacher)">
                 <span class="teacher-avatar small">
-                  {{ (teacher.name || teacher.email || '?').charAt(0).toUpperCase() }}
+                  {{ (teacher.fullName || teacher.emailInst || '?').charAt(0).toUpperCase() }}
                 </span>
                 <span class="teacher-meta">
-                  <strong>{{ teacher.name || 'Sin nombre' }}</strong>
-                  <span>{{ teacher.email }}</span>
+                  <strong>{{ teacher.fullName || 'Sin nombre' }}</strong>
+                  <span>{{ teacher.emailInst }}</span>
                 </span>
               </button>
             </div>

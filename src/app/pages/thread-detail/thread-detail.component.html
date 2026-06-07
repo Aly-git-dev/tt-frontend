@@ -379,12 +379,24 @@
 
           <footer class="answer-footer">
             <div class="answer-meta">
-              Por
-<strong
-  class="clickable-user"
-  (click)="goToUserProfile(post.authorId)">
-  {{ post.authorName }}
-</strong>
+              <div class="answer-author-avatar">
+                <img
+                  *ngIf="post.authorAvatarUrl; else postAvatarFallback"
+                  [src]="post.authorAvatarUrl"
+                  [alt]="post.authorName" />
+                <ng-template #postAvatarFallback>
+                  <span>{{ getInitial(post.authorName) }}</span>
+                </ng-template>
+              </div>
+
+              <div class="answer-author-text">
+                <span>Por</span>
+                <strong
+                  class="clickable-user"
+                  (click)="goToUserProfile(post.authorId)">
+                  {{ post.authorName }}
+                </strong>
+              </div>
               <span *ngIf="post.updatedAt && post.updatedAt !== post.createdAt">
                 · Editado
               </span>

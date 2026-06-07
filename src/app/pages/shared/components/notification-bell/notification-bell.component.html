@@ -37,11 +37,14 @@
       [class.unread]="!n.read"
       (click)="markAsRead(n)">
 
-      <mat-icon class="item-icon">{{ getIcon(n.type) }}</mat-icon>
+      <img class="item-logo" [src]="colabLogo" alt="CoLaB" />
 
       <div class="item-content">
         <strong>{{ n.title }}</strong>
-        <p>{{ n.body }}</p>
+        <p>{{ getNotificationBody(n) }}</p>
+        <span class="item-details" *ngIf="getNotificationDetails(n) as details">
+          {{ details }}
+        </span>
         <small>{{ n.createdAt | date:'short' }}</small>
       </div>
     </div>

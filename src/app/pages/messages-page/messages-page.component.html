@@ -37,6 +37,8 @@
         <app-chat-thread
           [conversation]="selected"
           [messages]="messages"
+          [currentUserAvatarUrl]="currentUser?.avatarUrl || null"
+          [currentUserName]="currentUser?.fullName || null"
           [loading]="loading"
           (send)="onSend($event)"
           (backMobile)="backToListMobile()"

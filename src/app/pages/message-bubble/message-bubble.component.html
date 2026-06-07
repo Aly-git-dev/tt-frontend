@@ -1,4 +1,14 @@
 <div class="row" [class.mine]="isMine()">
+  <div class="message-avatar">
+    <img
+      *ngIf="senderAvatarUrl; else messageAvatarFallback"
+      [src]="senderAvatarUrl"
+      [alt]="senderName || 'Usuario'" />
+    <ng-template #messageAvatarFallback>
+      <span>{{ senderInitial() }}</span>
+    </ng-template>
+  </div>
+
   <div class="bubble">
     <div class="message-text" *ngIf="msg.content">
       {{ msg.content }}

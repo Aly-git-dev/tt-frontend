@@ -8,6 +8,8 @@ import { ChatThreadComponent } from '../chat-thread/chat-thread.component';
 import { ChatApiService } from '../../core/services/chat-api.service';
 import { Conversation, Message, UserSearchResult } from '../../core/models/chat.models';
 import { SendMessagePayload } from '../../core/models/chat.models';
+import { MeService } from '../../core/services/me.service';
+import { UserDTO } from '../../core/models/user.models';
 
 import { ReportModalComponent } from '../report-modal/report-modal.component';
 
@@ -22,6 +24,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   conversations: Conversation[] = [];
   selected: Conversation | null = null;
   messages: Message[] = [];
+  currentUser: UserDTO | null = null;
   loading = false;
 
   showNewConversationModal = false;
@@ -37,10 +40,23 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
       selectedMessage: Message | null = null;
     showReportModal = false;
 
-  constructor(private chatApi: ChatApiService) {}
+  constructor(
+    private chatApi: ChatApiService,
+    private meService: MeService
+  ) {}
 
   ngOnInit(): void {
+    this.loadCurrentUser();
     this.loadConversations();
+  }
+
+  private loadCurrentUser(): void {
+    this.meService.getProfile().subscribe({
+      next: res => {
+        this.currentUser = res.usuario ?? res['data'] ?? null;
+      },
+      error: err => console.error('Error loading current user profile', err)
+    });
   }
 
   ngOnDestroy(): void {

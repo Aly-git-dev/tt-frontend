@@ -4,6 +4,9 @@ export interface NotificationResponse {
   type: string;
   title: string;
   body: string;
+  details?: string | null;
+  detail?: string | null;
+  data?: Record<string, unknown> | null;
   targetType: string;
   targetId: string;
   read: boolean;

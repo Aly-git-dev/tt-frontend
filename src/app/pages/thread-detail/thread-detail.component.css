@@ -396,12 +396,42 @@ button:disabled {
 }
 
 .answer-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: #64748b;
   font-size: 0.9rem;
 }
 
 .answer-meta strong {
   color: #0f172a;
+}
+
+.answer-author-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #be123c, #fb7185);
+  color: #fff;
+  font-weight: 950;
+  box-shadow: 0 8px 18px rgba(190, 18, 60, 0.16);
+}
+
+.answer-author-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.answer-author-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 .answer-stats {

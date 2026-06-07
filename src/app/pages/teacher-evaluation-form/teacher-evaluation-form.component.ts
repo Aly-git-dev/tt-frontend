@@ -119,7 +119,8 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
   }
 
   isEvaluableTeacher(user: UserDTO | null): boolean {
-    const roles = user?.roles ?? [];
+    const roles = (user?.roles ?? []).map(role => role.toUpperCase().replace(/^ROLE_/, ''));
+
     return user?.active !== false
       && roles.includes('PROFESOR')
       && !roles.includes('ALUMNO')

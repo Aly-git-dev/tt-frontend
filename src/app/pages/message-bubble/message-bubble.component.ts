@@ -8,10 +8,12 @@ import { ChatApiService } from '../../core/services/chat-api.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './message-bubble.component.html',
-  styleUrl: './message-bubble.component.scss'
+  styleUrl: './message-bubble.component.css'
 })
 export class MessageBubbleComponent {
   @Input() msg!: Message;
+  @Input() senderAvatarUrl: string | null = null;
+  @Input() senderName: string | null = null;
   @Output() report = new EventEmitter<Message>();
 
   constructor(public chatApi: ChatApiService) {}
@@ -28,6 +30,11 @@ export class MessageBubbleComponent {
   isMine(): boolean {
     const me = this.meId();
     return !!me && this.msg.senderId === me;
+  }
+
+  senderInitial(): string {
+    const source = this.senderName || this.msg.senderId || '?';
+    return source.trim().charAt(0).toUpperCase();
   }
 
   time(): string {

@@ -28,6 +28,8 @@ type MessageListItem = MessageDayItem | MessageBubbleItem;
 export class ChatThreadComponent {
   @Input() conversation: Conversation | null = null;
   @Input() messages: Message[] = [];
+  @Input() currentUserAvatarUrl: string | null = null;
+  @Input() currentUserName: string | null = null;
   @Input() loading = false;
 
   @Output() send = new EventEmitter<SendMessagePayload>();
@@ -50,6 +52,27 @@ export class ChatThreadComponent {
   get avatarText(): string {
     const source = this.displayName.trim();
     return source.charAt(0).toUpperCase();
+  }
+
+  get otherAvatarUrl(): string | null {
+    return this.conversation?.otherAvatarUrl || null;
+  }
+
+  getMessageAvatarUrl(message: Message): string | null {
+    const messageAvatarUrl = (message as any).senderAvatarUrl || (message as any).authorAvatarUrl || null;
+    return this.isMine(message)
+      ? this.currentUserAvatarUrl || messageAvatarUrl
+      : messageAvatarUrl || this.conversation?.otherAvatarUrl || null;
+  }
+
+  getMessageSenderName(message: Message): string {
+    const messageName = (message as any).senderName || (message as any).authorName || '';
+
+    if (this.isMine(message)) {
+      return this.currentUserName || messageName || 'Tú';
+    }
+
+    return messageName || this.displayName;
   }
 
   get messageItems(): MessageListItem[] {
@@ -88,6 +111,11 @@ export class ChatThreadComponent {
 
   onReportMessage(message: Message): void {
     this.reportMessage.emit(message);
+  }
+
+  private isMine(message: Message): boolean {
+    const me = localStorage.getItem('userId');
+    return !!me && message.senderId === me;
   }
 
   private getDayKey(value?: string): string {
