@@ -1,6 +1,7 @@
 .forum-page {
   padding: 24px;
   min-height: 100vh;
+  min-width: 0;
   background:
     radial-gradient(circle at top left, rgba(93, 135, 255, 0.10), transparent 22%),
     radial-gradient(circle at bottom right, rgba(48, 86, 211, 0.08), transparent 20%),
@@ -79,6 +80,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr);
   gap: 22px;
+  min-width: 0;
 }
 
 .forum-main,
@@ -681,7 +683,7 @@ code {
 
 @media (max-width: 720px) {
   .forum-page {
-    padding: 16px;
+    padding: 0;
   }
 
   .thread-card,
@@ -701,6 +703,19 @@ code {
 
   .btn-primary,
   .btn-secondary {
+    width: 100%;
+  }
+
+  .quick-tools,
+  .teacher-selected,
+  .attachment-card-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .chip,
+  .teacher-change-btn,
+  .attachment-add-btn {
     width: 100%;
   }
 }

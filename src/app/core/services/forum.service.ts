@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable, map } from 'rxjs';
 
@@ -104,6 +104,13 @@ export class ForumService {
 
   getAttachmentDownloadUrl(attachmentId: number): string {
     return `${this.baseUrl}/attachments/${attachmentId}/download`;
+  }
+
+  downloadAttachment(attachmentId: number): Observable<HttpResponse<Blob>> {
+    return this.http.get(this.getAttachmentDownloadUrl(attachmentId), {
+      observe: 'response',
+      responseType: 'blob'
+    });
   }
 
   updatePost(postId: number, payload: PostUpdateDto): Observable<PostDto> {

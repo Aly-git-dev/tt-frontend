@@ -6,6 +6,8 @@
 .page {
   padding: 18px 20px 26px;
   max-width: 1200px;
+  width: 100%;
+  min-width: 0;
 }
 
 .page-head {
@@ -112,6 +114,7 @@
   box-shadow: 0 14px 30px rgba(17, 24, 39, 0.10);
   border: 1px solid rgba(17, 24, 39, 0.06);
   overflow: hidden;
+  min-width: 0;
 }
 
 .card-head {
@@ -134,6 +137,8 @@
 
 .calendar-wrap {
   padding: 0 14px 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ====== FullCalendar styling ======
@@ -233,10 +238,14 @@
 /* Responsive */
 @media (max-width: 640px) {
   .page {
-    padding: 14px 12px 18px;
+    padding: 0;
+  }
+  .page-head {
+    align-items: flex-start;
+    flex-direction: column;
   }
   .page-title {
-    font-size: 30px;
+    font-size: 28px;
   }
   .search {
     width: 100%;
@@ -251,6 +260,14 @@
     flex: 1;
   }
   .calendar-wrap {
-    padding: 0 10px 12px;
+    padding: 0 8px 10px;
+  }
+
+  ::ng-deep .fc {
+    min-width: 680px;
+  }
+
+  ::ng-deep .fc .fc-daygrid-day-frame {
+    min-height: 86px;
   }
 }

@@ -4,7 +4,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { AuthService } from '../../core/services/auth.service';
-import { AdminUsersService } from '../../core/services/admin-users.service';
 import { UserDTO } from '../../core/models/user.models';
 
 @Component({
@@ -45,8 +44,7 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
   constructor(
     private fb: FormBuilder,
     private analyticsService: AnalyticsService,
-    private authService: AuthService,
-    private adminUsersService: AdminUsersService
+    private authService: AuthService
   ) {}
 
   ngOnDestroy(): void {
@@ -82,7 +80,7 @@ export class TeacherEvaluationFormComponent implements OnDestroy {
     this.teacherSearchLoading = true;
 
     this.userSearchDebounce = setTimeout(() => {
-      this.adminUsersService.getAllUsers(query).subscribe({
+      this.analyticsService.searchTeachers(query).subscribe({
         next: (results) => {
           this.teacherSearchResults = (results ?? []).filter(user => this.isEvaluableTeacher(user));
         },

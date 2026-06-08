@@ -56,6 +56,7 @@ export interface ThreadSummaryDto {
 
   // 👇 NUEVO
   authorAvatarUrl?: string | null;
+  anonymousTeacherEvaluation?: boolean;
 }
 
 export interface PostDto {

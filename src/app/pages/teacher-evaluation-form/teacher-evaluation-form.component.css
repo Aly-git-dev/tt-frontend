@@ -42,6 +42,12 @@
   text-transform: uppercase;
 }
 
+.hero-copy,
+.selected-meta,
+.user-meta {
+  min-width: 0;
+}
+
 .hero-side {
   padding: 16px;
   border-radius: 16px;
@@ -248,6 +254,7 @@
   margin-top: 16px;
   display: flex;
   justify-content: space-between;
+  gap: 14px;
 }
 
 .check-row {
@@ -304,7 +311,9 @@
   transform: translate(-50%, -50%);
   background: white;
   border-radius: 20px;
-  width: 400px;
+  width: min(400px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
   box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
@@ -321,6 +330,7 @@
 
 .field-input {
   width: 100%;
+  box-sizing: border-box;
   padding: 10px;
   border-radius: 10px;
   border: 1px solid #dbe3f0;
@@ -328,16 +338,20 @@
 
 .user-results {
   margin-top: 12px;
+  max-height: 320px;
+  overflow-y: auto;
 }
 
 .user-row {
   display: flex;
+  width: 100%;
   gap: 10px;
   padding: 10px;
   border-radius: 10px;
   border: 1px solid #eee;
   margin-bottom: 8px;
   cursor: pointer;
+  text-align: left;
 }
 
 .user-row:hover {
@@ -367,11 +381,54 @@
 .user-email {
   font-size: 12px;
   color: #64748b;
+  overflow-wrap: anywhere;
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
+  .evaluation-page {
+    padding: 12px;
+  }
+
+  .hero-card,
+  .selected-card,
+  .form-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .hero-copy h1 {
+    font-size: 24px;
+  }
+
   .ratings-grid {
     grid-template-columns: 1fr;
+  }
+
+  .evaluation-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .evaluation-card,
+  .hero-card {
+    border-radius: 18px;
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .evaluation-page {
+    padding: 0;
+  }
+
+  .selected-actions,
+  .selected-actions .secondary-btn,
+  .actions,
+  .primary-btn {
+    width: 100%;
+  }
+
+  .user-row {
+    align-items: flex-start;
   }
 }

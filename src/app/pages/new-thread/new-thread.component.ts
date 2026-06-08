@@ -13,7 +13,6 @@ import { AnalyticsService } from '../../core/services/analytics.service';
 import { ThreadCreateDto } from '../../core/models/forum.models';
 import { UserDTO } from '../../core/models/user.models';
 import { AuthService } from '../../core/services/auth.service';
-import { AdminUsersService } from '../../core/services/admin-users.service';
 
 @Component({
   selector: 'app-new-thread',
@@ -65,7 +64,6 @@ export class NewThreadComponent implements OnDestroy {
     private fb: FormBuilder,
     private forumService: ForumService,
     private analyticsService: AnalyticsService,
-    private adminUsersService: AdminUsersService,
     private authService: AuthService,
     private router: Router
   ) {
@@ -130,7 +128,7 @@ export class NewThreadComponent implements OnDestroy {
     this.teacherSearchLoading = true;
 
     this.teacherSearchDebounce = setTimeout(() => {
-      this.adminUsersService.getAllUsers(query).subscribe({
+      this.analyticsService.searchTeachers(query).subscribe({
         next: users => {
           this.teacherSearchResults = (users ?? []).filter(user => this.isEvaluableTeacher(user));
         },

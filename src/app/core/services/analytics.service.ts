@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import {
   AdminAnalyticsDashboard,
   AdminTopicDifficulty,
@@ -11,8 +11,9 @@ import {
   TeacherImprovementArea,
   TeacherPerformance
 } from '../models/analytics.models';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { UserDTO } from '../models/user.models';
 
 @Injectable({
   providedIn: 'root'
@@ -67,6 +68,26 @@ export class AnalyticsService {
       .pipe(map(res => res.data));
   }
 
+  searchTeachers(query: string): Observable<UserDTO[]> {
+    const params = new HttpParams().set('q', query);
+
+    return this.http
+      .get<UserDTO[] | ApiResponse<UserDTO[]>>(`${this.privateBase}/teachers/search`, { params })
+      .pipe(
+        map(response => this.normalizeTeacherSearchResponse(response)),
+        catchError(err => {
+          const canFallbackToAdminSearch = [401, 403, 404].includes(err?.status);
+
+          if (!canFallbackToAdminSearch) {
+            return throwError(() => err);
+          }
+
+          return this.http.get<UserDTO[]>(`${environment.apiUrl}/upiiz/admin/v1/admin/users`, { params });
+        }),
+        map(users => this.filterEvaluableTeachers(users))
+      );
+  }
+
   createTeacherEvaluation(payload: CreateTeacherEvaluationRequest): Observable<any> {
     return this.http
       .post<ApiResponse<any>>(`${this.privateBase}/teacher-evaluations`, payload)
@@ -83,5 +104,20 @@ export class AnalyticsService {
     return this.http
       .post<ApiResponse<any>>(`${this.privateBase}/topic-difficulty-events`, payload)
       .pipe(map(res => res.data));
+  }
+
+  private normalizeTeacherSearchResponse(response: UserDTO[] | ApiResponse<UserDTO[]>): UserDTO[] {
+    return Array.isArray(response) ? response : response?.data ?? [];
+  }
+
+  private filterEvaluableTeachers(users: UserDTO[] | null | undefined): UserDTO[] {
+    return (users ?? []).filter(user => {
+      const roles = (user?.roles ?? []).map(role => role.toUpperCase().replace(/^ROLE_/, ''));
+
+      return user?.active !== false
+        && roles.includes('PROFESOR')
+        && !roles.includes('ALUMNO')
+        && !roles.includes('ADMIN');
+    });
   }
 }

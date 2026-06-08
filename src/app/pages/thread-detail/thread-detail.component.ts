@@ -4,7 +4,8 @@ import {
   ElementRef,
   ViewChild,
   AfterViewInit,
-  AfterViewChecked
+  AfterViewChecked,
+  OnDestroy
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
@@ -38,7 +39,7 @@ type PostVm = PostDto & { renderedBody?: string };
   templateUrl: './thread-detail.component.html',
   styleUrls: ['./thread-detail.component.css']
 })
-export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewChecked {
+export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
 
   @ViewChild('threadContainer') threadContainer!: ElementRef<HTMLElement>;
 
@@ -70,6 +71,9 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
 
   private viewInitialized = false;
   private needsEnhance = false;
+  private attachmentObjectUrls = new Map<number, string>();
+  attachmentPreviewLoading = new Set<number>();
+  attachmentPreviewError = new Set<number>();
 
   attachmentKinds = [
     { value: 'LINK', label: 'Enlace' },
@@ -122,6 +126,10 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     }
   }
 
+  ngOnDestroy(): void {
+    this.clearAttachmentObjectUrls();
+  }
+
   get posts(): PostVm[] {
     return this.postsVmInternal;
   }
@@ -143,10 +151,13 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
   isAnonymousTeacherEvaluation(): boolean {
     if (!this.thread) return false;
 
-    const category = (this.thread.categoryName || '').toLowerCase();
-    const body = (this.thread.body || '').toLowerCase();
+    const category = this.normalizeForPrivacyCheck(this.thread.categoryName || '');
+    const body = this.normalizeForPrivacyCheck(this.thread.body || '');
+    const isTeacherEvaluationCategory = this.thread.categoryId === 9 || category.includes('evaluacion');
 
-    return category.includes('evalu') && body.includes('modalidad: anónima');
+    return isTeacherEvaluationCategory
+      && body.includes('modalidad:')
+      && (body.includes('anonima') || body.includes('anonimo'));
   }
 
   getThreadAuthorName(): string {
@@ -154,7 +165,20 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
   getThreadAuthorInitial(): string {
-    return this.isAnonymousTeacherEvaluation() ? 'A' : this.getInitial(this.thread?.authorName);
+    return this.isAnonymousTeacherEvaluation() ? 'E' : this.getInitial(this.thread?.authorName);
+  }
+
+  private normalizeForPrivacyCheck(value: string): string {
+    return value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/Ã³/g, 'o')
+      .replace(/Ã¡/g, 'a')
+      .replace(/Ã©/g, 'e')
+      .replace(/Ã­/g, 'i')
+      .replace(/Ãº/g, 'u')
+      .replace(/Ã±/g, 'n');
   }
 
   private buildForm(): void {
@@ -211,6 +235,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
   private setThreadState(thread: ThreadDetailDto): void {
+    this.clearAttachmentObjectUrls();
     this.thread = thread;
     this.threadRenderedBody = this.renderBody(thread.body || '');
 
@@ -220,6 +245,11 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
         ...post,
         renderedBody: this.renderBody(post.body || '')
       }));
+
+    this.prepareAttachmentPreviews([
+      ...(thread.attachments || []),
+      ...this.postsVmInternal.flatMap(post => post.attachments || [])
+    ]);
   }
 
   private renderBody(raw: string): string {
@@ -580,6 +610,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
 
         this.submittingReply = false;
         this.needsEnhance = true;
+        this.prepareAttachmentPreviews(created.attachments || []);
   }
 
   // ==========================
@@ -701,6 +732,153 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
 
   getAttachmentLabel(att: AttachmentDto): string {
     return att.originalName || att.url || `Adjunto #${att.id}`;
+  }
+
+  getAttachmentPreviewUrl(att: AttachmentDto): string | null {
+    if (att.id && this.attachmentObjectUrls.has(att.id)) {
+      return this.attachmentObjectUrls.get(att.id) || null;
+    }
+
+    return att.url || null;
+  }
+
+  isAttachmentPreviewLoading(att: AttachmentDto): boolean {
+    return !!att.id && this.attachmentPreviewLoading.has(att.id);
+  }
+
+  hasAttachmentPreviewError(att: AttachmentDto): boolean {
+    return !!att.id && this.attachmentPreviewError.has(att.id);
+  }
+
+  isPdfAttachment(att: AttachmentDto): boolean {
+    return this.attachmentMatches(att, ['pdf'], ['application/pdf']);
+  }
+
+  isImageAttachment(att: AttachmentDto): boolean {
+    return this.attachmentMatches(att, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'], ['image/']);
+  }
+
+  isVideoAttachment(att: AttachmentDto): boolean {
+    return this.attachmentMatches(att, ['mp4', 'webm', 'ogg', 'mov'], ['video/']);
+  }
+
+  isAudioAttachment(att: AttachmentDto): boolean {
+    return this.attachmentMatches(att, ['mp3', 'wav', 'ogg', 'm4a'], ['audio/']);
+  }
+
+  isPreviewableAttachment(att: AttachmentDto): boolean {
+    return this.isPdfAttachment(att)
+      || this.isImageAttachment(att)
+      || this.isVideoAttachment(att)
+      || this.isAudioAttachment(att);
+  }
+
+  downloadAttachment(att: AttachmentDto, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    if (!att.id) {
+      if (att.url) {
+        window.open(att.url, '_blank', 'noopener,noreferrer');
+      }
+      return;
+    }
+
+    this.forumService.downloadAttachment(att.id).subscribe({
+      next: response => {
+        const blob = response.body;
+        if (!blob) {
+          this.showToast('No se pudo leer el archivo.');
+          return;
+        }
+
+        const filename = this.getDownloadFilename(att, response.headers.get('content-disposition'));
+        const objectUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = objectUrl;
+        anchor.download = filename;
+        anchor.rel = 'noopener';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(objectUrl);
+      },
+      error: err => {
+        console.error('Error descargando adjunto', err);
+        this.showToast('No se pudo descargar el archivo.');
+      }
+    });
+  }
+
+  private prepareAttachmentPreviews(attachments: AttachmentDto[]): void {
+    for (const att of attachments) {
+      if (!att.id || !this.isPreviewableAttachment(att) || this.attachmentObjectUrls.has(att.id)) {
+        continue;
+      }
+
+      this.attachmentPreviewLoading.add(att.id);
+      this.attachmentPreviewError.delete(att.id);
+
+      this.forumService.downloadAttachment(att.id).subscribe({
+        next: response => {
+          const blob = response.body;
+
+          if (!blob) {
+            this.attachmentPreviewError.add(att.id!);
+            return;
+          }
+
+          this.attachmentObjectUrls.set(att.id!, URL.createObjectURL(blob));
+        },
+        error: err => {
+          console.error('Error cargando vista previa de adjunto', err);
+          this.attachmentPreviewError.add(att.id!);
+        },
+        complete: () => {
+          this.attachmentPreviewLoading.delete(att.id!);
+        }
+      });
+    }
+  }
+
+  private clearAttachmentObjectUrls(): void {
+    for (const objectUrl of this.attachmentObjectUrls.values()) {
+      URL.revokeObjectURL(objectUrl);
+    }
+
+    this.attachmentObjectUrls.clear();
+    this.attachmentPreviewLoading.clear();
+    this.attachmentPreviewError.clear();
+  }
+
+  private attachmentMatches(att: AttachmentDto, extensions: string[], mimePrefixes: string[]): boolean {
+    const kind = (att.kind || '').toLowerCase();
+    const mime = (att.mimeType || '').toLowerCase();
+    const source = `${att.originalName || ''} ${att.url || ''}`.toLowerCase();
+
+    return mimePrefixes.some(prefix => mime.startsWith(prefix))
+      || extensions.some(ext => source.endsWith(`.${ext}`) || source.includes(`.${ext}?`))
+      || (extensions.includes('pdf') && kind.includes('pdf'))
+      || (mimePrefixes.includes('image/') && (kind.includes('imagen') || kind.includes('image')))
+      || (mimePrefixes.includes('video/') && kind.includes('video'))
+      || (mimePrefixes.includes('audio/') && kind.includes('audio'));
+  }
+
+  private getDownloadFilename(att: AttachmentDto, contentDisposition: string | null): string {
+    const headerFilename = this.extractFilenameFromContentDisposition(contentDisposition);
+    return headerFilename || att.originalName || this.getAttachmentLabel(att) || `adjunto-${att.id}`;
+  }
+
+  private extractFilenameFromContentDisposition(contentDisposition: string | null): string | null {
+    if (!contentDisposition) return null;
+
+    const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+    if (utf8Match?.[1]) {
+      return decodeURIComponent(utf8Match[1].replace(/"/g, ''));
+    }
+
+    const asciiMatch = contentDisposition.match(/filename="?([^"]+)"?/i);
+    return asciiMatch?.[1] || null;
   }
 
   isDirectAudio(url: string | null | undefined): boolean {

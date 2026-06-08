@@ -83,11 +83,11 @@
 
           <div class="feed-avatar">
             <img
-              *ngIf="thread.authorAvatarUrl; else feedAvatarFallback"
+              *ngIf="!isAnonymousTeacherEvaluation(thread) && thread.authorAvatarUrl; else feedAvatarFallback"
               [src]="thread.authorAvatarUrl"
               [alt]="thread.authorName || thread.title" />
             <ng-template #feedAvatarFallback>
-              <span>{{ getInitial(thread.authorName || thread.title) }}</span>
+              <span>{{ getThreadAuthorInitial(thread) }}</span>
             </ng-template>
           </div>
 

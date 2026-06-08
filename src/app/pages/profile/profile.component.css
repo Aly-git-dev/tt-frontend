@@ -567,6 +567,7 @@
   display: flex;
   gap: 8px;
   margin-bottom: 10px;
+  min-width: 0;
 }
 
 .links-editor input {
@@ -589,6 +590,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .link-remove {
@@ -597,4 +600,17 @@
   cursor: pointer;
   font-size: 14px;
   color: #9ca3af;
+}
+
+@media (max-width: 640px) {
+  .links-editor,
+  .link-item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .links-editor .secondary,
+  .link-remove {
+    width: 100%;
+  }
 }

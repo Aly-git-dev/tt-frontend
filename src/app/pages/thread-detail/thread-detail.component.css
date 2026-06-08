@@ -626,9 +626,60 @@ button:disabled {
 .answer-attachments,
 .thread-attachments {
   margin-top: 16px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
+}
+
+.attachment-card-preview {
+  width: min(100%, 760px);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.attachment-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.attachment-preview-head > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.attachment-preview-head strong {
+  color: #0f172a;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.attachment-download-btn {
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #be123c;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.attachment-preview-body {
+  padding: 16px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.attachment-preview-body--error {
+  color: #b91c1c;
+  background: #fff1f2;
 }
 
 .attachment-pill {
@@ -644,19 +695,34 @@ button:disabled {
 
 .attachment-image {
   max-width: 100%;
+  max-height: 560px;
+  object-fit: contain;
   border-radius: 18px;
   display: block;
+  margin: 12px;
+  background: #ffffff;
+}
+
+.attachment-document {
+  display: block;
+  width: 100%;
+  height: min(72vh, 720px);
+  min-height: 420px;
+  border: 0;
+  background: #ffffff;
 }
 
 .attachment-video {
-  width: min(100%, 640px);
+  display: block;
+  width: 100%;
   min-height: 260px;
-  border-radius: 18px;
+  border-radius: 0;
   background: #0f172a;
 }
 
 .attachment-audio {
-  width: min(100%, 420px);
+  width: calc(100% - 24px);
+  margin: 12px;
 }
 
 .attachment-kind {
@@ -773,6 +839,20 @@ button:disabled {
 
   .attachment-row {
     grid-template-columns: 1fr;
+  }
+
+  .attachment-preview-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .attachment-download-btn {
+    width: 100%;
+  }
+
+  .attachment-document {
+    height: 62vh;
+    min-height: 320px;
   }
 
   .answer-footer {
@@ -1011,4 +1091,34 @@ button:disabled {
 
 .clickable-user:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .forum-toast {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    border-radius: 16px;
+    text-align: center;
+  }
+
+  .post-action-stack,
+  .reply-header,
+  .edit-actions,
+  .toolbar-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar-btn,
+  .edit-actions button,
+  .reply-header button {
+    width: 100%;
+  }
+
+  .thread-body,
+  .post-body,
+  .markdown-body {
+    overflow-wrap: anywhere;
+  }
 }

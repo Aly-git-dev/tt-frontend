@@ -13,6 +13,64 @@
   --border-soft: #e5e7eb;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--page-bg);
+  color: var(--text-main);
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  min-width: 0;
+}
+
+textarea {
+  resize: vertical;
+}
+
+table {
+  max-width: 100%;
+}
+
+pre,
+code {
+  overflow-wrap: anywhere;
+}
+
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.mat-mdc-dialog-container,
+.cdk-overlay-pane {
+  max-width: calc(100vw - 24px) !important;
+}
+
 /* si ya tienes cosas globales aquí, solo agrega este bloque arriba o abajo */
 
 html, body { height: 100%; }
@@ -109,5 +167,29 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   overflow: hidden !important;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@media (max-width: 720px) {
+  h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .fc {
+    border-radius: 12px;
+  }
+
+  .fc .fc-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .fc .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .fc .fc-button {
+    padding: 0.35rem 0.55rem;
+  }
+}

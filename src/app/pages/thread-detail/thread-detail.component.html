@@ -43,7 +43,7 @@
       <div class="thread-meta-row thread-meta-row--pro">
         <div class="thread-avatar thread-avatar--pro">
           <img
-            *ngIf="thread.authorAvatarUrl; else avatarFallback"
+            *ngIf="!isAnonymousTeacherEvaluation() && thread.authorAvatarUrl; else avatarFallback"
             [src]="thread.authorAvatarUrl"
             class="thread-avatar-img"
             alt="avatar" />
@@ -191,82 +191,73 @@
         *ngIf="!editThreadMode && thread.attachments?.length"
         class="answer-attachments thread-attachments">
 
-        <div *ngFor="let att of thread.attachments" class="attachment-pill">
-          <ng-container [ngSwitch]="att.kind">
-
-            <img
-              *ngSwitchCase="'IMAGEN'"
-              [src]="att.url"
-              alt="Imagen adjunta"
-              class="attachment-image" />
-
-            <img
-              *ngSwitchCase="'IMAGE'"
-              [src]="att.url"
-              alt="Imagen adjunta"
-              class="attachment-image" />
-
-            <ng-container *ngSwitchCase="'VIDEO'">
-              <video
-                *ngIf="isDirectVideo(att.url); else videoFallback"
-                [src]="att.url"
-                controls
-                class="attachment-video">
-              </video>
-
-              <ng-template #videoFallback>
-                <ng-container *ngIf="getYoutubeEmbedUrl(att.url) as ytEmbed; else videoLink">
-                  <iframe
-                    [src]="ytEmbed | safeUrl"
-                    class="attachment-video"
-                    frameborder="0"
-                    allowfullscreen>
-                  </iframe>
-                </ng-container>
-
-                <ng-template #videoLink>
-                  <a
-                    [href]="att.url"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="attachment-pill">
-                    <span class="attachment-kind">VIDEO</span>
-                    <span class="attachment-url">{{ att.url }}</span>
-                  </a>
-                </ng-template>
-              </ng-template>
-            </ng-container>
-
-            <ng-container *ngSwitchCase="'AUDIO'">
-              <audio
-                *ngIf="isDirectAudio(att.url); else audioLink"
-                [src]="att.url"
-                controls
-                class="attachment-audio">
-              </audio>
-
-              <ng-template #audioLink>
-                <a
-                  [href]="att.url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="attachment-pill">
-                  <span class="attachment-kind">AUDIO</span>
-                  <span class="attachment-url">{{ att.url }}</span>
-                </a>
-              </ng-template>
-            </ng-container>
-
-            <a
-              *ngSwitchDefault
-              [href]="getAttachmentHref(att)"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="attachment-pill">
+        <div *ngFor="let att of thread.attachments" class="attachment-card-preview">
+          <div class="attachment-preview-head">
+            <div>
               <span class="attachment-kind">{{ att.kind }}</span>
-              <span class="attachment-url">{{ getAttachmentLabel(att) }}</span>
-            </a>
+              <strong>{{ getAttachmentLabel(att) }}</strong>
+            </div>
 
+            <button
+              type="button"
+              class="attachment-download-btn"
+              (click)="downloadAttachment(att, $event)">
+              Descargar
+            </button>
+          </div>
+
+          <div class="attachment-preview-body" *ngIf="isAttachmentPreviewLoading(att)">
+            Cargando vista previa...
+          </div>
+
+          <div class="attachment-preview-body attachment-preview-body--error" *ngIf="hasAttachmentPreviewError(att)">
+            No se pudo cargar la vista previa. Puedes descargar el archivo.
+          </div>
+
+          <ng-container *ngIf="!isAttachmentPreviewLoading(att) && !hasAttachmentPreviewError(att)">
+            <iframe
+              *ngIf="isPdfAttachment(att) && getAttachmentPreviewUrl(att) as pdfUrl"
+              [src]="pdfUrl | safeUrl"
+              class="attachment-document"
+              title="Vista previa PDF">
+            </iframe>
+
+            <img
+              *ngIf="isImageAttachment(att) && getAttachmentPreviewUrl(att) as imageUrl"
+              [src]="imageUrl"
+              alt="Imagen adjunta"
+              class="attachment-image" />
+
+            <ng-container *ngIf="isVideoAttachment(att)">
+              <ng-container *ngIf="getYoutubeEmbedUrl(att.url) as ytEmbed; else videoPreview">
+                <iframe
+                  [src]="ytEmbed | safeUrl"
+                  class="attachment-video"
+                  frameborder="0"
+                  allowfullscreen>
+                </iframe>
+              </ng-container>
+
+              <ng-template #videoPreview>
+                <video
+                  *ngIf="getAttachmentPreviewUrl(att) as videoUrl"
+                  [src]="videoUrl"
+                  controls
+                  class="attachment-video">
+                </video>
+              </ng-template>
+            </ng-container>
+
+            <audio
+              *ngIf="isAudioAttachment(att) && getAttachmentPreviewUrl(att) as audioUrl"
+              [src]="audioUrl"
+              controls
+              class="attachment-audio">
+            </audio>
+
+            <div class="attachment-preview-body" *ngIf="!isPreviewableAttachment(att)">
+              Este tipo de archivo no se puede previsualizar en el navegador.
+            </div>
           </ng-container>
         </div>
       </div>
@@ -334,44 +325,73 @@
               *ngIf="editingPostId !== post.id && post.attachments?.length"
               class="answer-attachments">
 
-              <div *ngFor="let att of post.attachments" class="attachment-pill">
-                <ng-container [ngSwitch]="att.kind">
+              <div *ngFor="let att of post.attachments" class="attachment-card-preview">
+                <div class="attachment-preview-head">
+                  <div>
+                    <span class="attachment-kind">{{ att.kind }}</span>
+                    <strong>{{ getAttachmentLabel(att) }}</strong>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="attachment-download-btn"
+                    (click)="downloadAttachment(att, $event)">
+                    Descargar
+                  </button>
+                </div>
+
+                <div class="attachment-preview-body" *ngIf="isAttachmentPreviewLoading(att)">
+                  Cargando vista previa...
+                </div>
+
+                <div class="attachment-preview-body attachment-preview-body--error" *ngIf="hasAttachmentPreviewError(att)">
+                  No se pudo cargar la vista previa. Puedes descargar el archivo.
+                </div>
+
+                <ng-container *ngIf="!isAttachmentPreviewLoading(att) && !hasAttachmentPreviewError(att)">
+                  <iframe
+                    *ngIf="isPdfAttachment(att) && getAttachmentPreviewUrl(att) as pdfUrl"
+                    [src]="pdfUrl | safeUrl"
+                    class="attachment-document"
+                    title="Vista previa PDF">
+                  </iframe>
 
                   <img
-                    *ngSwitchCase="'IMAGEN'"
-                    [src]="att.url"
+                    *ngIf="isImageAttachment(att) && getAttachmentPreviewUrl(att) as imageUrl"
+                    [src]="imageUrl"
                     class="attachment-image"
                     alt="Imagen adjunta" />
 
-                  <img
-                    *ngSwitchCase="'IMAGE'"
-                    [src]="att.url"
-                    class="attachment-image"
-                    alt="Imagen adjunta" />
+                  <ng-container *ngIf="isVideoAttachment(att)">
+                    <ng-container *ngIf="getYoutubeEmbedUrl(att.url) as ytEmbed; else postVideoPreview">
+                      <iframe
+                        [src]="ytEmbed | safeUrl"
+                        class="attachment-video"
+                        frameborder="0"
+                        allowfullscreen>
+                      </iframe>
+                    </ng-container>
 
-                  <video
-                    *ngSwitchCase="'VIDEO'"
-                    [src]="att.url"
-                    controls
-                    class="attachment-video">
-                  </video>
+                    <ng-template #postVideoPreview>
+                      <video
+                        *ngIf="getAttachmentPreviewUrl(att) as videoUrl"
+                        [src]="videoUrl"
+                        controls
+                        class="attachment-video">
+                      </video>
+                    </ng-template>
+                  </ng-container>
 
                   <audio
-                    *ngSwitchCase="'AUDIO'"
-                    [src]="att.url"
+                    *ngIf="isAudioAttachment(att) && getAttachmentPreviewUrl(att) as audioUrl"
+                    [src]="audioUrl"
                     controls
                     class="attachment-audio">
                   </audio>
 
-                  <a
-                    *ngSwitchDefault
-                    [href]="getAttachmentHref(att)"
-                    target="_blank"
-                    rel="noopener noreferrer">
-                    <span class="attachment-kind">{{ att.kind }}</span>
-                    <span class="attachment-url">{{ getAttachmentLabel(att) }}</span>
-                  </a>
-
+                  <div class="attachment-preview-body" *ngIf="!isPreviewableAttachment(att)">
+                    Este tipo de archivo no se puede previsualizar en el navegador.
+                  </div>
                 </ng-container>
               </div>
             </div>

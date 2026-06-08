@@ -227,6 +227,16 @@ export class DashboardComponent implements OnInit {
     return title.trim().charAt(0).toUpperCase();
   }
 
+  isAnonymousTeacherEvaluation(thread: ThreadSummaryDto | null | undefined): boolean {
+    return thread?.anonymousTeacherEvaluation === true;
+  }
+
+  getThreadAuthorInitial(thread: ThreadSummaryDto): string {
+    return this.isAnonymousTeacherEvaluation(thread)
+      ? 'E'
+      : this.getInitial(thread.authorName || thread.title);
+  }
+
   private enrichThreadSummaries(threads: ThreadSummaryDto[]): Observable<ThreadSummaryDto[]> {
     if (!threads.length) {
       return of([]);
@@ -236,20 +246,23 @@ export class DashboardComponent implements OnInit {
   }
 
   private enrichThreadSummary(thread: ThreadSummaryDto): Observable<ThreadSummaryDto> {
-    if (thread.authorName && thread.authorAvatarUrl) {
+    if (thread.authorName && thread.authorAvatarUrl && !this.mightBeTeacherEvaluation(thread)) {
       return of(thread);
     }
 
     return this.forumService.getThread(thread.id).pipe(
       switchMap(detail => {
+        const isAnonymousTeacherEvaluation = this.isAnonymousTeacherEvaluationDetail(detail);
+
         const enriched: ThreadSummaryDto = {
           ...thread,
           authorId: thread.authorId || detail.authorId,
-          authorName: thread.authorName || detail.authorName,
-          authorAvatarUrl: thread.authorAvatarUrl || detail.authorAvatarUrl || null
+          authorName: isAnonymousTeacherEvaluation ? 'Anónimo' : thread.authorName || detail.authorName,
+          authorAvatarUrl: isAnonymousTeacherEvaluation ? null : thread.authorAvatarUrl || detail.authorAvatarUrl || null,
+          anonymousTeacherEvaluation: isAnonymousTeacherEvaluation
         };
 
-        if (enriched.authorAvatarUrl || !enriched.authorId) {
+        if (enriched.anonymousTeacherEvaluation || enriched.authorAvatarUrl || !enriched.authorId) {
           return of(enriched);
         }
 
@@ -264,5 +277,32 @@ export class DashboardComponent implements OnInit {
       }),
       catchError(() => of(thread))
     );
+  }
+
+  private mightBeTeacherEvaluation(thread: ThreadSummaryDto): boolean {
+    return this.normalizeForPrivacyCheck(thread.categoryName || '').includes('evaluacion');
+  }
+
+  private isAnonymousTeacherEvaluationDetail(detail: { categoryId?: number; categoryName?: string | null; body?: string | null }): boolean {
+    const category = this.normalizeForPrivacyCheck(detail.categoryName || '');
+    const body = this.normalizeForPrivacyCheck(detail.body || '');
+    const isTeacherEvaluationCategory = detail.categoryId === 9 || category.includes('evaluacion');
+
+    return isTeacherEvaluationCategory
+      && body.includes('modalidad:')
+      && (body.includes('anonima') || body.includes('anonimo'));
+  }
+
+  private normalizeForPrivacyCheck(value: string): string {
+    return value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/Ã³/g, 'o')
+      .replace(/Ã¡/g, 'a')
+      .replace(/Ã©/g, 'e')
+      .replace(/Ã­/g, 'i')
+      .replace(/Ãº/g, 'u')
+      .replace(/Ã±/g, 'n');
   }
 }
