@@ -76,13 +76,26 @@ export class AnalyticsService {
       .pipe(
         map(response => this.normalizeTeacherSearchResponse(response)),
         catchError(err => {
-          const canFallbackToAdminSearch = [401, 403, 404].includes(err?.status);
+          const canFallbackToTeacherEvaluationSearch = [401, 403, 404].includes(err?.status);
 
-          if (!canFallbackToAdminSearch) {
+          if (!canFallbackToTeacherEvaluationSearch) {
             return throwError(() => err);
           }
 
-          return this.http.get<UserDTO[]>(`${environment.apiUrl}/upiiz/admin/v1/admin/users`, { params });
+          return this.http
+            .get<UserDTO[] | ApiResponse<UserDTO[]>>(`${this.privateBase}/teacher-evaluations/teachers/search`, { params })
+            .pipe(
+              map(response => this.normalizeTeacherSearchResponse(response)),
+              catchError(fallbackErr => {
+                const canFallbackToAdminSearch = [401, 403, 404].includes(fallbackErr?.status);
+
+                if (!canFallbackToAdminSearch) {
+                  return throwError(() => fallbackErr);
+                }
+
+                return this.http.get<UserDTO[]>(`${environment.apiUrl}/upiiz/admin/v1/admin/users`, { params });
+              })
+            );
         }),
         map(users => this.filterEvaluableTeachers(users))
       );
