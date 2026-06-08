@@ -36,7 +36,7 @@
   position: absolute;
   top: 42px;
   right: 0;
-  width: 340px;
+  width: min(340px, calc(100vw - 24px));
   max-height: 430px;
   overflow-y: auto;
   background: #fff;
@@ -52,6 +52,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  background: #fff;
 }
 
 .panel-header h3 {
@@ -118,8 +120,10 @@
 }
 
 .item-content strong {
+  display: block;
   font-size: 14px;
   color: #351222;
+  overflow-wrap: anywhere;
 }
 
 .item-content p {
@@ -142,4 +146,60 @@
 .item-content small {
   font-size: 11px;
   color: #888;
+}
+
+@media (max-width: 640px) {
+  .notification-wrapper {
+    position: static;
+  }
+
+  .notification-panel {
+    position: fixed;
+    top: 76px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: calc(100vh - 96px);
+    border-radius: 14px;
+    z-index: 3000;
+  }
+
+  .panel-header {
+    position: sticky;
+    top: 0;
+    align-items: flex-start;
+    z-index: 1;
+  }
+
+  .read-all-button {
+    flex: 0 0 auto;
+  }
+
+  .notification-item {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .item-logo {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+}
+
+@media (max-width: 380px) {
+  .notification-panel {
+    top: 70px;
+    left: 8px;
+    right: 8px;
+    max-height: calc(100vh - 84px);
+  }
+
+  .panel-header {
+    flex-direction: column;
+  }
+
+  .read-all-button {
+    width: 100%;
+  }
 }
