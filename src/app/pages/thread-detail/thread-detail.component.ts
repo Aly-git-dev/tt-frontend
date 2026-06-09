@@ -735,7 +735,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
   getAttachmentActionLabel(att: AttachmentDto): string {
-    return !att.id && att.url ? 'Abrir' : 'Descargar';
+    return this.isLinkAttachment(att) ? 'Abrir' : 'Descargar';
   }
 
   getAttachmentPreviewUrl(att: AttachmentDto): string | null {
@@ -797,10 +797,13 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     event?.preventDefault();
     event?.stopPropagation();
 
+    if (this.isLinkAttachment(att) && att.url) {
+      window.open(att.url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     if (!att.id) {
-      if (att.url) {
-        window.open(att.url, '_blank', 'noopener,noreferrer');
-      }
+      if (att.url) window.open(att.url, '_blank', 'noopener,noreferrer');
       return;
     }
 
