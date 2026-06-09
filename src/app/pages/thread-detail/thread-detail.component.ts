@@ -759,11 +759,12 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
   isVideoAttachment(att: AttachmentDto): boolean {
-    return this.attachmentMatches(att, ['mp4', 'webm', 'ogg', 'mov'], ['video/']);
+    return !!this.getYoutubeEmbedUrl(att.url)
+      || this.attachmentMatches(att, ['mp4', 'webm', 'ogg', 'mov', 'm4v'], ['video/']);
   }
 
   isAudioAttachment(att: AttachmentDto): boolean {
-    return this.attachmentMatches(att, ['mp3', 'wav', 'ogg', 'm4a'], ['audio/']);
+    return this.attachmentMatches(att, ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'opus'], ['audio/']);
   }
 
   isPreviewableAttachment(att: AttachmentDto): boolean {
@@ -812,7 +813,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
 
   private prepareAttachmentPreviews(attachments: AttachmentDto[]): void {
     for (const att of attachments) {
-      if (!att.id || !this.isPreviewableAttachment(att) || this.attachmentObjectUrls.has(att.id)) {
+      if (!att.id || !!this.getYoutubeEmbedUrl(att.url) || !this.isPreviewableAttachment(att) || this.attachmentObjectUrls.has(att.id)) {
         continue;
       }
 

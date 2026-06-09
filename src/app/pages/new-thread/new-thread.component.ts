@@ -307,16 +307,14 @@ export class NewThreadComponent implements OnDestroy {
 
     this.forumService.createThread(payload).subscribe({
       next: (created) => {
-        if (this.selectedFiles.length) {
-          this.forumService.addThreadAttachments(created.id, this.selectedFiles).subscribe({
-            error: err => console.error('Error subiendo adjuntos del hilo', err)
-          });
-        }
-
         const isQuestion = raw.type === 'PREGUNTA';
         const shouldCreateDifficultyEvent = !this.isTeacherEvaluationThread && isQuestion;
         const currentUserId = this.authService.getCurrentUserId();
         const analyticsRequests: any[] = [];
+
+        if (this.selectedFiles.length) {
+          analyticsRequests.push(this.forumService.addThreadAttachments(created.id, this.selectedFiles));
+        }
 
         if (currentUserId) {
           analyticsRequests.push(
