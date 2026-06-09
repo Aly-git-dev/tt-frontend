@@ -202,7 +202,7 @@
               type="button"
               class="attachment-download-btn"
               (click)="downloadAttachment(att, $event)">
-              Descargar
+              {{ getAttachmentActionLabel(att) }}
             </button>
           </div>
 
@@ -255,7 +255,20 @@
               class="attachment-audio">
             </audio>
 
-            <div class="attachment-preview-body" *ngIf="!isPreviewableAttachment(att)">
+            <a
+              *ngIf="!isPreviewableAttachment(att) && isLinkAttachment(att)"
+              class="attachment-link-preview"
+              [href]="getAttachmentHref(att)"
+              target="_blank"
+              rel="noopener noreferrer">
+              <span class="attachment-link-icon">Link</span>
+              <span class="attachment-link-meta">
+                <strong>{{ getLinkHost(att) }}</strong>
+                <small>{{ getAttachmentHref(att) }}</small>
+              </span>
+            </a>
+
+            <div class="attachment-preview-body" *ngIf="!isPreviewableAttachment(att) && !isLinkAttachment(att)">
               Este tipo de archivo no se puede previsualizar en el navegador.
             </div>
           </ng-container>
@@ -336,7 +349,7 @@
                     type="button"
                     class="attachment-download-btn"
                     (click)="downloadAttachment(att, $event)">
-                    Descargar
+                    {{ getAttachmentActionLabel(att) }}
                   </button>
                 </div>
 
@@ -389,7 +402,20 @@
                     class="attachment-audio">
                   </audio>
 
-                  <div class="attachment-preview-body" *ngIf="!isPreviewableAttachment(att)">
+                  <a
+                    *ngIf="!isPreviewableAttachment(att) && isLinkAttachment(att)"
+                    class="attachment-link-preview"
+                    [href]="getAttachmentHref(att)"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    <span class="attachment-link-icon">Link</span>
+                    <span class="attachment-link-meta">
+                      <strong>{{ getLinkHost(att) }}</strong>
+                      <small>{{ getAttachmentHref(att) }}</small>
+                    </span>
+                  </a>
+
+                  <div class="attachment-preview-body" *ngIf="!isPreviewableAttachment(att) && !isLinkAttachment(att)">
                     Este tipo de archivo no se puede previsualizar en el navegador.
                   </div>
                 </ng-container>

@@ -682,6 +682,52 @@ button:disabled {
   background: #fff1f2;
 }
 
+.attachment-link-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid #dbeafe;
+  background: #eff6ff;
+  color: #1e3a8a;
+  text-decoration: none;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.attachment-link-preview:hover {
+  background: #dbeafe;
+  border-color: #bfdbfe;
+  transform: translateY(-1px);
+}
+
+.attachment-link-icon {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #ffffff;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.attachment-link-meta {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.attachment-link-meta strong,
+.attachment-link-meta small {
+  overflow-wrap: anywhere;
+}
+
+.attachment-link-meta small {
+  color: #475569;
+  font-size: 0.78rem;
+}
+
 .attachment-pill {
   max-width: 100%;
   border-radius: 18px;
@@ -848,6 +894,11 @@ button:disabled {
 
   .attachment-download-btn {
     width: 100%;
+  }
+
+  .attachment-link-preview {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .attachment-document {

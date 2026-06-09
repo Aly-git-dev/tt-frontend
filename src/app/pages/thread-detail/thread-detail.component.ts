@@ -734,6 +734,10 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     return att.originalName || att.url || `Adjunto #${att.id}`;
   }
 
+  getAttachmentActionLabel(att: AttachmentDto): string {
+    return !att.id && att.url ? 'Abrir' : 'Descargar';
+  }
+
   getAttachmentPreviewUrl(att: AttachmentDto): string | null {
     if (att.id && this.attachmentObjectUrls.has(att.id)) {
       return this.attachmentObjectUrls.get(att.id) || null;
@@ -772,6 +776,21 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
       || this.isImageAttachment(att)
       || this.isVideoAttachment(att)
       || this.isAudioAttachment(att);
+  }
+
+  isLinkAttachment(att: AttachmentDto): boolean {
+    const kind = (att.kind || '').toUpperCase();
+    return kind === 'LINK' || (!!att.url && !this.isPreviewableAttachment(att));
+  }
+
+  getLinkHost(att: AttachmentDto): string {
+    if (!att.url) return 'Enlace externo';
+
+    try {
+      return new URL(att.url).hostname.replace(/^www\./, '');
+    } catch {
+      return 'Enlace externo';
+    }
   }
 
   downloadAttachment(att: AttachmentDto, event?: Event): void {
