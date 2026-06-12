@@ -560,11 +560,13 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
     this.submittingReply = true;
     this.replyError = null;
 
-    const createPost$ = attachmentsPayload.length > 0 || this.replySelectedFiles.length === 0
-      ? this.forumService.createPost(this.threadId, {
-          body,
-          attachments: attachmentsPayload
-        } as PostCreateDto)
+    const postPayload: PostCreateDto = { body };
+    if (attachmentsPayload.length > 0) {
+      postPayload.attachments = attachmentsPayload;
+    }
+
+    const createPost$ = attachmentsPayload.length > 0
+      ? this.forumService.createPost(this.threadId, postPayload)
       : this.forumService.createPostWithFiles(this.threadId, body, this.replySelectedFiles);
 
     createPost$.subscribe({
@@ -585,10 +587,19 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
       },
       error: (err) => {
         console.error('Error creando respuesta', err);
-        this.replyError = 'No se pudo enviar tu respuesta.';
+        this.replyError = this.getReplySubmitErrorMessage(err);
         this.submittingReply = false;
       }
     });
+  }
+
+  private getReplySubmitErrorMessage(err: any): string {
+    if (err?.status === 409) {
+      return 'Este hilo estÃ¡ cerrado y ya no admite nuevas respuestas.';
+    }
+
+    const backendMessage = err?.error?.message || err?.error?.mensaje || err?.message;
+    return backendMessage || 'No se pudo enviar tu respuesta.';
   }
 
   private finishReplySubmit(created: PostDto): void {
