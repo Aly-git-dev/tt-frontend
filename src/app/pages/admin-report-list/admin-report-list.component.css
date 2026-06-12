@@ -2,6 +2,8 @@
 
 .admin-report-wrapper {
   padding: 24px 32px;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .admin-report-title {
@@ -15,6 +17,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  table-layout: fixed;
 }
 
 .admin-report-table th,
@@ -22,6 +25,7 @@
   padding: 8px 10px;
   border-bottom: 1px solid var(--border-soft);
   vertical-align: top;
+  overflow-wrap: anywhere;
 }
 
 .admin-report-table thead {
@@ -37,6 +41,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.content-cell {
+  min-width: 0;
 }
 
 .admin-report-empty {
@@ -81,6 +89,8 @@
 .modal-panel {
   width: 100%;
   max-width: 720px;
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
   border-radius: 24px;
   background: #ffffff;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.45);
@@ -153,6 +163,12 @@
   gap: 6px;
   font-size: 13px;
   margin-bottom: 4px;
+  min-width: 0;
+}
+
+.modal-field > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .modal-field .label {
@@ -282,11 +298,172 @@
 
 /* Responsivo */
 @media (max-width: 768px) {
+  .admin-report-wrapper {
+    padding: 16px 12px 24px;
+  }
+
+  .admin-report-title {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .admin-report-table,
+  .admin-report-table thead,
+  .admin-report-table tbody,
+  .admin-report-table tr,
+  .admin-report-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-report-table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .admin-report-table thead {
+    display: none;
+  }
+
+  .admin-report-table tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .admin-report-table tr {
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: #ffffff;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+  }
+
+  .admin-report-table td {
+    display: grid;
+    grid-template-columns: minmax(104px, 36%) minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding: 10px 12px;
+    border-bottom: 1px solid #eef2f7;
+  }
+
+  .admin-report-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .admin-report-table td::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .admin-report-table td:nth-child(1)::before {
+    content: "ID";
+  }
+
+  .admin-report-table td:nth-child(2)::before {
+    content: "Contenido";
+  }
+
+  .admin-report-table td:nth-child(3)::before {
+    content: "Reportante";
+  }
+
+  .admin-report-table td:nth-child(4)::before {
+    content: "Usuario reportado";
+  }
+
+  .admin-report-table td:nth-child(5)::before {
+    content: "Motivo";
+  }
+
+  .admin-report-table td:nth-child(6)::before {
+    content: "Descripcion";
+  }
+
+  .admin-report-table td:nth-child(7)::before {
+    content: "Fecha";
+  }
+
+  .admin-report-table td:nth-child(8)::before {
+    content: "Accion";
+  }
+
+  .desc-cell {
+    max-width: none;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .btn-resolve {
+    width: 100%;
+    min-height: 36px;
+  }
+
+  .modal-backdrop {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
   .modal-panel {
     max-width: 100%;
+    max-height: calc(100dvh - 20px);
+    border-radius: 14px;
+    padding: 14px;
+  }
+
+  .modal-header {
+    gap: 12px;
+  }
+
+  .modal-header h3 {
+    font-size: 16px;
+  }
+
+  .modal-close {
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 999px;
+    background: #f1f5f9;
+  }
+
+  .modal-section {
+    border-radius: 8px;
+  }
+
+  .modal-field {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    margin-bottom: 8px;
   }
 
   .modal-field .label {
-    min-width: 90px;
+    min-width: 0;
+  }
+
+  .checkbox-label {
+    align-items: flex-start;
+  }
+
+  .checkbox-hint {
+    margin-left: 22px;
+  }
+
+  .modal-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .btn-dismiss,
+  .btn-secondary,
+  .btn-primary {
+    width: 100%;
+    min-height: 40px;
+    margin-right: 0;
   }
 }

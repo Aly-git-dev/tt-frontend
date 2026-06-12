@@ -25,8 +25,8 @@
     </thead>
     <tbody>
       <tr *ngFor="let r of reports">
-        <td>{{ r.id }}</td>
-        <td>
+        <td data-label="ID">{{ r.id }}</td>
+        <td data-label="Contenido">
           <div class="content-cell">
             <div *ngIf="r.threadTitle; else noTitle">
               <strong>Hilo:</strong> {{ r.threadTitle }}
@@ -37,14 +37,14 @@
             </ng-template>
           </div>
         </td>
-        <td>{{ r.reporterName }}</td>
+        <td data-label="Reportante">{{ r.reporterName }}</td>
         <td>{{ r.reportedUserName || '—' }}</td>
-        <td><code>{{ r.reasonCode }}</code></td>
-        <td class="desc-cell">
+        <td data-label="Motivo"><code>{{ r.reasonCode }}</code></td>
+        <td data-label="DescripciÃ³n" class="desc-cell">
           {{ r.description || '—' }}
         </td>
-        <td>{{ r.createdAt | date:'short' }}</td>
-        <td>
+        <td data-label="Fecha">{{ r.createdAt | date:'short' }}</td>
+        <td data-label="AcciÃ³n">
           <button class="btn-resolve" (click)="openResolveModal(r)">
             Revisar
           </button>
