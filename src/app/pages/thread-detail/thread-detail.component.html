@@ -226,7 +226,8 @@
               *ngIf="isImageAttachment(att) && getAttachmentPreviewUrl(att) as imageUrl"
               [src]="imageUrl"
               alt="Imagen adjunta"
-              class="attachment-image" />
+              class="attachment-image"
+              (error)="markAttachmentPreviewError(att)" />
 
             <ng-container *ngIf="isVideoAttachment(att)">
               <ng-container *ngIf="getYoutubeEmbedUrl(att.url) as ytEmbed; else videoPreview">
@@ -243,7 +244,8 @@
                   *ngIf="getAttachmentPreviewUrl(att) as videoUrl"
                   [src]="videoUrl"
                   controls
-                  class="attachment-video">
+                  class="attachment-video"
+                  (error)="markAttachmentPreviewError(att)">
                 </video>
               </ng-template>
             </ng-container>
@@ -252,7 +254,8 @@
               *ngIf="isAudioAttachment(att) && getAttachmentPreviewUrl(att) as audioUrl"
               [src]="audioUrl"
               controls
-              class="attachment-audio">
+              class="attachment-audio"
+              (error)="markAttachmentPreviewError(att)">
             </audio>
 
             <a
@@ -373,7 +376,8 @@
                     *ngIf="isImageAttachment(att) && getAttachmentPreviewUrl(att) as imageUrl"
                     [src]="imageUrl"
                     class="attachment-image"
-                    alt="Imagen adjunta" />
+                    alt="Imagen adjunta"
+                    (error)="markAttachmentPreviewError(att)" />
 
                   <ng-container *ngIf="isVideoAttachment(att)">
                     <ng-container *ngIf="getYoutubeEmbedUrl(att.url) as ytEmbed; else postVideoPreview">
@@ -390,7 +394,8 @@
                         *ngIf="getAttachmentPreviewUrl(att) as videoUrl"
                         [src]="videoUrl"
                         controls
-                        class="attachment-video">
+                        class="attachment-video"
+                        (error)="markAttachmentPreviewError(att)">
                       </video>
                     </ng-template>
                   </ng-container>
@@ -399,7 +404,8 @@
                     *ngIf="isAudioAttachment(att) && getAttachmentPreviewUrl(att) as audioUrl"
                     [src]="audioUrl"
                     controls
-                    class="attachment-audio">
+                    class="attachment-audio"
+                    (error)="markAttachmentPreviewError(att)">
                   </audio>
 
                   <a

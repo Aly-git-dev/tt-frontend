@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { finalize } from 'rxjs';
 
 import { ForumService } from '../../core/services/forum.service';
 import { MarkdownService } from '../../core/services/markdown.service';
@@ -751,7 +752,7 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
   }
 
   hasAttachmentPreviewError(att: AttachmentDto): boolean {
-    return !!att.id && this.attachmentPreviewError.has(att.id);
+    return !!att.id && this.attachmentPreviewError.has(att.id) && !this.isAttachmentPreviewLoading(att);
   }
 
   isPdfAttachment(att: AttachmentDto): boolean {
@@ -781,6 +782,12 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
   isLinkAttachment(att: AttachmentDto): boolean {
     const kind = (att.kind || '').toUpperCase();
     return kind === 'LINK' || (!!att.url && !this.isPreviewableAttachment(att));
+  }
+
+  markAttachmentPreviewError(att: AttachmentDto): void {
+    if (att.id) {
+      this.attachmentPreviewError.add(att.id);
+    }
   }
 
   getLinkHost(att: AttachmentDto): string {
@@ -842,23 +849,27 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
       this.attachmentPreviewLoading.add(att.id);
       this.attachmentPreviewError.delete(att.id);
 
-      this.forumService.downloadAttachment(att.id).subscribe({
+      this.forumService.downloadAttachment(att.id).pipe(
+        finalize(() => this.attachmentPreviewLoading.delete(att.id!))
+      ).subscribe({
         next: response => {
           const blob = response.body;
 
           if (!blob) {
-            this.attachmentPreviewError.add(att.id!);
+            if (!att.url) {
+              this.attachmentPreviewError.add(att.id!);
+            }
             return;
           }
 
-          this.attachmentObjectUrls.set(att.id!, URL.createObjectURL(blob));
+          const previewBlob = this.createPreviewBlob(att, blob, response.headers.get('content-type'));
+          this.attachmentObjectUrls.set(att.id!, URL.createObjectURL(previewBlob));
         },
         error: err => {
           console.error('Error cargando vista previa de adjunto', err);
-          this.attachmentPreviewError.add(att.id!);
-        },
-        complete: () => {
-          this.attachmentPreviewLoading.delete(att.id!);
+          if (!att.url) {
+            this.attachmentPreviewError.add(att.id!);
+          }
         }
       });
     }
@@ -885,6 +896,55 @@ export class ThreadDetailComponent implements OnInit, AfterViewInit, AfterViewCh
       || (mimePrefixes.includes('image/') && (kind.includes('imagen') || kind.includes('image')))
       || (mimePrefixes.includes('video/') && kind.includes('video'))
       || (mimePrefixes.includes('audio/') && kind.includes('audio'));
+  }
+
+  private createPreviewBlob(att: AttachmentDto, blob: Blob, responseMime: string | null): Blob {
+    const mimeType = this.getPreviewMimeType(att, responseMime || blob.type);
+
+    if (!mimeType || blob.type === mimeType) {
+      return blob;
+    }
+
+    return new Blob([blob], { type: mimeType });
+  }
+
+  private getPreviewMimeType(att: AttachmentDto, responseMime?: string | null): string | null {
+    const declaredMime = (att.mimeType || '').trim();
+    if (declaredMime && declaredMime !== 'application/octet-stream') {
+      return declaredMime;
+    }
+
+    const serverMime = (responseMime || '').split(';')[0].trim();
+    if (serverMime && serverMime !== 'application/octet-stream') {
+      return serverMime;
+    }
+
+    const extension = [att.originalName, att.url]
+      .map(value => (value || '').toLowerCase().match(/\.([a-z0-9]+)(?:[?#].*)?$/)?.[1])
+      .find(Boolean);
+    const mimeByExtension: Record<string, string> = {
+      pdf: 'application/pdf',
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      gif: 'image/gif',
+      webp: 'image/webp',
+      bmp: 'image/bmp',
+      svg: 'image/svg+xml',
+      mp4: 'video/mp4',
+      webm: 'video/webm',
+      ogg: this.isAudioAttachment(att) ? 'audio/ogg' : 'video/ogg',
+      mov: 'video/quicktime',
+      m4v: 'video/mp4',
+      mp3: 'audio/mpeg',
+      wav: 'audio/wav',
+      m4a: 'audio/mp4',
+      aac: 'audio/aac',
+      flac: 'audio/flac',
+      opus: 'audio/ogg'
+    };
+
+    return extension ? mimeByExtension[extension] || null : null;
   }
 
   private getDownloadFilename(att: AttachmentDto, contentDisposition: string | null): string {
